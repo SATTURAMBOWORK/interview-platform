@@ -7,20 +7,26 @@ const jwt = require("jsonwebtoken");
  */
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { username, name, email, password } = req.body;
 
-    if (!name || !email || !password) {
+    if (!username || !name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+    const existingUsername = await User.findOne({ username: username.toLowerCase() });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return res.status(400).json({ message: "Email already registered" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await User.create({
+      username: username.toLowerCase(),
       name,
       email,
       password: hashedPassword
@@ -37,13 +43,13 @@ exports.register = async (req, res) => {
  */
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
+    if (!username || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username: username.toLowerCase() });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -63,6 +69,7 @@ exports.login = async (req, res) => {
       token,
       user: {
         id: user._id,
+        username: user.username,
         name: user.name,
         email: user.email,
         role: user.role

@@ -1,98 +1,328 @@
 const Attempt = require("../models/Attempt");
 const Mcq = require("../models/Mcq");
+const User = require("../models/User");
 
-const submitAttempt = async (req, res) => {
+// Start a test (user)
+exports.startTest = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { subject, answers } = req.body;
+    const { subjectId } = req.body;
 
-    if (!subject || !answers || !Array.isArray(answers)) {
-      return res.status(400).json({ message: "Invalid attempt data" });
+    if (!subjectId) {
+      return res.status(400).json({ message: "Subject ID is required" });
     }
 
-    let score = 0;
-    const evaluatedAnswers = [];
+    // Fetch 50 questions: 20 easy, 20 medium, 10 hard
+    const easyMcqs = await Mcq.find({ subject: subjectId, difficulty: "easy" })
+      .select("question options correctOption subject difficulty")
+      .limit(20);
 
-    for (const ans of answers) {
-      const mcq = await Mcq.findById(ans.mcq);
-      if (!mcq) continue;
+    const mediumMcqs = await Mcq.find({ subject: subjectId, difficulty: "medium" })
+      .select("question options correctOption subject difficulty")
+      .limit(20);
 
-      const isCorrect = mcq.correctOption === ans.selectedOption;
-      if (isCorrect) score++;
+    const hardMcqs = await Mcq.find({ subject: subjectId, difficulty: "hard" })
+      .select("question options correctOption subject difficulty")
+      .limit(10);
 
-      evaluatedAnswers.push({
-        mcq: mcq._id,
-        selectedOption: ans.selectedOption,
-        correctOption: mcq.correctOption,
-        isCorrect,
-      });
+    // Combine and shuffle the questions
+    const mcqs = [...easyMcqs, ...mediumMcqs, ...hardMcqs].sort(() => Math.random() - 0.5);
+
+    if (mcqs.length === 0) {
+      return res.status(404).json({ message: "No MCQs found for this subject" });
     }
 
-    const attempt = await Attempt.create({
-      user: userId,
-      subject,
-      answers: evaluatedAnswers,
-      score,
-      totalQuestions: evaluatedAnswers.length,
+    const startedAt = new Date();
+    const expiresAt = new Date(startedAt.getTime() + 30 * 60 * 1000); // 30 minutes
+
+    const attempt = new Attempt({
+      user: req.user.id,
+      subject: subjectId,
+      answers: [],
+      totalQuestions: mcqs.length,
+      correctCount: 0,
+      score: 0,
+      accuracy: 0,
+      timeTaken: 0,
+      status: "in-progress",
+      startedAt,
+      expiresAt,
     });
+
+    await attempt.save();
 
     res.status(201).json({
-      message: "Attempt submitted successfully",
-      score,
-      totalQuestions: evaluatedAnswers.length,
+      message: "Test started",
+      attemptId: attempt._id,
+      expiresAt,
+      mcqs,
     });
-  } catch (error) {
-    console.error("SUBMIT ATTEMPT ERROR:", error);
-    res.status(500).json({ message: "Failed to submit attempt" });
+  } catch (err) {
+    console.error("START TEST ERROR:", err);
+    res.status(500).json({ message: "Failed to start test" });
   }
 };
-const getMyAttempts = async (req, res) => {
+
+// Submit attempt (user)
+exports.submitAttempt = async (req, res) => {
   try {
-    // Step 1: get logged-in user's id from JWT
-    const userId = req.user.id;
+    const { attemptId, answers } = req.body;
 
-    // Step 2: find all attempts by this user
-    const attempts = await Attempt.find({ user: userId })
-      // Step 3: replace subject ObjectId with subject name
-      .populate("subject", "name")
-      // Step 4: newest attempt first
-      .sort({ createdAt: -1 });
+    if (!attemptId || !Array.isArray(answers)) {
+      return res.status(400).json({ message: "Attempt ID and answers are required" });
+    }
 
-    // Step 5: send result
-    res.status(200).json(attempts);
-  } catch (error) {
-    console.error("GET MY ATTEMPTS ERROR:", error);
-    res.status(500).json({ message: "Failed to fetch attempts" });
-  }
-};
-const getAttemptById = async (req, res) => {
-  try {
-    // Step 1: extract attemptId from URL
-    const { attemptId } = req.params;
+    const attempt = await Attempt.findById(attemptId);
 
-    // Step 2: fetch attempt and populate MCQs + subject
-    const attempt = await Attempt.findById(attemptId)
-      .populate("subject", "name")
-      .populate("answers.mcq", "question options");
-
-    // Step 3: if attempt not found
     if (!attempt) {
       return res.status(404).json({ message: "Attempt not found" });
     }
 
-    // Step 4: authorization check (VERY IMPORTANT)
-    if (attempt.user.toString() !== req.user.id.toString()) {
-      return res.status(403).json({ message: "Access denied" });
+    if (attempt.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
-    // Step 5: return full attempt details
-    res.status(200).json(attempt);
-  } catch (error) {
-    console.error("GET ATTEMPT BY ID ERROR:", error);
-    res.status(500).json({ message: "Failed to fetch attempt details" });
+    const mcqIds = answers.map((a) => a.mcq);
+    const mcqs = await Mcq.find({ _id: { $in: mcqIds } })
+      .select("_id correctOption");
+
+    const mcqMap = new Map(mcqs.map((m) => [m._id.toString(), m]));
+
+    let correctCount = 0;
+    const formattedAnswers = answers.map((a) => {
+      const mcq = mcqMap.get(a.mcq);
+      const correctOption = mcq?.correctOption;
+      const isCorrect = Number(a.selectedOption) === Number(correctOption);
+      if (isCorrect) correctCount++;
+
+      return {
+        mcq: a.mcq,
+        selectedOption: a.selectedOption,
+        correctOption: correctOption ?? 0,
+        isCorrect,
+      };
+    });
+
+    const totalQuestions = attempt.totalQuestions;
+    const score = totalQuestions > 0 ? (correctCount / totalQuestions) * 50 : 0;
+    const accuracy = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+    const timeTaken = Math.max(0, Math.floor((Date.now() - new Date(attempt.startedAt).getTime()) / 1000));
+
+    attempt.answers = formattedAnswers;
+    attempt.correctCount = correctCount;
+    attempt.totalQuestions = totalQuestions;
+    attempt.score = score;
+    attempt.accuracy = accuracy;
+    attempt.timeTaken = timeTaken;
+    attempt.status = "completed";
+
+    await attempt.save();
+
+    res.status(200).json({
+      message: "Attempt submitted successfully",
+      score,
+      attempt,
+    });
+  } catch (err) {
+    console.error("SUBMIT ATTEMPT ERROR:", err);
+    res.status(500).json({ message: "Failed to submit attempt" });
   }
 };
 
+// Get user's attempts (existing)
+exports.getMyAttempts = async (req, res) => {
+  try {
+    const attempts = await Attempt.find({
+      $or: [{ user: req.user.id }, { userId: req.user.id }],
+    })
+      .populate("subject", "name")
+      .sort({ createdAt: -1 });
 
+    res.status(200).json(attempts);
+  } catch (err) {
+    console.error("GET MY ATTEMPTS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch attempts" });
+  }
+};
 
-module.exports = { submitAttempt, getMyAttempts, getAttemptById };
+// Get attempt by ID (existing)
+exports.getAttemptById = async (req, res) => {
+  try {
+    const { attemptId } = req.params;
+
+    const attempt = await Attempt.findById(attemptId)
+      .populate("subject", "name")
+      .populate("answers.mcq", "question options correctOption difficulty");
+
+    if (!attempt) {
+      return res.status(404).json({ message: "Attempt not found" });
+    }
+
+    const ownerId = attempt.user ? attempt.user.toString() : attempt.userId?.toString();
+    if (ownerId !== req.user.id) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    res.status(200).json(attempt);
+  } catch (err) {
+    console.error("GET ATTEMPT BY ID ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch attempt" });
+  }
+};
+
+// Get user's attempts by subject (existing)
+exports.getUserAttemptsBySubject = async (req, res) => {
+  try {
+    const { subjectId } = req.params;
+
+    const attempts = await Attempt.find({
+      $and: [
+        { $or: [{ user: req.user.id }, { userId: req.user.id }] },
+        { $or: [{ subject: subjectId }, { subjectId }] },
+      ],
+    }).sort({ createdAt: -1 });
+
+    const totalAttempts = attempts.length;
+    const averageScore = attempts.length > 0 
+      ? (attempts.reduce((sum, att) => sum + att.score, 0) / totalAttempts).toFixed(2)
+      : 0;
+
+    res.status(200).json({
+      subjectId,
+      totalAttempts,
+      averageScore,
+      attempts
+    });
+  } catch (err) {
+    console.error("GET ATTEMPTS BY SUBJECT ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch attempts" });
+  }
+};
+
+// ✅ NEW: Get all attempts (Admin)
+exports.getAllAttempts = async (req, res) => {
+  try {
+    const { userId, subjectId, limit = 100 } = req.query;
+
+    let filter = {};
+    
+    if (userId) filter.user = userId;
+    if (subjectId) filter.subject = subjectId;
+
+    const attempts = await Attempt.find(filter)
+      .populate("user", "name email")
+      .populate("subject", "name")
+      .limit(parseInt(limit))
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(attempts);
+  } catch (err) {
+    console.error("GET ALL ATTEMPTS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch attempts" });
+  }
+};
+
+// ✅ NEW: Get attempt statistics (Admin Dashboard)
+exports.getAttemptStats = async (req, res) => {
+  try {
+    const totalAttempts = await Attempt.countDocuments();
+    
+    const completedAttempts = await Attempt.countDocuments({ status: "completed" });
+    
+    const avgScore = await Attempt.aggregate([
+      { $match: { status: "completed" } },
+      { $group: { _id: null, avgScore: { $avg: "$score" } } }
+    ]);
+
+    const attemptsByUser = await Attempt.aggregate([
+      {
+        $group: {
+          _id: "$user",
+          totalAttempts: { $sum: 1 },
+          avgScore: { $avg: "$score" }
+        }
+      },
+      { $sort: { totalAttempts: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "user"
+        }
+      }
+    ]);
+
+    const attemptsBySubject = await Attempt.aggregate([
+      {
+        $group: {
+          _id: "$subject",
+          totalAttempts: { $sum: 1 },
+          avgScore: { $avg: "$score" }
+        }
+      },
+      { $sort: { totalAttempts: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "_id",
+          foreignField: "_id",
+          as: "subject"
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      totalAttempts,
+      completedAttempts,
+      averageScore: avgScore[0]?.avgScore?.toFixed(2) || 0,
+      attemptsByUser,
+      attemptsBySubject
+    });
+  } catch (err) {
+    console.error("GET ATTEMPT STATS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch statistics" });
+  }
+};
+
+// ✅ NEW: Get attempts by date range (Admin)
+exports.getAttemptsByDateRange = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    if (!startDate || !endDate) {
+      return res.status(400).json({ 
+        message: "Please provide startDate and endDate in YYYY-MM-DD format" 
+      });
+    }
+
+    const attempts = await Attempt.find({
+      createdAt: {
+        $gte: new Date(startDate),
+        $lte: new Date(new Date(endDate).getTime() + 86400000)
+      }
+    })
+      .populate("user", "name email")
+      .populate("subject", "name")
+      .sort({ createdAt: -1 });
+
+    const totalAttempts = attempts.length;
+    const completedAttempts = attempts.filter(a => a.status === "completed").length;
+    const avgScore = completedAttempts > 0
+      ? (attempts.reduce((sum, a) => sum + (a.score || 0), 0) / completedAttempts).toFixed(2)
+      : 0;
+
+    res.status(200).json({
+      startDate,
+      endDate,
+      totalAttempts,
+      completedAttempts,
+      averageScore: avgScore,
+      attempts
+    });
+  } catch (err) {
+    console.error("GET ATTEMPTS BY DATE RANGE ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch attempts" });
+  }
+};

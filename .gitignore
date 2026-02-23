@@ -1,3 +1,9 @@
 node_modules/
 .env
+.env.local
+.env.production
 dist/
+server/src/temp/
+server/server.log
+nul
+server/nul

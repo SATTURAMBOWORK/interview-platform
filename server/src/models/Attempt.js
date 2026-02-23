@@ -7,11 +7,13 @@ const attemptSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
     subject: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Subject",
       required: true,
     },
+
     answers: [
       {
         mcq: {
@@ -33,12 +35,45 @@ const attemptSchema = new mongoose.Schema(
         },
       },
     ],
+
+    totalQuestions: {
+      type: Number,
+      required: true,
+    },
+
+    correctCount: {
+      type: Number,
+      required: true,
+    },
+
     score: {
       type: Number,
       required: true,
     },
-    totalQuestions: {
-      type: Number,
+
+    accuracy: {
+      type: Number, // percentage
+      required: true,
+    },
+
+    timeTaken: {
+      type: Number, // seconds
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["in-progress", "completed"],
+      default: "in-progress",
+    },
+
+    startedAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    expiresAt: {
+      type: Date,
       required: true,
     },
   },
