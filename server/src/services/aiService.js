@@ -1,50 +1,24 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const axios = require('axios');
+const Groq = require('groq-sdk');
 
-// Try to use Ollama first (local), fall back to Gemini
-let useOllama = false;
-let useGemini = false;
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Lazy initialization so dotenv is loaded before this runs
+const getGroq = () => new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 /**
- * Check which AI service is available
+ * Check available service (Groq only)
  */
 const checkAvailableService = async () => {
-  // Check Ollama first
-  try {
-    await axios.get('http://localhost:11434/api/tags', { timeout: 2000 });
-    useOllama = true;
-    console.log('✅ Using Ollama (Local AI)');
-    return 'ollama';
-  } catch (e) {
-    console.log('⏸️  Ollama not available');
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error('No AI service available. Add GROQ_API_KEY to .env');
   }
-
-  // Fall back to Gemini
-  if (process.env.GEMINI_API_KEY) {
-    useGemini = true;
-    console.log('✅ Using Gemini API');
-    return 'gemini';
-  }
-
-  throw new Error('No AI service available. Install Ollama or add GEMINI_API_KEY');
+  console.log('✅ Using Groq API');
+  return 'groq';
 };
 
 /**
- * Analyze STAR response using available AI service
+ * Analyze STAR response using Groq
  */
 const analyzeStarResponse = async (starResponse, question) => {
-  try {
-    let service;
-    try {
-      service = await checkAvailableService();
-    } catch (e) {
-      throw new Error('No AI service available');
-    }
-
-    const prompt = `Analyze this STAR interview response and provide feedback in JSON format.
+  const prompt = `Analyze this STAR interview response and provide feedback in JSON format.
 
 Question: ${question.question}
 Category: ${question.category}
@@ -66,30 +40,12 @@ Provide JSON (no markdown):
   "improvements": ["<improvement 1>", "<improvement 2>", "<improvement 3>"]
 }`;
 
-    let responseText;
-
-    if (service === 'ollama') {
-      try {
-        responseText = await callOllama(prompt);
-      } catch (ollamaError) {
-        console.log('⚠️  Ollama failed, falling back to Gemini:', ollamaError.message);
-        // Fall back to Gemini if Ollama fails
-        if (process.env.GEMINI_API_KEY) {
-          responseText = await callGemini(prompt);
-        } else {
-          throw ollamaError;
-        }
-      }
-    } else {
-      responseText = await callGemini(prompt);
-    }
-
-    // Parse JSON from response
+  try {
+    const responseText = await callGroq(prompt);
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('Could not parse AI response');
     }
-
     return JSON.parse(jsonMatch[0]);
   } catch (error) {
     console.error('Error analyzing STAR response:', error);
@@ -98,39 +54,20 @@ Provide JSON (no markdown):
 };
 
 /**
- * Call Ollama API (local)
+ * Call Groq API
  */
-const callOllama = async (prompt) => {
+const callGroq = async (prompt) => {
   try {
-    console.log('🔄 Calling Ollama...');
-    const response = await axios.post(
-      'http://localhost:11434/api/generate',
-      {
-        model: 'mistral',
-        prompt: prompt,
-        stream: false,
-      },
-      {
-        timeout: 200000 // 90 seconds - if it takes longer, fallback to Gemini
-      }
-    );
-    console.log('✅ Ollama response received');
-    return response.data.response;
+    console.log('🔄 Calling Groq...');
+    const completion = await getGroq().chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+    });
+    console.log('✅ Groq response received');
+    return completion.choices[0].message.content;
   } catch (error) {
-    throw new Error(`Ollama error: ${error.message}`);
-  }
-};
-
-/**
- * Call Gemini API (cloud)
- */
-const callGemini = async (prompt) => {
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  } catch (error) {
-    throw new Error(`Gemini error: ${error.message}`);
+    throw new Error(`Groq error: ${error.message}`);
   }
 };
 
@@ -138,40 +75,29 @@ const callGemini = async (prompt) => {
  * Generate personalized improvement suggestions
  */
 const generateImprovementSuggestions = async (category, previousResponses) => {
-  try {
-    const service = await checkAvailableService();
+  const responsesSummary = previousResponses
+    .map(
+      (r) =>
+        `Score: ${r.feedback.overallScore}/100, Feedback: ${r.feedback.overallFeedback}`
+    )
+    .join('\n');
 
-    const responsesSummary = previousResponses
-      .map(
-        (r) =>
-          `Score: ${r.feedback.overallScore}/100, Feedback: ${r.feedback.overallFeedback}`
-      )
-      .join("\n");
-
-    const prompt = `Based on these ${category} interview response scores:
+  const prompt = `Based on these ${category} interview response scores:
 
 ${responsesSummary}
 
 Provide 5 specific tips to improve. Return as JSON array only:
 ["tip 1", "tip 2", "tip 3", "tip 4", "tip 5"]`;
 
-    let responseText;
-    if (service === 'ollama') {
-      responseText = await callOllama(prompt);
-    } else {
-      responseText = await callGemini(prompt);
-    }
-
-    // Parse JSON from response
+  try {
+    const responseText = await callGroq(prompt);
     const jsonMatch = responseText.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
-      throw new Error("Could not parse suggestions");
+      throw new Error('Could not parse suggestions');
     }
-
-    const suggestions = JSON.parse(jsonMatch[0]);
-    return suggestions;
+    return JSON.parse(jsonMatch[0]);
   } catch (error) {
-    console.error("AI SUGGESTIONS ERROR:", error);
+    console.error('AI SUGGESTIONS ERROR:', error);
     return [];
   }
 };
