@@ -929,19 +929,22 @@ function UserDashboard() {
           )}
         </motion.div>
 
+
         {/* ===================== */}
         {/* DSA + BEHAVIORAL HEROS */}
         {/* ===================== */}
         <div className="grid lg:grid-cols-2 gap-8">
+          
           {/* DSA HERO CARD */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
             whileHover={{
-              y: -8,
+              y: -12,
+              scale: 1.02,
               borderColor: "rgba(6, 182, 212, 0.6)",
-              boxShadow: "0 0 30px rgba(6, 182, 212, 0.3), 0 20px 40px rgba(0,0,0,0.4)",
+              boxShadow: "0 0 40px rgba(6, 182, 212, 0.4), 0 20px 40px rgba(0,0,0,0.4)",
             }}
             onMouseMove={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -958,6 +961,33 @@ function UserDashboard() {
             onClick={() => navigate("/dsa")}
             className="group cursor-pointer relative overflow-hidden transition-all duration-300"
           >
+            {/* Floating particles on hover */}
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    y: [0, -120],
+                    x: Math.random() * 80 - 40,
+                    rotate: [0, 360]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: i * 0.4,
+                    ease: "easeOut"
+                  }}
+                  className="absolute w-1 h-1 bg-cyan-400 rounded-full"
+                  style={{
+                    left: `${15 + i * 12}%`,
+                    top: `${40 + Math.random() * 30}%`,
+                  }}
+                />
+              ))}
+            </div>
+
             {/* GLASS BACKGROUND */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/30 to-slate-900/60 rounded-3xl border border-cyan-400/20 backdrop-blur-xl" />
             
@@ -974,47 +1004,122 @@ function UserDashboard() {
 
             {/* CONTENT */}
             <div className="relative p-10 rounded-3xl border border-cyan-400/30 group-hover:border-cyan-400/60 transition-all bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-md">
-              <div className="space-y-8">
-                {/* TOP: ICON + TITLE + LABEL */}
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1">
+              <div className="space-y-6">
+                {/* TOP: BADGE + ICON + TITLE */}
+                <div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/30 cursor-pointer mb-5"
+                  >
                     <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className="inline-block mb-4"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     >
-                      <div className="w-20 h-20 rounded-2xl border border-cyan-400/50 bg-gradient-to-br from-cyan-500/25 to-blue-400/15 flex items-center justify-center shadow-[0_0_25px_rgba(6,182,212,0.5)] group-hover:shadow-[0_0_35px_rgba(6,182,212,0.7)] transition-all">
-                        <Code2 className="w-10 h-10 text-cyan-400" />
-                      </div>
+                      <Code2 className="w-5 h-5 text-cyan-400" />
                     </motion.div>
-                    <h3 className="text-3xl font-bold text-white group-hover:text-cyan-300 transition-colors uppercase tracking-tight" style={{ fontFamily: "var(--font-header)" }}>
-                      DSA Master
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-2 group-hover:text-slate-300 transition-colors" style={{ fontFamily: "var(--font-body)" }}>Data Structures & Algorithms</p>
-                  </div>
-                </div>
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400 font-mono">
+                      Coding Arena
+                    </span>
+                  </motion.div>
 
-                {/* MIDDLE: DESCRIPTION */}
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-sm text-slate-300 leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
-                    Master algorithms, optimize your code, and solve real interview problems with our interactive coding platform.
+                  <motion.h1
+                    whileHover={{ scale: 1.02 }}
+                    className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-tight uppercase cursor-default"
+                    style={{ fontFamily: "var(--font-header)" }}
+                  >
+                    DSA <br />
+                    <motion.span
+                      animate={{
+                        backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                      className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(6,182,212,0.5)]"
+                      style={{ backgroundSize: "200% 200%" }}
+                    >
+                      Master
+                    </motion.span>
+                  </motion.h1>
+
+                  <p className="text-lg text-slate-400 leading-relaxed max-w-md mt-4" style={{ fontFamily: "var(--font-body)" }}>
+                    Elite training ground for algorithms. Level up your coding skills
                   </p>
                 </div>
 
-                {/* BOTTOM: STATS + BUTTON */}
-                <div className="flex items-end justify-between gap-4 bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.1em] text-slate-500 font-mono">Problems</p>
-                    <p className="text-2xl font-bold text-cyan-400 font-mono mt-1">500+</p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(6, 182, 212, 0.6)" }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-2.5 bg-gradient-to-r from-cyan-400 to-blue-400 text-slate-900 font-bold rounded-full text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)] transition-all border border-cyan-400/50 whitespace-nowrap font-mono uppercase tracking-wider"
-                  >
-                    <span>Start</span>
-                    <Zap className="w-4 h-4" />
-                  </motion.button>
+                {/* STATS CARDS - Compact */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { label: "Problems", value: "500+", icon: Code2 },
+                    { label: "Topics", value: "20+", icon: Layers },
+                    { label: "Active", value: "24/7", icon: Zap },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ scale: 1.1, y: -5, rotate: [0, -2, 2, 0] }}
+                      className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-cyan-400/50 transition-all group/stat cursor-pointer text-center"
+                    >
+                      <stat.icon className="w-5 h-5 text-cyan-400 mx-auto mb-2 group-hover/stat:scale-110 transition-transform" />
+                      <p className="text-xs font-bold text-white font-mono">{stat.value}</p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">{stat.label}</p>
+                    </motion.div>
+                  ))}
                 </div>
+
+                {/* CODE SNIPPET */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-5 rounded-2xl bg-black/40 border border-cyan-400/20 backdrop-blur-sm font-mono text-sm cursor-pointer group/code"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-red-500 cursor-pointer" />
+                    <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-yellow-500 cursor-pointer" />
+                    <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-green-500 cursor-pointer" />
+                    
+                    <motion.div
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="ml-auto"
+                    >
+                      <Code2 className="w-4 h-4 text-cyan-400" />
+                    </motion.div>
+                  </div>
+                  
+                  <div className="space-y-1 text-slate-400 text-xs">
+                    <motion.p whileHover={{ x: 5, color: "#22d3ee" }} transition={{ duration: 0.2 }}>
+                      <span className="text-purple-400">const</span> <span className="text-cyan-400">skill</span> = <span className="text-green-400">await</span> <span className="text-blue-400">practice</span>();
+                    </motion.p>
+                    <motion.p whileHover={{ x: 5, color: "#22d3ee" }} transition={{ duration: 0.2 }}>
+                      <span className="text-purple-400">if</span> (skill.<span className="text-yellow-400">level</span> <span className="text-pink-400">{'>'}</span> <span className="text-green-400">100</span>) &#123;
+                    </motion.p>
+                    <motion.p whileHover={{ x: 10, color: "#22d3ee" }} transition={{ duration: 0.2 }} className="pl-3">
+                      success.<span className="text-orange-400">unlock</span>();
+                    </motion.p>
+                    <motion.p whileHover={{ x: 5, color: "#22d3ee" }} transition={{ duration: 0.2 }}>
+                      &#125;
+                    </motion.p>
+                  </div>
+
+                  {/* Typing cursor */}
+                  <motion.div
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                    className="inline-block w-1.5 h-3 bg-cyan-400 ml-1"
+                  />
+                </motion.div>
+
+                {/* START BUTTON */}
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(6, 182, 212, 0.7)" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-cyan-400 to-blue-400 text-slate-900 font-bold rounded-full text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)] transition-all border border-cyan-400/50 font-mono uppercase tracking-widest"
+                >
+                  <span>Launch Arena</span>
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <Zap className="w-4 h-4" />
+                  </motion.div>
+                </motion.button>
               </div>
             </div>
           </motion.div>
@@ -1025,9 +1130,10 @@ function UserDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             whileHover={{
-              y: -8,
+              y: -12,
+              scale: 1.02,
               borderColor: "rgba(168, 85, 247, 0.6)",
-              boxShadow: "0 0 30px rgba(168, 85, 247, 0.3), 0 20px 40px rgba(0,0,0,0.4)",
+              boxShadow: "0 0 40px rgba(168, 85, 247, 0.4), 0 20px 40px rgba(0,0,0,0.4)",
             }}
             onMouseMove={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
@@ -1044,6 +1150,33 @@ function UserDashboard() {
             onClick={() => navigate("/star-interview")}
             className="group cursor-pointer relative overflow-hidden transition-all duration-300"
           >
+            {/* Floating particles on hover */}
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+              {[...Array(6)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    y: [0, -120],
+                    x: Math.random() * 80 - 40,
+                    rotate: [0, 360]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: i * 0.4,
+                    ease: "easeOut"
+                  }}
+                  className="absolute w-1 h-1 bg-purple-400 rounded-full"
+                  style={{
+                    left: `${15 + i * 12}%`,
+                    top: `${40 + Math.random() * 30}%`,
+                  }}
+                />
+              ))}
+            </div>
+
             {/* GLASS BACKGROUND */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-slate-900/60 rounded-3xl border border-purple-400/20 backdrop-blur-xl" />
             
@@ -1060,47 +1193,122 @@ function UserDashboard() {
 
             {/* CONTENT */}
             <div className="relative p-10 rounded-3xl border border-purple-400/30 group-hover:border-purple-400/60 transition-all bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-md">
-              <div className="space-y-8">
-                {/* TOP: ICON + TITLE + LABEL */}
-                <div className="flex items-start justify-between gap-6">
-                  <div className="flex-1">
+              <div className="space-y-6">
+                {/* TOP: BADGE + ICON + TITLE */}
+                <div>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-400/30 cursor-pointer mb-5"
+                  >
                     <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className="inline-block mb-4"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     >
-                      <div className="w-20 h-20 rounded-2xl border border-purple-400/50 bg-gradient-to-br from-purple-500/25 to-pink-400/15 flex items-center justify-center shadow-[0_0_25px_rgba(168,85,247,0.5)] group-hover:shadow-[0_0_35px_rgba(168,85,247,0.7)] transition-all">
-                        <Award className="w-10 h-10 text-purple-400" />
-                      </div>
+                      <Award className="w-5 h-5 text-purple-400" />
                     </motion.div>
-                    <h3 className="text-3xl font-bold text-white group-hover:text-purple-300 transition-colors uppercase tracking-tight" style={{ fontFamily: "var(--font-header)" }}>
-                      STAR Interview
-                    </h3>
-                    <p className="text-sm text-slate-400 mt-2 group-hover:text-slate-300 transition-colors" style={{ fontFamily: "var(--font-body)" }}>Behavioral & Soft Skills</p>
-                  </div>
-                </div>
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-purple-400 font-mono">
+                      Interview Prep
+                    </span>
+                  </motion.div>
 
-                {/* MIDDLE: DESCRIPTION */}
-                <div className="pt-4 border-t border-white/10">
-                  <p className="text-sm text-slate-300 leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
-                    Practice behavioral questions with AI feedback, perfect your storytelling, and master the art of impressive interviews.
+                  <motion.h1
+                    whileHover={{ scale: 1.02 }}
+                    className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-tight uppercase cursor-default"
+                    style={{ fontFamily: "var(--font-header)" }}
+                  >
+                    STAR <br />
+                    <motion.span
+                      animate={{
+                        backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity }}
+                      className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]"
+                      style={{ backgroundSize: "200% 200%" }}
+                    >
+                      Interview
+                    </motion.span>
+                  </motion.h1>
+
+                  <p className="text-lg text-slate-400 leading-relaxed max-w-md mt-4" style={{ fontFamily: "var(--font-body)" }}>
+                    Master behavioral questions. Perfect your storytelling
                   </p>
                 </div>
 
-                {/* BOTTOM: STATS + BUTTON */}
-                <div className="flex items-end justify-between gap-4 bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
-                  <div>
-                    <p className="text-xs uppercase tracking-[0.1em] text-slate-500 font-mono">Questions</p>
-                    <p className="text-2xl font-bold text-purple-400 font-mono mt-1">150+</p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(168, 85, 247, 0.6)" }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-2.5 bg-gradient-to-r from-purple-400 to-pink-400 text-slate-900 font-bold rounded-full text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)] transition-all border border-purple-400/50 whitespace-nowrap font-mono uppercase tracking-wider"
-                  >
-                    <span>Start</span>
-                    <Sparkles className="w-4 h-4" />
-                  </motion.button>
+                {/* STATS CARDS - Compact */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { label: "Questions", value: "150+", icon: BookOpen },
+                    { label: "Topics", value: "15+", icon: Layers },
+                    { label: "Ready", value: "100%", icon: Trophy },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ scale: 1.1, y: -5, rotate: [0, 2, -2, 0] }}
+                      className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-purple-400/50 transition-all group/stat cursor-pointer text-center"
+                    >
+                      <stat.icon className="w-5 h-5 text-purple-400 mx-auto mb-2 group-hover/stat:scale-110 transition-transform" />
+                      <p className="text-xs font-bold text-white font-mono">{stat.value}</p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">{stat.label}</p>
+                    </motion.div>
+                  ))}
                 </div>
+
+                {/* CODE SNIPPET */}
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-5 rounded-2xl bg-black/40 border border-purple-400/20 backdrop-blur-sm font-mono text-sm cursor-pointer group/code"
+                >
+                  <div className="flex items-center gap-2 mb-3">
+                    <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-red-500 cursor-pointer" />
+                    <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-yellow-500 cursor-pointer" />
+                    <motion.div whileHover={{ scale: 1.2 }} className="w-3 h-3 rounded-full bg-green-500 cursor-pointer" />
+                    
+                    <motion.div
+                      animate={{ opacity: [0, 1, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="ml-auto"
+                    >
+                      <Award className="w-4 h-4 text-purple-400" />
+                    </motion.div>
+                  </div>
+                  
+                  <div className="space-y-1 text-slate-400 text-xs">
+                    <motion.p whileHover={{ x: 5, color: "#c084fc" }} transition={{ duration: 0.2 }}>
+                      <span className="text-purple-400">const</span> <span className="text-cyan-400">story</span> = <span className="text-green-400">await</span> <span className="text-blue-400">prepare</span>();
+                    </motion.p>
+                    <motion.p whileHover={{ x: 5, color: "#c084fc" }} transition={{ duration: 0.2 }}>
+                      <span className="text-purple-400">if</span> (story.<span className="text-yellow-400">isCompelling</span>) &#123;
+                    </motion.p>
+                    <motion.p whileHover={{ x: 10, color: "#c084fc" }} transition={{ duration: 0.2 }} className="pl-3">
+                      interview.<span className="text-pink-400">ace</span>();
+                    </motion.p>
+                    <motion.p whileHover={{ x: 5, color: "#c084fc" }} transition={{ duration: 0.2 }}>
+                      &#125;
+                    </motion.p>
+                  </div>
+
+                  {/* Typing cursor */}
+                  <motion.div
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                    className="inline-block w-1.5 h-3 bg-purple-400 ml-1"
+                  />
+                </motion.div>
+
+                {/* START BUTTON */}
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(168, 85, 247, 0.7)" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-purple-400 to-pink-400 text-slate-900 font-bold rounded-full text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)] transition-all border border-purple-400/50 font-mono uppercase tracking-widest"
+                >
+                  <span>Launch Practice</span>
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                  </motion.div>
+                </motion.button>
               </div>
             </div>
           </motion.div>

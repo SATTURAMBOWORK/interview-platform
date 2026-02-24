@@ -1,20 +1,34 @@
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion"; // eslint-disable-line no-unused-vars
-import {
-  Database,
-  Layers,
-  Globe,
-  Puzzle,
-  BookOpen,
-  ArrowRight,
-} from "lucide-react";
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { ArrowRight, Sparkles, Terminal, Zap } from "lucide-react";
+import { useState } from "react";
 
 const SUBJECT_META = {
-  DBMS: { icon: Database, gradient: "from-cyan-400 to-blue-400" },
-  "Operating Systems": { icon: Layers, gradient: "from-cyan-400 to-blue-400" },
-  "Computer Networks": { icon: Globe, gradient: "from-cyan-400 to-purple-400" },
-  OOPS: { icon: Puzzle, gradient: "from-purple-400 to-cyan-400" },
-  DEFAULT: { icon: BookOpen, gradient: "from-cyan-400 to-blue-400" },
+  DBMS: { 
+    gradient: "from-cyan-400 via-blue-400 to-purple-500",
+    glow: "rgba(6, 182, 212, 0.4)",
+    
+  },
+  "Operating Systems": { 
+    gradient: "from-blue-400 via-indigo-400 to-cyan-500",
+    glow: "rgba(59, 130, 246, 0.4)",
+   
+  },
+  "Computer Networks": { 
+    gradient: "from-purple-400 via-pink-400 to-cyan-500",
+    glow: "rgba(168, 85, 247, 0.4)",
+    
+  },
+  OOPS: { 
+    gradient: "from-orange-400 via-red-400 to-purple-500",
+    glow: "rgba(251, 146, 60, 0.4)",
+   
+  },
+  DEFAULT: { 
+    gradient: "from-cyan-400 via-blue-400 to-purple-500",
+    glow: "rgba(6, 182, 212, 0.4)",
+   
+  },
 };
 
 const getMeta = (name) => SUBJECT_META[name] || SUBJECT_META.DEFAULT;
@@ -22,93 +36,143 @@ const getMeta = (name) => SUBJECT_META[name] || SUBJECT_META.DEFAULT;
 const SubjectCard = ({ subject }) => {
   const navigate = useNavigate();
   const meta = getMeta(subject.name);
-  const Icon = meta.icon;
+  const [isHovered, setIsHovered] = useState(false);
 
-  const handleSpotlightMove = (event) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    event.currentTarget.style.setProperty("--mouse-x", `${x}px`);
-    event.currentTarget.style.setProperty("--mouse-y", `${y}px`);
+  // Mouse tracking for spotlight and tilt
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useTransform(mouseY, [-150, 150], [5, -5]);
+  const rotateY = useTransform(mouseX, [-150, 150], [-5, 5]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    mouseX.set(e.clientX - centerX);
+    mouseY.set(e.clientY - centerY);
+
+    // Update CSS variables for spotlight
+    const xPos = e.clientX - rect.left;
+    const yPos = e.clientY - rect.top;
+    e.currentTarget.style.setProperty("--mouse-x", `${xPos}px`);
+    e.currentTarget.style.setProperty("--mouse-y", `${yPos}px`);
   };
 
-  const handleSpotlightLeave = (event) => {
-    event.currentTarget.style.setProperty("--mouse-x", "50%");
-    event.currentTarget.style.setProperty("--mouse-y", "50%");
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    mouseX.set(0);
+    mouseY.set(0);
   };
 
   return (
     <motion.div
+      style={{ rotateX, rotateY, transformPerspective: 1000 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onHoverStart={() => setIsHovered(true)}
       onClick={() => navigate(`/dashboard/subject/${subject._id}`)}
-      whileHover={{
-        y: -8,
-        borderColor: "rgba(6, 182, 212, 0.6)",
-        boxShadow: "0 0 30px rgba(6, 182, 212, 0.3), 0 20px 40px rgba(0,0,0,0.4)",
-      }}
-      onMouseMove={handleSpotlightMove}
-      onMouseLeave={handleSpotlightLeave}
-      style={{ "--mouse-x": "50%", "--mouse-y": "50%" }}
-      className="group cursor-pointer relative overflow-hidden transition-all duration-300"
+      className="group relative cursor-pointer h-full"
     >
-      {/* GLASS BACKGROUND WITH CYAN GLOW */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-800/40 to-slate-900/60 rounded-3xl border border-cyan-400/20 backdrop-blur-xl" />
-      
-      {/* HOVER GLOW EFFECT */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl">
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 via-transparent to-purple-400/10 rounded-3xl" />
+      {/* FLOATING PARTICLES (Same logic as DSA Hero) */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
+        {[...Array(4)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              opacity: [0, 1, 0],
+              y: [0, -80],
+              x: Math.random() * 40 - 20,
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.5,
+            }}
+            className="absolute bottom-1/4 left-1/2 w-1 h-1 bg-white rounded-full blur-[1px]"
+          />
+        ))}
       </div>
 
-      {/* SPOTLIGHT EFFECT */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(6,182,212,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
+      {/* BACKGROUND GLOW */}
+      <div 
+        className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-2xl rounded-3xl"
+        style={{ backgroundColor: meta.glow }}
+      />
 
-      {/* CYAN BORDER GLOW */}
-      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-cyan-400/30 via-transparent to-purple-400/30 opacity-0 group-hover:opacity-100 transition-opacity blur-xl -inset-1" />
+      {/* CARD BODY */}
+      <div className="relative h-full bg-[#0a0a16]/90 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden group-hover:border-white/20 transition-colors">
+        
+        {/* SPOTLIGHT EFFECT */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(255,255,255,0.08),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
 
-      {/* CONTENT */}
-      <div className="relative p-8 rounded-3xl border border-cyan-400/30 group-hover:border-cyan-400/60 transition-all bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-md">
-        <div className="space-y-6">
-          {/* TOP ROW: ICON + TITLE + FEATURED BADGE */}
-          <div className="flex items-start justify-between gap-4">
-            {/* ICON */}
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              className="flex-shrink-0"
-            >
-              <div className={`w-16 h-16 rounded-2xl border border-cyan-400/50 bg-gradient-to-br from-cyan-500/20 to-cyan-400/10 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.4)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] transition-all`}>
-                <Icon className="w-8 h-8 text-cyan-400" />
-              </div>
-            </motion.div>
-
-            {/* TITLE + SUBTITLE */}
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">
-                {subject.name}
-              </h2>
-              <p className="text-sm text-slate-400 mt-1 group-hover:text-slate-300 transition-colors">MCQ Module</p>
+        <div className="p-8 space-y-6 relative z-10">
+          
+          {/* HEADER BADGE */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
+              <Terminal className="w-3 h-3 text-cyan-400" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-mono">
+                System.Initialize
+              </span>
             </div>
+            <motion.span 
+              animate={isHovered ? { scale: 1.3, rotate: [0, 10, -10, 0] } : {}}
+              className="text-2xl"
+            >
+              {meta.emoji}
+            </motion.span>
           </div>
 
-          {/* BOTTOM ROW: STATS + BUTTON */}
-          <div className="flex items-end justify-between gap-4 pt-4 border-t border-white/10">
-            {/* MCQ COUNT */}
+          {/* SUBJECT NAME - BIGGER + FLOATING GRADIENT */}
+          <div className="space-y-3">
+            <motion.h2 
+              className={`text-4xl font-black tracking-tighter uppercase leading-none bg-gradient-to-r ${meta.gradient} bg-clip-text text-transparent`}
+              style={{ 
+                backgroundSize: "200% 200%",
+                fontFamily: "var(--font-header)" 
+              }}
+              animate={{
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{ duration: 5, repeat: Infinity }}
+            >
+              {subject.name}
+            </motion.h2>
+           
+          </div>
+
+          {/* STATS SECTION */}
+          <div className="pt-4 flex items-center justify-between border-t border-white/5">
             <div>
-              <p className="text-xs uppercase tracking-[0.15em] text-slate-500 font-mono font-semibold">Total MCQs</p>
-              <p className="text-3xl font-bold text-white mt-2 font-mono">
-                {subject.totalMcqs ?? 0}
-              </p>
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mb-1">Modules Loaded</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-white font-mono">
+                  {subject.totalMcqs ?? 0}
+                </span>
+                <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
+              </div>
             </div>
-
-            {/* START BUTTON */}
-            <motion.button
-              whileHover={{ scale: 1.05, boxShadow: "0 0 25px rgba(6, 182, 212, 0.6)" }}
-              whileTap={{ scale: 0.95 }}
-              className="px-5 py-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 text-slate-900 font-bold rounded-full text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)] transition-all border border-cyan-400/50 whitespace-nowrap font-mono uppercase tracking-widest"
-            >
-              <span>Start</span>
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
           </div>
+
+          {/* LAUNCH BUTTON */}
+          <motion.div 
+            className="relative pt-2"
+            whileHover={{ y: -2 }}
+          >
+            <div className={`absolute inset-0 bg-gradient-to-r ${meta.gradient} blur-lg opacity-0 group-hover:opacity-40 transition-opacity rounded-xl`} />
+            <div className="relative w-full h-12 flex items-center justify-center gap-3 bg-white/5 border border-white/10 rounded-xl group-hover:border-white/40 transition-all">
+              <span className="text-xs font-black uppercase tracking-[0.3em] text-white font-mono">
+                Launch Module
+              </span>
+              <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+            </div>
+          </motion.div>
+
         </div>
+
+        {/* BOTTOM DECORATIVE SHINE */}
+        <div className={`absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r ${meta.gradient}`} />
       </div>
     </motion.div>
   );
