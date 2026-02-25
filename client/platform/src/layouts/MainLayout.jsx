@@ -1,4 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
+import UserNavbar from "../components/user/UserNavbar";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -16,6 +17,7 @@ const MainLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a16] text-gray-800">
+      {!isDsaSolve && <UserNavbar />}
       <main
         className={
           isDsaSolve

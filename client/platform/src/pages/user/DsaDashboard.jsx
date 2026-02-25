@@ -10,7 +10,6 @@ import DsaCalendar from "../../components/user/DsaCalendar";
 import DsaProblemTable from "../../components/user/DsaProblemList";
 import DsaProgressRing from "../../components/user/DsaProgressRing";
 import DsaSkeletonDashboard from "../../components/user/DsaDashboardSkeleton";
-import UserNavbar from "../../components/user/UserNavbar";
 
 const DsaDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -129,8 +128,6 @@ const DsaDashboard = () => {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-[100px]"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-600 rounded-full filter blur-[100px]"></div>
       </div>
-
-      <UserNavbar />
 
       <header className="relative pt-8 pb-4 px-6 max-w-[1600px] mx-auto">
         <motion.div

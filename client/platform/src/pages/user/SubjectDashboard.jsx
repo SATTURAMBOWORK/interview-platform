@@ -214,7 +214,11 @@ function SubjectDashboard() {
                     return new Date(attempt.createdAt).toLocaleDateString();
                   })();
                   return (
-                    <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/15 transition-all group">
+                    <div
+                      key={idx}
+                      onClick={() => navigate(`/attempt/${attempt._id}`)}
+                      className="p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-cyan-400/20 transition-all group cursor-pointer"
+                    >
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isGood ? 'bg-emerald-400' : 'bg-orange-400'}`} />
@@ -229,6 +233,7 @@ function SubjectDashboard() {
                         <span className={`text-[9px] font-bold font-mono uppercase tracking-wider ${isGood ? 'text-emerald-500' : 'text-orange-500'}`}>
                           {isGood ? 'PASS' : 'RETRY'}
                         </span>
+                        <span className="text-[9px] text-cyan-400 font-mono uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">Review →</span>
                       </div>
                       <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
                         <div
