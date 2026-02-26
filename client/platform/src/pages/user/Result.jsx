@@ -41,8 +41,8 @@ function Result() {
   if (!result) return null;
 
   const correctCount = result.correctCount;
-  const incorrectCount = result.totalQuestions - result.correctCount;
-  const accuracy = ((correctCount / result.totalQuestions) * 100).toFixed(1);
+  const incorrectCount = 50 - result.correctCount;
+  const accuracy = ((correctCount / 50) * 100).toFixed(1);
 
   // Performance tier
   let tier = { label: "Needs Work", color: "rose", glow: "rgba(244,63,94,0.4)", PerformanceIcon: XCircle, msg: "Keep practicing — focus on the fundamentals and review your mistakes." };
@@ -164,10 +164,10 @@ function Result() {
           className="grid grid-cols-2 md:grid-cols-4 gap-4"
         >
           {[
-            { label: "Total Questions", val: result.totalQuestions, color: "text-cyan-400",    glow: "rgba(6,182,212,0.3)",   bar: null },
-            { label: "Correct",         val: correctCount,          color: "text-emerald-400", glow: "rgba(52,211,153,0.3)",  bar: (correctCount / result.totalQuestions) * 100 },
-            { label: "Incorrect",       val: incorrectCount,        color: "text-rose-400",    glow: "rgba(244,63,94,0.3)",   bar: (incorrectCount / result.totalQuestions) * 100 },
-            { label: "Accuracy",        val: `${accuracy}%`,        color: "text-amber-400",   glow: "rgba(251,191,36,0.3)",  bar: parseFloat(accuracy) },
+            { label: "Total Questions", val: 50,              color: "text-cyan-400",    glow: "rgba(6,182,212,0.3)",   bar: null },
+            { label: "Correct",         val: correctCount,    color: "text-emerald-400", glow: "rgba(52,211,153,0.3)",  bar: (correctCount / 50) * 100 },
+            { label: "Incorrect",       val: incorrectCount,  color: "text-rose-400",    glow: "rgba(244,63,94,0.3)",   bar: (incorrectCount / 50) * 100 },
+            { label: "Accuracy",        val: `${accuracy}%`,  color: "text-amber-400",   glow: "rgba(251,191,36,0.3)",  bar: parseFloat(accuracy) },
           ].map((stat, i) => (
             <motion.div
               key={i}

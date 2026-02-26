@@ -59,7 +59,8 @@ function UserDashboard() {
         setAttempts(attemptsRes.data);
         setUser(userRes.data.user);
         setDsaStats(dsaStatsRes.data);
-        setStarResponses(Array.isArray(starRes.data) ? starRes.data : []);
+        const starData = starRes.data?.responses ?? starRes.data;
+        setStarResponses(Array.isArray(starData) ? starData : []);
       } catch (error) {
         console.error("Dashboard load error", error);
         const token = localStorage.getItem("token");
@@ -80,22 +81,48 @@ function UserDashboard() {
   /* ===================== */
   /* KPI CALCULATIONS */
   /* ===================== */
-  const totalAttempts = attempts.length;
+  // Exclude in-progress/timed-out attempts — works even for older docs without a status field
+  const completedAttempts = attempts.filter((a) => a.status !== "in-progress");
 
-  const totalQuestions = attempts.reduce((sum, a) => sum + (a.totalQuestions || 0), 0);
+  const totalAttempts = completedAttempts.length;
 
-  const accuracy =
-    totalAttempts === 0
-      ? 0
-      : Math.round(
-          (attempts.reduce((sum, a) => sum + a.correctCount, 0) / (totalAttempts * 50)) * 100
-        );
+  const totalQuestions = completedAttempts.reduce((sum, a) => sum + (a.totalQuestions || 0), 0);
 
-  const sortedAttempts = [...attempts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const accuracy = (() => {
+    if (totalAttempts === 0) return 0;
+    // Group by subject, compute per-subject accuracy, then average across subjects
+    const subjectMap = {};
+    completedAttempts.forEach((a) => {
+      const sid = typeof a.subject === "string" ? a.subject : a.subject?._id;
+      if (!sid) return;
+      if (!subjectMap[sid]) subjectMap[sid] = { correct: 0, count: 0 };
+      subjectMap[sid].correct += a.correctCount || 0;
+      subjectMap[sid].count  += 1;
+    });
+    const subjectIds = Object.keys(subjectMap);
+    if (subjectIds.length === 0) return 0;
+    const sumOfSubjectAccuracies = subjectIds.reduce((sum, sid) => {
+      const { correct, count } = subjectMap[sid];
+      return sum + (correct / (count * 50)) * 100;
+    }, 0);
+    return Math.round(sumOfSubjectAccuracies / subjectIds.length);
+  })();
 
-  // Unique dates on which at least one MCQ attempt was made
+  const avgTime = (() => {
+    if (totalAttempts === 0) return "0m 0s";
+    const totalSecs = Math.round(
+      completedAttempts.reduce((sum, a) => sum + (a.timeTaken || 0), 0) / totalAttempts
+    );
+    const m = Math.floor(totalSecs / 60);
+    const s = totalSecs % 60;
+    return `${m}m ${s}s`;
+  })();
+
+  const sortedAttempts = [...completedAttempts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  // Unique dates on which at least one completed MCQ attempt was made
   const attemptDatesSet = new Set(
-    attempts.filter((a) => a.createdAt).map((a) => formatDateKey(new Date(a.createdAt)))
+    completedAttempts.filter((a) => a.createdAt).map((a) => formatDateKey(new Date(a.createdAt)))
   );
 
   // Current streak: consecutive days ending today
@@ -138,7 +165,7 @@ function UserDashboard() {
   /* XP & LEVEL SYSTEM     */
   /* ===================== */
   // MCQ: high-score attempts (≥80% accuracy = score ≥ 40/50) → 100 XP each
-  const highAccuracyAttempts = attempts.filter((a) => a.score >= 40).length;
+  const highAccuracyAttempts = completedAttempts.filter((a) => a.score >= 40).length;
 
   // DSA XP
   const dsaXP =
@@ -177,7 +204,7 @@ function UserDashboard() {
     if (subjects.length === 0) return null;
 
     const subjectsWithStats = subjects.map((subject) => {
-      const subjectAttempts = attempts.filter((a) => {
+      const subjectAttempts = completedAttempts.filter((a) => {
         const attemptSubjectId = typeof a.subject === "string" ? a.subject : a.subject?._id;
         return attemptSubjectId === subject._id;
       });
@@ -204,7 +231,7 @@ function UserDashboard() {
     if (subjects.length === 0) return null;
 
     const subjectsWithStats = subjects.map((subject) => {
-      const subjectAttempts = attempts.filter((a) => {
+      const subjectAttempts = completedAttempts.filter((a) => {
         const attemptSubjectId = typeof a.subject === "string" ? a.subject : a.subject?._id;
         return attemptSubjectId === subject._id;
       });
@@ -499,12 +526,12 @@ function UserDashboard() {
                     {[
                       {
                         label: "High Score",
-                        value: `${attempts.length > 0 ? Math.max(...attempts.map((a) => a.score)) : 0}%`,
+                        value: `${completedAttempts.length > 0 ? Math.round(Math.max(...completedAttempts.map((a) => a.score))) : 0}%`,
                         color: "purple",
                         icon: Trophy,
                       },
                       { label: "Longest Streak", value: `${longestStreak} days`, color: "orange", icon: Flame },
-                      { label: "Questions Solved", value: totalQuestions, color: "blue", icon: Brain },
+                      { label: "Avg Time / Test", value: avgTime, color: "blue", icon: Brain },
                       bestSubject && {
                         label: "Best Subject",
                         value: bestSubject.subject.name,
@@ -903,38 +930,48 @@ function UserDashboard() {
                 </p>
 
                 {/* XP BAR */}
-                <div className="mt-3 px-2">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 mb-1">
-                    <span>{totalXP} XP</span>
-                    <span>{userLevel < 100 ? `${xpToNextLevel} to Lv ${userLevel + 1}` : "MAX LEVEL"}</span>
+                <div className="mt-4 px-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <motion.span
+                      whileHover={{ scale: 1.1 }}
+                      className="text-[11px] font-black font-mono text-yellow-400 tracking-wider cursor-default"
+                    >
+                      {totalXP} XP
+                    </motion.span>
+                    <span className="text-[10px] font-mono text-slate-500">
+                      {userLevel < 100 ? `${xpToNextLevel} to Lv ${userLevel + 1}` : "✦ MAX"}
+                    </span>
                   </div>
-                  <div className="h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/10">
+                  {/* Track */}
+                  <div className="relative h-3 bg-white/5 rounded-full overflow-hidden border border-white/10 shadow-inner">
+                    {/* Animated shimmer background */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full"
+                      style={{ background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)" }}
+                      animate={{ x: ["-100%", "100%"] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    />
+                    {/* Fill */}
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${xpProgress}%` }}
-                      transition={{ duration: 1.5, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-yellow-400 to-orange-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* STATUS */}
-              <div className="mb-6 pb-6 border-b border-white/10">
-                <div>
-                  <p className="text-xs text-slate-400 font-mono uppercase mb-1">Interview Ready</p>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden border border-white/20">
+                      transition={{ duration: 1.8, ease: [0.34, 1.56, 0.64, 1] }}
+                      className="relative h-full rounded-full bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400"
+                      style={{ boxShadow: "0 0 12px rgba(251,191,36,0.8), 0 0 4px rgba(251,191,36,1)" }}
+                    >
+                      {/* Glowing tip */}
                       <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(accuracy, 100)}%` }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-r from-cyan-400 to-purple-400 shadow-[0_0_10px_rgba(6,182,212,0.6)]"
+                        animate={{ opacity: [0.6, 1, 0.6] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"
                       />
-                    </div>
-                    <motion.p whileHover={{ scale: 1.2 }} className="text-sm font-bold text-cyan-400 font-mono w-10">
-                      {accuracy}%
-                    </motion.p>
+                    </motion.div>
+                  </div>
+                  {/* Tick marks for level milestones */}
+                  <div className="flex justify-between mt-1 px-0.5">
+                    {[0,25,50,75,100].map((v) => (
+                      <div key={v} className={`w-px h-1.5 rounded-full ${xpProgress >= v ? "bg-yellow-400/60" : "bg-white/10"}`} />
+                    ))}
                   </div>
                 </div>
               </div>
@@ -1232,7 +1269,6 @@ function UserDashboard() {
             whileHover={{
               y: -12,
               scale: 1.02,
-              borderColor: "rgba(168, 85, 247, 0.6)",
               boxShadow: "0 0 40px rgba(168, 85, 247, 0.4), 0 20px 40px rgba(0,0,0,0.4)",
             }}
             onMouseMove={(e) => {
@@ -1278,7 +1314,7 @@ function UserDashboard() {
             </div>
 
             {/* GLASS BACKGROUND */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-slate-900/60 rounded-3xl border border-purple-400/20 backdrop-blur-xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-slate-900/60 rounded-3xl backdrop-blur-xl" />
             
             {/* HOVER GLOW */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl">

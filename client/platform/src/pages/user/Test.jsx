@@ -19,6 +19,28 @@ function Test() {
   const [loading, setLoading] = useState(true);
 
   const autoSubmittedRef = useRef(false);
+  const attemptIdRef  = useRef(null);
+  const answersRef    = useRef({});
+  const mcqsRef       = useRef([]);
+  const timeLeftRef   = useRef(0);
+
+  // Keep refs in sync with state
+  useEffect(() => { attemptIdRef.current = attemptId; },  [attemptId]);
+  useEffect(() => { answersRef.current   = answers;    },  [answers]);
+  useEffect(() => { mcqsRef.current      = mcqs;       },  [mcqs]);
+  useEffect(() => { timeLeftRef.current  = timeLeft;   },  [timeLeft]);
+
+  // Storage keys — scoped to subject so multiple subjects don't collide
+  const SESSION_KEY      = `testState_${subjectId}`;
+  const LOCAL_KEY        = `testPending_${subjectId}`;
+  const REFRESH_GUARD    = `testRefreshing_${subjectId}`;
+  const BEACON_URL       = "http://localhost:5000/api/attempts/submit-beacon";
+
+  const clearTestStorage = () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(REFRESH_GUARD);
+    localStorage.removeItem(LOCAL_KEY);
+  };
 
   /* ===================== */
   /* SUBMIT */
@@ -28,23 +50,15 @@ function Test() {
 
     try {
       autoSubmittedRef.current = true;
+      clearTestStorage();
 
       const formattedAnswers = Object.entries(answers).map(
-        ([mcqId, selectedOption]) => ({
-          mcq: mcqId,
-          selectedOption,
-        })
+        ([mcqId, selectedOption]) => ({ mcq: mcqId, selectedOption })
       );
 
-      await api.post("/attempts/submit", {
-        attemptId,
-        answers: formattedAnswers,
-      });
+      await api.post("/attempts/submit", { attemptId, answers: formattedAnswers });
 
-      navigate(`/result/${attemptId}`, {
-        replace: true,
-      });
-      
+      navigate(`/result/${attemptId}`, { replace: true });
     } catch (error) {
       console.error("Submit failed", error);
       autoSubmittedRef.current = false;
@@ -52,20 +66,74 @@ function Test() {
   };
 
   /* ===================== */
-  /* START TEST */
+  /* START TEST            */
+  /* Behaviour:            */
+  /*  Refresh  → restore   */
+  /*  Close    → submit on */
+  /*             next open */
+  /*  Nav away → submitted */
+  /*             below     */
   /* ===================== */
   useEffect(() => {
     const startTest = async () => {
-      try {
-        const res = await api.post("/attempts/start", {
-          subjectId,
-        });
+      // ── REFRESH DETECTION ──────────────────────────────────────────────────
+      // sessionStorage survives a refresh but is wiped when the tab is closed.
+      // beforeunload always sets the guard, so it will be present after a
+      // refresh but absent after a genuine close.
+      const isRefresh = !!sessionStorage.getItem(REFRESH_GUARD);
 
+      if (isRefresh) {
+        sessionStorage.removeItem(REFRESH_GUARD);
+        const saved = sessionStorage.getItem(SESSION_KEY);
+        if (saved) {
+          try {
+            const { savedAttemptId, savedAnswers, savedTimeLeft, savedMcqs, savedCurrentIndex } =
+              JSON.parse(saved);
+            setAttemptId(savedAttemptId);
+            attemptIdRef.current = savedAttemptId;
+            setAnswers(savedAnswers);
+            answersRef.current = savedAnswers;
+            setMcqs(savedMcqs);
+            mcqsRef.current = savedMcqs;
+            setCurrentIndex(savedCurrentIndex || 0);
+            setTimeLeft(savedTimeLeft);
+            timeLeftRef.current = savedTimeLeft;
+            setLoading(false);
+            return; // ← continue from where we left off
+          } catch { /* fall through to fresh start */ }
+        }
+      }
+
+      // ── PENDING CLOSE SUBMISSION ────────────────────────────────────────────
+      // localStorage persists across sessions. If the user closed the tab
+      // mid-test, answers were saved here. Submit them now before starting fresh.
+      const pending = localStorage.getItem(LOCAL_KEY);
+      if (pending) {
+        try {
+          const { pendingAttemptId, pendingAnswers } = JSON.parse(pending);
+          localStorage.removeItem(LOCAL_KEY);
+          const token = localStorage.getItem("token");
+          if (token && pendingAttemptId) {
+            navigator.sendBeacon(
+              BEACON_URL,
+              new Blob(
+                [JSON.stringify({ attemptId: pendingAttemptId, answers: pendingAnswers, token })],
+                { type: "application/json" }
+              )
+            );
+          }
+        } catch { /* ignore */ }
+      }
+
+      // ── FRESH START ─────────────────────────────────────────────────────────
+      try {
+        const res = await api.post("/attempts/start", { subjectId });
         setMcqs(res.data.mcqs);
         setAttemptId(res.data.attemptId);
-
         const expiresAt = new Date(res.data.expiresAt).getTime();
-        setTimeLeft(Math.max(Math.floor((expiresAt - Date.now()) / 1000), 0));
+        const tl = Math.max(Math.floor((expiresAt - Date.now()) / 1000), 0);
+        setTimeLeft(tl);
+        timeLeftRef.current = tl;
         setLoading(false);
       } catch (error) {
         console.error("Failed to start test", error);
@@ -75,6 +143,82 @@ function Test() {
 
     startTest();
   }, [subjectId]);
+
+  /* ===================== */
+  /* PERSIST STATE         */
+  /* (sessionStorage + localStorage updated on every change) */
+  /* ===================== */
+  useEffect(() => {
+    if (!attemptId || mcqs.length === 0) return;
+
+    // sessionStorage → for refresh restore (fast, same session)
+    sessionStorage.setItem(
+      SESSION_KEY,
+      JSON.stringify({
+        savedAttemptId: attemptId,
+        savedAnswers: answers,
+        savedTimeLeft: timeLeft,
+        savedMcqs: mcqs,
+        savedCurrentIndex: currentIndex,
+      })
+    );
+
+    // localStorage → for close-tab recovery on next open (persists across sessions)
+    const pendingAnswers = Object.entries(answers).map(([mcqId, selectedOption]) => ({
+      mcq: mcqId,
+      selectedOption,
+    }));
+    localStorage.setItem(
+      LOCAL_KEY,
+      JSON.stringify({ pendingAttemptId: attemptId, pendingAnswers })
+    );
+  }, [answers, timeLeft, currentIndex, attemptId, mcqs]);
+
+  /* ===================== */
+  /* BEFOREUNLOAD          */
+  /* Set refresh guard (persists on refresh, wiped on close) */
+  /* ===================== */
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      if (autoSubmittedRef.current) return;
+      sessionStorage.setItem(REFRESH_GUARD, "1");
+      // Flush latest answers to localStorage synchronously
+      const pendingAnswers = Object.entries(answersRef.current).map(
+        ([mcqId, selectedOption]) => ({ mcq: mcqId, selectedOption })
+      );
+      if (attemptIdRef.current) {
+        localStorage.setItem(
+          LOCAL_KEY,
+          JSON.stringify({ pendingAttemptId: attemptIdRef.current, pendingAnswers })
+        );
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
+
+  /* ===================== */
+  /* IN-APP NAVIGATION     */
+  /* React unmount → submit immediately via sendBeacon */
+  /* ===================== */
+  useEffect(() => {
+    return () => {
+      if (autoSubmittedRef.current || !attemptIdRef.current) return;
+      const token = localStorage.getItem("token");
+      const pendingAnswers = Object.entries(answersRef.current).map(
+        ([mcqId, selectedOption]) => ({ mcq: mcqId, selectedOption })
+      );
+      navigator.sendBeacon(
+        BEACON_URL,
+        new Blob(
+          [JSON.stringify({ attemptId: attemptIdRef.current, answers: pendingAnswers, token })],
+          { type: "application/json" }
+        )
+      );
+      clearTestStorage();
+      autoSubmittedRef.current = true;
+    };
+  }, []);
 
   /* ===================== */
   /* TIMER */

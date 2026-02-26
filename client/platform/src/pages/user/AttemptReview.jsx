@@ -36,13 +36,13 @@ const AttemptReview = () => {
 
   const answers        = useMemo(() => attempt?.answers ?? [], [attempt]);
   const correctAnswers = attempt?.correctCount   ?? 0;
-  const totalQuestions = attempt?.totalQuestions ?? 0;
-  const incorrectAnswers = totalQuestions - correctAnswers;
+  const totalQuestions = 50;
+  const incorrectAnswers = answers.length - correctAnswers;
   const subjectName    = attempt?.subject?.name ?? attempt?.subject ?? '';
 
   const scorePercent = useMemo(
-    () => (totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0),
-    [correctAnswers, totalQuestions]
+    () => Math.round((correctAnswers / 50) * 100),
+    [correctAnswers]
   );
 
   const scoreColor = useMemo(() => {
@@ -290,7 +290,7 @@ const AttemptReview = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
             <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-white/30 mb-2">Correct</p>
             <p className="text-3xl font-black font-mono text-emerald-400">{correctAnswers}</p>
-            <p className="text-white/20 text-xs font-mono mt-1">of {totalQuestions}</p>
+            <p className="text-white/20 text-xs font-mono mt-1">{correctAnswers} of 50</p>
           </motion.div>
 
           {/* Incorrect */}
@@ -302,7 +302,9 @@ const AttemptReview = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none" />
             <p className="text-[9px] font-mono uppercase tracking-[0.3em] text-white/30 mb-2">Incorrect</p>
             <p className="text-3xl font-black font-mono text-rose-400">{incorrectAnswers}</p>
-            <p className="text-white/20 text-xs font-mono mt-1">of {totalQuestions}</p>
+            <p className="text-white/20 text-xs font-mono mt-1">
+              {incorrectAnswers} wrong{(50 - correctAnswers - incorrectAnswers) > 0 ? ` + ${50 - correctAnswers - incorrectAnswers} skipped` : ''}
+            </p>
           </motion.div>
         </motion.div>
 

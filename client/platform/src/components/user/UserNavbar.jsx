@@ -103,15 +103,19 @@ const UserNavbar = () => {
             whileHover={{ scale: 1.05 }}
             transition={smoothSpring}
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-3 group shrink-0"
+            className="flex items-center gap-3 shrink-0"
           >
-            <div className="w-9 h-9 rounded-xl border border-white/20 flex items-center justify-center transition-colors duration-300 group-hover:border-cyan-400">
-              <Layers className="w-4 h-4 text-white group-hover:text-cyan-400 transition-colors duration-300" />
-            </div>
-            <div className="leading-tight text-left hidden sm:block">
-              <p className="text-[10px] text-white/50 font-mono uppercase tracking-[0.35em] group-hover:text-cyan-400 transition-colors duration-300">Interview</p>
-              <p className="text-sm text-white font-bold uppercase tracking-widest group-hover:text-cyan-400 transition-colors duration-300">Prep</p>
-            </div>
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-[0_0_20px_rgba(6,182,212,0.5)]"
+            >
+              <Code2 className="w-5 h-5 text-white" />
+            </motion.div>
+            <span className="text-lg font-black tracking-tight hidden sm:block">
+              <span className="text-white">Interview</span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">Prep</span>
+            </span>
           </motion.button>
 
           {/* CENTER NAV - High Polish Hover */}

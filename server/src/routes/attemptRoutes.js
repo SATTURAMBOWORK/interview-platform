@@ -9,7 +9,8 @@ const {
   getUserAttemptsBySubject,
   getAllAttempts,
   getAttemptStats,
-  getAttemptsByDateRange
+  getAttemptsByDateRange,
+  submitViaBeacon,
 } = require("../controllers/attemptController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -18,6 +19,7 @@ const { isAdmin } = require("../middleware/adminMiddleware");
 // User routes
 router.post("/start", protect, startTest);
 router.post("/submit", protect, submitAttempt);
+router.post("/submit-beacon", submitViaBeacon); // no protect — token is in body (sendBeacon)
 router.get("/my", protect, getMyAttempts);
 router.get("/user/subject/:subjectId", protect, getUserAttemptsBySubject);
 router.get("/:attemptId", protect, getAttemptById);

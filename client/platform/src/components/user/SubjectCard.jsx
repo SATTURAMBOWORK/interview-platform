@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles, Terminal, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, Zap } from "lucide-react";
 import { useState } from "react";
 
 const SUBJECT_META = {
@@ -108,21 +108,7 @@ const SubjectCard = ({ subject }) => {
 
         <div className="p-8 space-y-6 relative z-10">
           
-          {/* HEADER BADGE */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-              <Terminal className="w-3 h-3 text-cyan-400" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 font-mono">
-                System.Initialize
-              </span>
-            </div>
-            <motion.span 
-              animate={isHovered ? { scale: 1.3, rotate: [0, 10, -10, 0] } : {}}
-              className="text-2xl"
-            >
-              {meta.emoji}
-            </motion.span>
-          </div>
+
 
           {/* SUBJECT NAME - BIGGER + FLOATING GRADIENT */}
           <div className="space-y-3">

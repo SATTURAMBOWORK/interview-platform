@@ -1,11 +1,127 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence, useSpring } from "framer-motion";
-import { BookOpen, Award, TrendingUp, AlertCircle, Loader, Activity, Brain, Mic, Target } from "lucide-react";
+import { motion, AnimatePresence, useSpring, useMotionValue, useTransform } from "framer-motion";
+import { BookOpen, Award, TrendingUp, AlertCircle, Loader, Activity, Brain, Mic, Target, Crown, Users, Zap, MessageCircle, Shield, RefreshCw, Heart, ArrowRight } from "lucide-react";
 import api from "../../api/axios";
 import StarQuestion from "./StarQuestion";
 import ResponseAnalysis from "./ResponseAnalysis";
 import BehavioralProgress from "./BehavioralProgress";
+
+/* ─── Per-card component so each gets its own motion values ─── */
+const CategoryCard = ({ category, stats, cfg, loading, onClick, index }) => {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useTransform(mouseY, [-150, 150], [5, -5]);
+  const rotateY = useTransform(mouseX, [-150, 150], [-5, 5]);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set(e.clientX - (rect.left + rect.width / 2));
+    mouseY.set(e.clientY - (rect.top + rect.height / 2));
+    e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
+    e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  const IconComponent = cfg.icon;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06, type: "spring", stiffness: 200, damping: 22 }}
+      style={{ rotateX, rotateY, transformPerspective: 1000 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onHoverStart={() => setIsHovered(true)}
+      onClick={!loading ? onClick : undefined}
+      className={`group relative cursor-pointer h-full ${loading ? "opacity-60 pointer-events-none" : ""}`}
+    >
+      {/* FLOATING PARTICLES */}
+      <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-20">
+        {[...Array(4)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{ opacity: [0, 1, 0], y: [0, -80], x: [0, (i % 2 === 0 ? 1 : -1) * (i + 1) * 8] }}
+            transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
+            className="absolute bottom-1/4 left-1/2 w-1 h-1 bg-white rounded-full blur-[1px]"
+          />
+        ))}
+      </div>
+
+      {/* BACKGROUND GLOW */}
+      <div
+        className="absolute -inset-1 opacity-0 group-hover:opacity-100 transition-all duration-500 blur-2xl rounded-3xl"
+        style={{ backgroundColor: cfg.glow }}
+      />
+
+      {/* CARD BODY */}
+      <div className="relative h-full bg-[#0a0a16]/90 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden group-hover:border-white/20 transition-colors">
+
+        {/* SPOTLIGHT */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(255,255,255,0.08),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+
+        <div className="p-6 space-y-4 relative z-10">
+
+          {/* NAME + ICON ROW */}
+          <div className="flex items-center justify-between gap-3">
+            <motion.h2
+              className={`text-2xl font-black tracking-tighter uppercase leading-none bg-gradient-to-r ${cfg.grad} bg-clip-text text-transparent`}
+              style={{ backgroundSize: "200% 200%", fontFamily: "var(--font-header)" }}
+              animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+              transition={{ duration: 4, repeat: Infinity }}
+            >
+              {category}
+            </motion.h2>
+            <motion.div
+              animate={isHovered ? { scale: 1.2, rotate: [0, 8, -8, 0] } : { scale: 1, rotate: 0 }}
+              transition={{ duration: 0.4 }}
+              className={`shrink-0 w-9 h-9 rounded-xl bg-gradient-to-br ${cfg.grad} flex items-center justify-center`}
+              style={{ boxShadow: isHovered ? `0 0 14px ${cfg.glow}` : "none" }}
+            >
+              <IconComponent className="w-5 h-5 text-white" strokeWidth={2} />
+            </motion.div>
+          </div>
+
+          {/* STATS */}
+          <div className="pt-3 border-t border-white/5 flex items-baseline gap-2">
+            <span className={`text-3xl font-black font-mono bg-gradient-to-r ${cfg.grad} bg-clip-text text-transparent`}>
+              {stats ? Math.round(stats.average) : 0}
+            </span>
+            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Avg Score</span>
+          </div>
+
+          {/* LAUNCH BUTTON */}
+          <motion.div className="relative pt-2" whileHover={{ y: -2 }}>
+            <div className={`absolute inset-0 bg-gradient-to-r ${cfg.grad} blur-lg opacity-0 group-hover:opacity-40 transition-opacity rounded-xl`} />
+            <div className="relative w-full h-12 flex items-center justify-center gap-3 bg-white/5 border border-white/10 rounded-xl group-hover:border-white/40 transition-all">
+              {loading ? (
+                <>
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                    <Loader className="w-4 h-4 text-white/60" />
+                  </motion.div>
+                  <span className="text-xs font-black uppercase tracking-[0.3em] text-white/60 font-mono">Loading</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs font-black uppercase tracking-[0.3em] text-white font-mono">Start Practice</span>
+                  <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </div>
+          </motion.div>
+
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 function StarInterview() {
   const navigate = useNavigate();
@@ -23,6 +139,16 @@ function StarInterview() {
   const heroRotateY = useSpring(0, { stiffness: 150, damping: 20 });
 
   const categories = ["Leadership", "Teamwork", "Problem-Solving", "Communication", "Conflict Resolution", "Adaptability", "Customer Focus"];
+
+  const categoryConfig = {
+    "Leadership":          { icon: Crown,          grad: "from-amber-500 to-orange-500",    glow: "rgba(245,158,11,0.5)",  ring: "#f59e0b", border: "border-amber-400/30",   hborder: "hover:border-amber-400/60"  },
+    "Teamwork":            { icon: Users,          grad: "from-cyan-500 to-sky-500",        glow: "rgba(6,182,212,0.5)",   ring: "#06b6d4", border: "border-cyan-400/30",    hborder: "hover:border-cyan-400/60"   },
+    "Problem-Solving":     { icon: Zap,            grad: "from-purple-500 to-violet-600",   glow: "rgba(168,85,247,0.5)",  ring: "#a855f7", border: "border-purple-400/30", hborder: "hover:border-purple-400/60" },
+    "Communication":       { icon: MessageCircle,  grad: "from-emerald-500 to-green-600",  glow: "rgba(16,185,129,0.5)",  ring: "#10b981", border: "border-emerald-400/30",hborder: "hover:border-emerald-400/60"},
+    "Conflict Resolution": { icon: Shield,         grad: "from-rose-500 to-pink-600",      glow: "rgba(244,63,94,0.5)",   ring: "#f43f5e", border: "border-rose-400/30",    hborder: "hover:border-rose-400/60"   },
+    "Adaptability":        { icon: RefreshCw,      grad: "from-sky-500 to-indigo-500",     glow: "rgba(14,165,233,0.5)",  ring: "#0ea5e9", border: "border-sky-400/30",     hborder: "hover:border-sky-400/60"    },
+    "Customer Focus":      { icon: Heart,          grad: "from-pink-500 to-fuchsia-600",   glow: "rgba(236,72,153,0.5)",  ring: "#ec4899", border: "border-pink-400/30",    hborder: "hover:border-pink-400/60"   },
+  };
 
   useEffect(() => {
     fetchPerformanceSummary();
@@ -171,7 +297,7 @@ function StarInterview() {
                 </div>
 
                 {/* STATS ROW — same style as DsaDashboard */}
-                <div className="relative z-10 mt-10 pt-8 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="relative z-10 mt-10 pt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
                   {[
                     { label: "Total Responses",   value: performanceSummary?.totalResponses ?? 0,                       color: "text-purple-400" },
                     { label: "Average Score",      value: `${performanceSummary?.averageScore ?? 0}/100`,                color: "text-violet-400" },
@@ -208,67 +334,18 @@ function StarInterview() {
                 </motion.div>
               )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {categories.map((category, i) => {
-                  const stats = performanceSummary?.byCategory?.[category];
-                  return (
-                    <motion.button
-                      key={category}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      whileHover={!loading ? { scale: 1.03, y: -4 } : {}}
-                      whileTap={!loading ? { scale: 0.97 } : {}}
-                      onClick={() => fetchQuestions(category)}
-                      disabled={loading}
-                      style={{ "--mouse-x": "50%", "--mouse-y": "50%" }}
-                      onMouseMove={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        e.currentTarget.style.setProperty("--mouse-x", `${e.clientX - rect.left}px`);
-                        e.currentTarget.style.setProperty("--mouse-y", `${e.clientY - rect.top}px`);
-                      }}
-                      className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 text-left transition-all duration-300 hover:border-purple-400/40 ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
-                    >
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(168,85,247,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-
-                      <div className="relative space-y-3">
-                        <div className="flex items-start justify-between">
-                          <h3 className="text-base font-bold text-white font-mono">{category}</h3>
-                          {stats && (
-                            <span className="text-xs font-bold text-purple-400 font-mono bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-400/20">
-                              {stats.average.toFixed(0)}/100
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-500 font-mono">
-                          {stats ? `${stats.count} attempted` : "Not started"}
-                        </p>
-
-                        {stats ? (
-                          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${stats.average}%` }}
-                              transition={{ duration: 1, delay: 0.2 + i * 0.05 }}
-                              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-violet-500"
-                              style={{ boxShadow: "0 0 8px rgba(168,85,247,0.6)" }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-full h-1.5 bg-white/5 rounded-full border border-white/5" />
-                        )}
-
-                        <div className="flex items-center gap-2 text-xs text-slate-500 group-hover:text-purple-400 transition-colors font-mono pt-1">
-                          {loading ? (
-                            <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity }}><Loader className="w-3.5 h-3.5" /></motion.div> Loading...</>
-                          ) : (
-                            <>Start practicing →</>
-                          )}
-                        </div>
-                      </div>
-                    </motion.button>
-                  );
-                })}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {categories.map((category, i) => (
+                  <CategoryCard
+                    key={category}
+                    category={category}
+                    stats={performanceSummary?.byCategory?.[category]}
+                    cfg={categoryConfig[category] ?? categoryConfig["Problem-Solving"]}
+                    loading={loading}
+                    onClick={() => fetchQuestions(category)}
+                    index={i}
+                  />
+                ))}
               </div>
             </main>
           </motion.div>

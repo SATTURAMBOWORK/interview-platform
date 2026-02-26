@@ -1,48 +1,88 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, Send, AlertCircle, Lightbulb } from "lucide-react";
+import { motion, AnimatePresence, useSpring } from "framer-motion"; // eslint-disable-line no-unused-vars
+import { 
+  ChevronLeft, Send, AlertCircle, Loader2, 
+  CheckCircle2, Activity, Zap
+} from "lucide-react";
 import api from "../../api/axios";
 import ResponseAnalysis from "./ResponseAnalysis";
 
-function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, totalQuestions }) {
-  const [response, setResponse] = useState({
-    situation: "",
-    task: "",
-    action: "",
-    result: "",
-  });
+/* ── Cyber-STAR Configuration ── */
+const FIELD_CFG = {
+  situation: {
+    label: "S",
+    title: "SITUATION",
+    description: "Initialize context. What was the background challenge?",
+    placeholder: ">> [SYSTEM]: Define the environmental parameters and constraints...",
+    color: "cyan",
+    grad: "from-cyan-400 to-blue-600",
+    glow: "rgba(6, 182, 212, 0.3)",
+  },
+  task: {
+    label: "T",
+    title: "TASK",
+    description: "Define objectives. What was your specific role?",
+    placeholder: ">> [SYSTEM]: Identify primary mission objectives and responsibilities...",
+    color: "purple",
+    grad: "from-purple-400 to-violet-600",
+    glow: "rgba(168, 85, 247, 0.3)",
+  },
+  action: {
+    label: "A",
+    title: "ACTION",
+    description: "Execution phase. What concrete steps did you take?",
+    placeholder: ">> [SYSTEM]: Document procedural execution and logic applied...",
+    color: "pink",
+    grad: "from-pink-400 to-rose-600",
+    glow: "rgba(244, 63, 94, 0.3)",
+  },
+  result: {
+    label: "R",
+    title: "RESULT",
+    description: "Verify outcome. What was the measurable impact?",
+    placeholder: ">> [SYSTEM]: Analyze post-execution data and key takeaways...",
+    color: "emerald",
+    grad: "from-emerald-400 to-teal-600",
+    glow: "rgba(16, 185, 129, 0.3)",
+  },
+};
 
+const FIELDS = ["situation", "task", "action", "result"];
+const MIN_CHARS = 40;
+
+function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, totalQuestions }) {
+  const [response, setResponse] = useState({ situation: "", task: "", action: "", result: "" });
   const [submitted, setSubmitted] = useState(false);
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+  const [focused, setFocused] = useState(null);
+
+  // 3D Physics for Hero Tilt — must be declared before any early returns
+  const heroRotateX = useSpring(0, { stiffness: 150, damping: 20 });
+  const heroRotateY = useSpring(0, { stiffness: 150, damping: 20 });
 
   const handleChange = (field, value) => {
-    setResponse((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setResponse(prev => ({ ...prev, [field]: value }));
+    if (error) setError("");
   };
 
   const handleSubmit = async () => {
-    if (!response.situation || !response.task || !response.action || !response.result) {
-      setError("Please fill in all STAR components");
+    const empty = FIELDS.filter(f => !response[f].trim());
+    if (empty.length) {
+      setError(`Missing segments: ${empty.map(f => FIELD_CFG[f].title).join(", ")}`);
       return;
     }
-
     try {
       setLoading(true);
-      setError(null);
-
       const res = await api.post("/behavioral/response/submit", {
         questionId: question._id,
         response,
       });
-
       setFeedback(res.data.response.feedback);
       setSubmitted(true);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to submit response");
+      setError(err.response?.data?.message || "Transmission failed. Retry connection.");
     } finally {
       setLoading(false);
     }
@@ -59,197 +99,293 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
     );
   }
 
-  const starComponents = [
-    {
-      key: "situation",
-      title: "Situation",
-      description: "Set the context. What was the situation or challenge you faced?",
-      placeholder: "Describe the background and context of the situation...",
-      color: "blue",
-    },
-    {
-      key: "task",
-      title: "Task",
-      description: "What was the task or responsibility assigned to you?",
-      placeholder: "Explain what you were required to do...",
-      color: "purple",
-    },
-    {
-      key: "action",
-      title: "Action",
-      description: "What actions did you take to address the situation?",
-      placeholder: "Describe the specific steps and actions you took...",
-      color: "amber",
-    },
-    {
-      key: "result",
-      title: "Result",
-      description: "What were the outcomes and what did you learn?",
-      placeholder: "Share the results, impact, and lessons learned...",
-      color: "emerald",
-    },
-  ];
+  const progress = ((currentIndex + 1) / totalQuestions) * 100;
+  const allFilled = FIELDS.every(f => response[f].length >= MIN_CHARS);
+  const filledCount = FIELDS.filter(f => response[f].length >= MIN_CHARS).length;
+
+  // SVG ring
+  const ringRadius = 80;
+  const ringCircumference = 2 * Math.PI * ringRadius;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="space-y-8"
-    >
-      {/* HEADER */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="flex items-center justify-between"
-      >
+    <div className="min-h-screen bg-[#0a0a16] text-slate-300 selection:bg-cyan-500/30 overflow-x-hidden">
+
+      {/* ── BACKGROUND ── */}
+      <div className="fixed inset-0 -z-20 bg-[#0a0a16]" />
+      <div className="fixed inset-0 -z-10 opacity-20">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-[100px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-600 rounded-full filter blur-[100px]" />
+      </div>
+
+      {/* ── TOP NAV ── */}
+      <div className="relative pt-6 pb-0 px-6 max-w-[1400px] mx-auto flex items-center justify-between">
         <motion.button
           whileHover={{ x: -4 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onBack}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+          className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-slate-500 hover:text-cyan-400 transition-colors font-mono"
         >
-          <ChevronLeft className="w-5 h-5" />
-          Back
+          <ChevronLeft className="w-4 h-4" />
+          Dashboard
         </motion.button>
 
-        <div className="text-sm font-semibold text-slate-600">
-          Question <span className="text-blue-600">{currentIndex + 1}</span> of{" "}
-          <span className="text-slate-900">{totalQuestions}</span>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="w-32 h-2 bg-slate-200 rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentIndex + 1) / totalQuestions) * 100}%` }}
-            transition={{ duration: 0.5 }}
-            className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full"
-          />
-        </div>
-      </motion.div>
-
-      {/* QUESTION CARD */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="bg-white rounded-2xl border border-blue-100/60 p-8 shadow-sm"
-      >
-        <div className="flex items-start gap-4 mb-4">
-          <div className="p-3 bg-blue-100/60 rounded-lg">
-            <AlertCircle className="w-6 h-6 text-blue-600" />
+        <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-5 py-2 rounded-2xl backdrop-blur-md">
+          <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-widest">
+            Q {currentIndex + 1} / {totalQuestions}
+          </span>
+          <div className="w-28 h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.5 }}
+              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+              style={{ boxShadow: "0 0 8px rgba(6,182,212,0.6)" }}
+            />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-blue-600 uppercase tracking-wide">
-              {question.category}
-            </p>
-            <h2 className="text-2xl font-bold text-slate-900 mt-2">{question.question}</h2>
-            <p className="text-slate-600 mt-3">{question.description}</p>
-          </div>
-        </div>
-
-        {/* Tips */}
-        <div className="mt-6 p-4 bg-blue-50/50 border border-blue-200/50 rounded-lg">
-          <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-amber-600" />
-            Tips for a great response:
-          </p>
-          <ul className="mt-3 space-y-2 text-sm text-slate-700">
-            {question.tips?.map((tip, idx) => (
-              <li key={idx} className="flex gap-2">
-                <span className="text-blue-600 font-bold">•</span>
-                <span>{tip}</span>
-              </li>
+          <div className="flex gap-1">
+            {FIELDS.map(f => (
+              <div
+                key={f}
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  response[f].length >= MIN_CHARS ? "bg-cyan-400" : "bg-white/10"
+                }`}
+              />
             ))}
-          </ul>
+          </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* STAR RESPONSE FORM */}
-      <div className="space-y-6">
-        {starComponents.map((component, idx) => {
-          const colorClasses = {
-            blue: "border-blue-200 focus:border-blue-600 focus:ring-blue-500/10",
-            purple: "border-purple-200 focus:border-purple-600 focus:ring-purple-500/10",
-            amber: "border-amber-200 focus:border-amber-600 focus:ring-amber-500/10",
-            emerald: "border-emerald-200 focus:border-emerald-600 focus:ring-emerald-500/10",
-          };
+      {/* ── HERO — identical structure to DsaDashboard ── */}
+      <header className="relative pt-6 pb-4 px-6 max-w-[1400px] mx-auto">
+        <motion.div
+          style={{ rotateX: heroRotateX, rotateY: heroRotateY, transformPerspective: 1200, "--mouse-x": "50%", "--mouse-y": "50%" }}
+          onMouseMove={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            e.currentTarget.style.setProperty("--mouse-x", `${x}px`);
+            e.currentTarget.style.setProperty("--mouse-y", `${y}px`);
+            heroRotateX.set(-((y / rect.height) - 0.5) * 10);
+            heroRotateY.set(((x / rect.width) - 0.5) * 10);
+          }}
+          onMouseLeave={() => { heroRotateX.set(0); heroRotateY.set(0); }}
+          className="group relative overflow-hidden rounded-[2.5rem] border border-cyan-400/20 bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-xl p-10 md:p-14 transition-all duration-300 hover:border-cyan-400/40"
+        >
+          {/* MOUSE SPOTLIGHT */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(6,182,212,0.15),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-          const borderColor = {
-            blue: "border-l-blue-600",
-            purple: "border-l-purple-600",
-            amber: "border-l-amber-600",
-            emerald: "border-l-emerald-600",
-          };
+          <div className="relative z-10 grid lg:grid-cols-5 gap-12 items-center">
+
+            {/* LEFT — category badge + question + tips */}
+            <div className="lg:col-span-3 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-[11px] font-bold tracking-[0.2em] text-cyan-400 uppercase font-mono">
+                <Activity className="w-4 h-4 animate-pulse" />
+                {question.category}
+              </div>
+
+              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight uppercase">
+                {question.question}
+              </h1>
+
+              {question.description && (
+                <p className="text-slate-400 text-base max-w-lg leading-relaxed">
+                  {question.description}
+                </p>
+              )}
+
+              {/* TIPS — 4 pill chips, nothing else */}
+              {question.tips?.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {question.tips.slice(0, 4).map((tip, i) => (
+                    <span
+                      key={i}
+                      className="flex items-center gap-1.5 text-[11px] font-bold text-slate-300 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full font-mono"
+                    >
+                      <Zap className="w-3 h-3 text-cyan-400 shrink-0" />
+                      {tip}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT — STAR completion ring */}
+            <div className="lg:col-span-2 flex justify-center lg:justify-end">
+              <div className="relative">
+                <svg className="w-56 h-56 md:w-64 md:h-64 -rotate-90">
+                  <circle
+                    cx="50%" cy="50%"
+                    r={ringRadius}
+                    className="stroke-white/5 fill-none"
+                    strokeWidth="12"
+                  />
+                  <motion.circle
+                    cx="50%" cy="50%"
+                    r={ringRadius}
+                    className="stroke-cyan-500 fill-none"
+                    strokeWidth="12"
+                    strokeDasharray={ringCircumference}
+                    initial={{ strokeDashoffset: ringCircumference }}
+                    animate={{ strokeDashoffset: ringCircumference - (ringCircumference * filledCount) / 4 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    style={{ strokeLinecap: "round", filter: "drop-shadow(0 0 8px rgba(6,182,212,0.8))" }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                  <span className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none font-mono">
+                    {filledCount}<span className="text-3xl text-slate-600">/4</span>
+                  </span>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-cyan-400 mt-2 font-mono">Segments</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* BOTTOM STATS ROW */}
+          <div className="relative z-10 mt-10 pt-8 border-t border-white/5 grid grid-cols-4 gap-6">
+            {FIELDS.map(f => {
+              const cfg = FIELD_CFG[f];
+              const done = response[f].length >= MIN_CHARS;
+              return (
+                <div key={f}>
+                  <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-1">{cfg.title}</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full transition-all duration-300 bg-gradient-to-r ${done ? cfg.grad : ""} ${!done ? "bg-white/10" : ""}`} />
+                    <p className={`text-xs font-black font-mono ${done ? "text-cyan-400" : "text-slate-600"}`}>
+                      {done ? "READY" : `${response[f].length} CHR`}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      </header>
+
+      {/* ── STAR ANSWER FIELDS ── */}
+      <main className="max-w-[1400px] mx-auto px-6 py-8 space-y-5">
+
+        {FIELDS.map((key, idx) => {
+          const cfg = FIELD_CFG[key];
+          const isFoc = focused === key;
+          const isDone = response[key].length >= MIN_CHARS;
 
           return (
             <motion.div
-              key={component.key}
-              initial={{ opacity: 0, y: 20 }}
+              key={key}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + idx * 0.05 }}
-              className={`bg-white rounded-2xl border-l-4 ${borderColor[component.color]} border-r border-t border-b border-slate-200 p-8 shadow-sm`}
+              transition={{ delay: 0.08 + idx * 0.07, type: "spring", stiffness: 200, damping: 24 }}
+              className={`relative rounded-2xl border-l-4 overflow-hidden transition-all duration-300 ${
+                isFoc ? "border-white/15" : "border-transparent"
+              }`}
+              style={{
+                borderLeftColor: isFoc ? cfg.glow.replace("0.3", "0.8") : cfg.glow.replace("0.3", "0.5"),
+                background: isFoc ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.02)",
+                border: `1px solid ${isFoc ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.05)"}`,
+                borderLeft: `4px solid ${cfg.glow.replace("0.3", isFoc ? "0.9" : "0.6")}`,
+                boxShadow: isFoc ? `0 0 32px ${cfg.glow.replace("0.3", "0.25")}, inset 0 0 32px ${cfg.glow.replace("0.3", "0.04")}` : "none",
+              }}
             >
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 rounded-full bg-${component.color}-100 flex items-center justify-center font-bold text-${component.color}-600`}>
-                  {String.fromCharCode(65 + idx)}
+              {/* header row */}
+              <div className="flex items-center justify-between px-6 pt-5 pb-3">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-sm bg-gradient-to-br ${cfg.grad} font-mono shrink-0`}
+                    style={{ boxShadow: `0 0 12px ${cfg.glow}` }}
+                  >
+                    {cfg.label}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white uppercase tracking-wider font-mono leading-none">{cfg.title}</h3>
+                    <p className="text-[11px] text-slate-500 font-mono mt-0.5">{cfg.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">{component.title}</h3>
-                  <p className="text-sm text-slate-600">{component.description}</p>
-                </div>
+                <AnimatePresence>
+                  {isDone && (
+                    <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}>
+                      <CheckCircle2 className="w-5 h-5 text-cyan-400" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              <textarea
-                value={response[component.key]}
-                onChange={(e) => handleChange(component.key, e.target.value)}
-                placeholder={component.placeholder}
-                className={`w-full min-h-[150px] p-4 border-2 rounded-lg focus:outline-none focus:ring-2 ${colorClasses[component.color]} resize-none transition-all duration-300 text-slate-900`}
-              />
-
-              <div className="mt-3 text-xs text-slate-500">
-                {response[component.key].length} characters
+              {/* textarea */}
+              <div className="px-6 pb-5">
+                <textarea
+                  onFocus={() => setFocused(key)}
+                  onBlur={() => setFocused(null)}
+                  value={response[key]}
+                  onChange={e => handleChange(key, e.target.value)}
+                  placeholder={cfg.placeholder}
+                  rows={isFoc ? 6 : 4}
+                  className="w-full bg-black/20 border border-white/[0.06] rounded-xl px-5 py-4 text-slate-200 placeholder:text-slate-700 text-sm font-sans leading-relaxed outline-none transition-all duration-200 resize-none focus:border-white/10 focus:bg-black/30"
+                />
+                {/* char bar */}
+                <div className="mt-2.5 flex items-center gap-3">
+                  <div className="flex-1 h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                      animate={{ width: `${Math.min(100, (response[key].length / 400) * 100)}%` }}
+                      transition={{ duration: 0.25 }}
+                      className={`h-full bg-gradient-to-r ${cfg.grad}`}
+                    />
+                  </div>
+                  <span className={`text-[10px] font-mono shrink-0 ${isDone ? "text-cyan-400" : "text-slate-600"}`}>
+                    {response[key].length} / 400
+                  </span>
+                </div>
               </div>
             </motion.div>
           );
         })}
-      </div>
 
-      {/* ERROR MESSAGE */}
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 bg-rose-50 border border-rose-200 rounded-lg text-rose-700 text-sm"
-        >
-          {error}
-        </motion.div>
-      )}
+        {/* ── ERROR ── */}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-mono"
+            >
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* ACTION BUTTONS */}
-      <div className="flex gap-4 pt-4">
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={onBack}
-          className="flex-1 px-8 py-4 border-2 border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all duration-300"
-        >
-          Back
-        </motion.button>
+        {/* ── SUBMIT ── */}
+        <div className="flex gap-4 pt-4 pb-12">
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onBack}
+            className="px-8 py-4 rounded-xl border border-white/10 bg-white/[0.03] text-slate-400 text-sm font-black uppercase tracking-widest font-mono hover:bg-white/[0.07] hover:text-white transition-all duration-200"
+          >
+            Back
+          </motion.button>
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleSubmit}
-          disabled={loading}
-          className="flex-1 px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          <Send className="w-5 h-5" />
-          {loading ? "Analyzing..." : "Submit & Get Feedback"}
-        </motion.button>
-      </div>
-    </motion.div>
+          <motion.button
+            whileHover={allFilled && !loading ? { scale: 1.02 } : {}}
+            whileTap={allFilled && !loading ? { scale: 0.97 } : {}}
+            disabled={loading}
+            onClick={handleSubmit}
+            className="flex-1 relative h-14 rounded-xl overflow-hidden font-black text-sm uppercase tracking-widest font-mono text-white flex items-center justify-center gap-3 transition-all duration-200 disabled:opacity-60"
+            style={{
+              background: "linear-gradient(135deg, #0891b2, #2563eb, #7c3aed)",
+              boxShadow: loading ? "none" : "0 0 24px rgba(6,182,212,0.35)",
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+            {loading ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing…</>
+            ) : (
+              <><Send className="w-4 h-4" /> Submit &amp; Get AI Feedback</>
+            )}
+          </motion.button>
+        </div>
+      </main>
+    </div>
   );
 }
 

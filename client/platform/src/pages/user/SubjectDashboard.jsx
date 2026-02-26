@@ -55,7 +55,7 @@ function SubjectDashboard() {
 
   const bestScore = totalAttempts === 0 ? 0 : Math.max(...attemptsWithAccuracy.map((a) => a.accuracyPercent));
   const averageScore = totalAttempts === 0 ? 0 : Math.round(
-    attemptsWithAccuracy.reduce((sum, a) => sum + a.accuracyPercent, 0) / totalAttempts
+    attempts.reduce((sum, a) => sum + (a.correctCount || 0), 0) / totalAttempts
   );
   const accuracy = totalAttempts === 0 ? 0 : Math.round(
     (attempts.reduce((sum, a) => sum + a.correctCount, 0) / (totalAttempts * 50)) * 100
@@ -119,9 +119,7 @@ function SubjectDashboard() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(6,182,212,0.18),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             
             <div className="relative z-10 space-y-4">
-              <div className="inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.3em] text-cyan-400 uppercase font-mono bg-cyan-500/5 px-3 py-1 rounded-full border border-cyan-500/20">
-                <Activity className="w-3 h-3 animate-pulse" /> Domain_ID: {subjectId.slice(-6)}
-              </div>
+              
               
               <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase font-header">
                 <span className="bg-gradient-to-r from-white via-slate-300 to-slate-500 bg-clip-text text-transparent opacity-50">Analysis:</span><br />
@@ -140,10 +138,10 @@ function SubjectDashboard() {
         {/* KPI BENTO GRID (The actual stats) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: "Total Sessions", val: totalAttempts, icon: Clock, color: "text-cyan-400", bg: "bg-cyan-400/5", glow: "rgba(6,182,212,0.35)" },
+            { label: "Total Attempts", val: totalAttempts, icon: Clock, color: "text-cyan-400", bg: "bg-cyan-400/5", glow: "rgba(6,182,212,0.35)" },
             { label: "Peak Score", val: `${bestScore}%`, icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-400/5", glow: "rgba(52,211,153,0.35)" },
-            { label: "Avg Precision", val: `${averageScore}%`, icon: BarChart3, color: "text-purple-400", bg: "bg-purple-400/5", glow: "rgba(168,85,247,0.35)" },
-            { label: "Net Accuracy", val: `${accuracy}%`, icon: CheckCircle2, color: "text-orange-400", bg: "bg-orange-400/5", glow: "rgba(251,146,60,0.35)" }
+            { label: "Avg Score", val: averageScore, icon: BarChart3, color: "text-purple-400", bg: "bg-purple-400/5", glow: "rgba(168,85,247,0.35)" },
+            { label: "Accuracy", val: `${accuracy}%`, icon: CheckCircle2, color: "text-orange-400", bg: "bg-orange-400/5", glow: "rgba(251,146,60,0.35)" }
           ].map((kpi, i) => (
             <motion.div 
               key={i}
@@ -230,9 +228,6 @@ function SubjectDashboard() {
                       </div>
                       <div className="mt-2 flex items-center justify-between">
                         <p className="text-[9px] text-slate-600 font-mono">{attempt.correctCount ?? 0} / 50 correct</p>
-                        <span className={`text-[9px] font-bold font-mono uppercase tracking-wider ${isGood ? 'text-emerald-500' : 'text-orange-500'}`}>
-                          {isGood ? 'PASS' : 'RETRY'}
-                        </span>
                         <span className="text-[9px] text-cyan-400 font-mono uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">Review →</span>
                       </div>
                       <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">

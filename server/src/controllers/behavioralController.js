@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const BehavioralQuestion = require("../models/BehavioralQuestion");
 const StarResponse = require("../models/StarResponse");
 const { analyzeStarResponse, generateImprovementSuggestions } = require("../services/aiService");
@@ -112,7 +113,7 @@ exports.getUserResponses = async (req, res) => {
     const { category, limit = 10, skip = 0 } = req.query;
     const userId = req.user.id;
 
-    let pipeline = [{ $match: { user: new require("mongoose").Types.ObjectId(userId) } }];
+    let pipeline = [{ $match: { user: new mongoose.Types.ObjectId(userId) } }];
 
     if (category) {
       pipeline.push({

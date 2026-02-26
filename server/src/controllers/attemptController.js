@@ -1,6 +1,63 @@
 const Attempt = require("../models/Attempt");
 const Mcq = require("../models/Mcq");
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+
+// Submit via sendBeacon (token comes in body — no Authorization header possible)
+exports.submitViaBeacon = async (req, res) => {
+  try {
+    const { attemptId, answers, token } = req.body;
+    if (!attemptId || !token) return res.status(400).json({ message: "Missing fields" });
+
+    let userId;
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      userId = decoded.id;
+    } catch {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    const attempt = await Attempt.findById(attemptId);
+    if (!attempt) return res.status(404).json({ message: "Not found" });
+
+    // Idempotent: already submitted — silently succeed
+    if (attempt.status === "completed") return res.status(200).json({ message: "Already submitted" });
+
+    if (attempt.user.toString() !== userId) return res.status(403).json({ message: "Unauthorized" });
+
+    const safeAnswers = Array.isArray(answers) ? answers : [];
+    const mcqIds = safeAnswers.map((a) => a.mcq);
+    const mcqs = await Mcq.find({ _id: { $in: mcqIds } }).select("_id correctOption");
+    const mcqMap = new Map(mcqs.map((m) => [m._id.toString(), m]));
+
+    let correctCount = 0;
+    const formattedAnswers = safeAnswers.map((a) => {
+      const mcq = mcqMap.get(a.mcq);
+      const correctOption = mcq?.correctOption;
+      const isCorrect = Number(a.selectedOption) === Number(correctOption);
+      if (isCorrect) correctCount++;
+      return { mcq: a.mcq, selectedOption: a.selectedOption, correctOption: correctOption ?? 0, isCorrect };
+    });
+
+    const totalQuestions = attempt.totalQuestions;
+    const score = totalQuestions > 0 ? (correctCount / totalQuestions) * 50 : 0;
+    const accuracy = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
+    const timeTaken = Math.max(0, Math.floor((Date.now() - new Date(attempt.startedAt).getTime()) / 1000));
+
+    attempt.answers = formattedAnswers;
+    attempt.correctCount = correctCount;
+    attempt.score = score;
+    attempt.accuracy = accuracy;
+    attempt.timeTaken = timeTaken;
+    attempt.status = "completed";
+    await attempt.save();
+
+    res.status(200).json({ message: "Submitted" });
+  } catch (err) {
+    console.error("SUBMIT BEACON ERROR:", err);
+    res.status(500).json({ message: "Failed" });
+  }
+};
 
 // Start a test (user)
 exports.startTest = async (req, res) => {
