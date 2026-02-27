@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const DsaProblem = require("../models/DsaProblem");
+const Submission = require("../models/Submission");
 
 /* =========================================================
    ADMIN APIs
@@ -359,33 +360,47 @@ exports.getDsaTopics = async (req, res) => {
 exports.getProblemsByTopic = async (req, res) => {
   try {
     const topic = req.params.topic.toLowerCase();
+    const userId = req.user._id;
 
-    const problems = await DsaProblem.find({
-      tags: topic,
-    })
-      .select("-hiddenTestCases") // Don't send hidden test cases to frontend
+    const problems = await DsaProblem.find({ tags: topic })
+      .select("-hiddenTestCases")
       .lean();
 
-    // Add acceptance rate to each problem
-    const problemsWithAcceptance = problems.map(problem => {
-      const submissions = problem.submissions || 0;
-      const acceptedSubmissions = problem.acceptedSubmissions || 0;
-      
-      const acceptanceRate = submissions > 0 
-        ? Math.round((acceptedSubmissions / submissions) * 100)
-        : 0;
+    // Fetch ALL of this user's submissions for these problems in one query
+    const problemIds = problems.map((p) => p._id);
+    const userSubmissions = await Submission.find({
+      userId,
+      problemId: { $in: problemIds },
+    })
+      .select("problemId status")
+      .lean();
+
+    // Build a map: problemId -> { total, accepted }
+    const statsMap = {};
+    for (const sub of userSubmissions) {
+      const key = sub.problemId.toString();
+      if (!statsMap[key]) statsMap[key] = { total: 0, accepted: 0 };
+      statsMap[key].total += 1;
+      if (sub.status === "Accepted") statsMap[key].accepted += 1;
+    }
+
+    const problemsWithUserStats = problems.map((problem) => {
+      const key = problem._id.toString();
+      const stats = statsMap[key] || { total: 0, accepted: 0 };
+      const userAcceptanceRate =
+        stats.total > 0 ? Math.round((stats.accepted / stats.total) * 100) : 0;
 
       return {
         ...problem,
-        acceptanceRate,
-        submissions,
-        acceptedSubmissions
+        userSubmissions: stats.total,
+        userAccepted: stats.accepted,
+        userAcceptanceRate,
       };
     });
 
     res.status(200).json({
       success: true,
-      problems: problemsWithAcceptance,
+      problems: problemsWithUserStats,
     });
   } catch (error) {
     console.error("GET PROBLEMS BY TOPIC ERROR:", error);

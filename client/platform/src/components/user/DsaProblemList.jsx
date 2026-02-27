@@ -169,14 +169,13 @@ const DsaProblemTable = ({
                       <div className="col-span-4">Problem</div>
                       <div className="col-span-2 text-center">Difficulty</div>
                       <div className="col-span-2 text-center">Acceptance</div>
-                      <div className="col-span-2 text-center">Submissions</div>
+                      <div className="col-span-2 text-center">My Attempts</div>
                       <div className="col-span-1 text-center">Revision</div>
                     </div>
 
                     {topicProblems.map((problem, pi) => {
-                      const totalSubs = problem.submissions || 0;
-                      const acceptedSubs = problem.acceptedSubmissions || 0;
-                      const acceptanceRate = totalSubs > 0 ? Math.round((acceptedSubs / totalSubs) * 100) : 0;
+                      const totalSubs = problem.userSubmissions || 0;
+                      const acceptanceRate = problem.userAcceptanceRate || 0;
 
                       return (
                         <motion.div
