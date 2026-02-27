@@ -16,6 +16,7 @@ const dsaUserRoutes = require("./routes/dsaUserRoutes");
 const dsaStatsRoutes = require("./routes/dsaStatsRoutes");
 const behavioralRoutes = require("./routes/behavioralRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
+const resumeRoutes = require("./routes/resumeRoutes");
 
 
 
@@ -40,6 +41,7 @@ app.use("/api/dsa", dsaExecutionRoutes);
 app.use("/api/dsa", dsaStatsRoutes);
 app.use("/api/behavioral", behavioralRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/resume", resumeRoutes);
 
 
 

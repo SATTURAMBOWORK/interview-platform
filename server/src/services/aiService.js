@@ -102,4 +102,46 @@ Provide 5 specific tips to improve. Return as JSON array only:
   }
 };
 
-module.exports = { analyzeStarResponse, checkAvailableService, generateImprovementSuggestions };
+/**
+ * Analyze resume vs job description and return ATS score + feedback
+ */
+const analyzeResumeVsJD = async (resumeText, jobDescription) => {
+  const prompt = `You are an ATS (Applicant Tracking System) and senior technical recruiter.
+
+Analyze the following resume against the job description and return ONLY a valid JSON object (no markdown, no explanation).
+
+RESUME:
+${resumeText}
+
+JOB DESCRIPTION:
+${jobDescription}
+
+Return this exact JSON structure:
+{
+  "overallScore": <integer 0-100>,
+  "summary": "<2-3 sentence overall assessment>",
+  "keywordsMatched": ["<keyword1>", "<keyword2>", "<keyword3>"],
+  "keywordsMissing": ["<missing1>", "<missing2>", "<missing3>"],
+  "sections": {
+    "skills": { "score": <0-100>, "comment": "<brief comment>" },
+    "experience": { "score": <0-100>, "comment": "<brief comment>" },
+    "education": { "score": <0-100>, "comment": "<brief comment>" },
+    "formatting": { "score": <0-100>, "comment": "<brief comment>" }
+  },
+  "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
+  "improvements": ["<actionable tip 1>", "<actionable tip 2>", "<actionable tip 3>"],
+  "verdict": "<one of: Strong Match | Good Match | Partial Match | Weak Match>"
+}`;
+
+  try {
+    const responseText = await callGroq(prompt);
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Could not parse resume analysis response');
+    return JSON.parse(jsonMatch[0]);
+  } catch (error) {
+    console.error('Error analyzing resume vs JD:', error);
+    throw error;
+  }
+};
+
+module.exports = { analyzeStarResponse, checkAvailableService, generateImprovementSuggestions, analyzeResumeVsJD };

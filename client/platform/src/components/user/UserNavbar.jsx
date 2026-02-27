@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Layers, Code2, Award, LogOut, Menu, X, Flame, Trophy,
+  Layers, Code2, Award, LogOut, Menu, X, Flame, Trophy, FileSearch,
 } from "lucide-react";
 import api from "../../api/axios";
 import { AuthContext } from "../../context/AuthContextValue";
@@ -125,6 +125,7 @@ const UserNavbar = () => {
               { path: "/dsa", icon: Code2, label: "Arena" },
               { path: "/star-interview", icon: Award, label: "Behavioral" },
               { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+              { path: "/resume-score", icon: FileSearch, label: "Resume" },
             ].map(({ path, icon: Icon, label }) => {
               const active = isActive(path);
               return (
@@ -214,6 +215,7 @@ const UserNavbar = () => {
                   { path: "/dsa", icon: Code2, label: "Arena" },
                   { path: "/star-interview", icon: Award, label: "Behavioral" },
                   { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
+                  { path: "/resume-score", icon: FileSearch, label: "Resume" },
                 ].map(({ path, icon: Icon, label }) => (
                   <motion.button 
                     key={path}

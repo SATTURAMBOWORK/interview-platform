@@ -26,6 +26,7 @@ import DsaSolve from "./pages/user/DsaSolve";
 import DsaDashboard from "./pages/user/DsaDashboard";
 import StarInterview from "./pages/user/StarInterview";
 import Leaderboard from "./pages/user/Leaderboard";
+import ResumeScore from "./pages/user/ResumeScore";
 
 function App() {
   return (
@@ -194,6 +195,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["user"]}>
               <Leaderboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ RESUME ATS SCORE ROUTE */}
+        <Route
+          path="/resume-score"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <ResumeScore />
             </ProtectedRoute>
           }
         />
