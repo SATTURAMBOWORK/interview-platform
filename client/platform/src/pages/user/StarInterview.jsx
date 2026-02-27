@@ -92,7 +92,7 @@ const CategoryCard = ({ category, stats, cfg, loading, onClick, index }) => {
           {/* STATS */}
           <div className="pt-3 border-t border-white/5 flex items-baseline gap-2">
             <span className={`text-3xl font-black font-mono bg-gradient-to-r ${cfg.grad} bg-clip-text text-transparent`}>
-              {stats ? Math.round(stats.average) : 0}
+              {stats && !isNaN(stats.average) ? Math.round(stats.average) : 0}
             </span>
             <span className="text-[10px] text-slate-500 uppercase tracking-widest font-mono">Avg Score</span>
           </div>
@@ -171,10 +171,11 @@ function StarInterview() {
       setError(null);
       const url = category ? `/behavioral/questions?category=${category}` : "/behavioral/questions";
       const res = await api.get(url);
-      console.log("Fetched questions:", res.data);
-      setQuestions(res.data);
-      if (res.data.length > 0) {
-        setCurrentQuestion(res.data[0]);
+      // Shuffle and pick 3 random questions
+      const shuffled = [...res.data].sort(() => Math.random() - 0.5).slice(0, 3);
+      setQuestions(shuffled);
+      if (shuffled.length > 0) {
+        setCurrentQuestion(shuffled[0]);
         setSelectedCategory(category);
         setView("practice");
       } else {
@@ -288,7 +289,7 @@ function StarInterview() {
                       })()}
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                         <span className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none font-mono">
-                          {performanceSummary?.averageScore ?? 0}
+                          {Math.round(performanceSummary?.averageScore ?? 0)}
                         </span>
                         <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-purple-400 mt-2">Avg Score</span>
                       </div>
@@ -300,7 +301,7 @@ function StarInterview() {
                 <div className="relative z-10 mt-10 pt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
                   {[
                     { label: "Total Responses",   value: performanceSummary?.totalResponses ?? 0,                       color: "text-purple-400" },
-                    { label: "Average Score",      value: `${performanceSummary?.averageScore ?? 0}/100`,                color: "text-violet-400" },
+                    { label: "Average Score",      value: `${Math.round(performanceSummary?.averageScore ?? 0)}/100`,                color: "text-violet-400" },
                     { label: "Categories Tried",   value: Object.keys(performanceSummary?.byCategory ?? {}).length,     color: "text-pink-400"   },
                     { label: "Top Strength",       value: performanceSummary?.topStrengths?.[0] ?? "—",                 color: "text-indigo-400", small: true },
                   ].map((stat, i) => (

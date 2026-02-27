@@ -89,6 +89,8 @@ exports.submitResponse = async (req, res) => {
       fullResponse,
       feedback,
       status: "submitted",
+      category: question.category || "",
+      questionText: question.question || "",
     });
 
     await starResponse.save();
@@ -121,12 +123,15 @@ exports.getUserResponses = async (req, res) => {
           from: "behavioralquestions",
           localField: "question",
           foreignField: "_id",
-          as: "questionData",
+          as: "_qdata",
         },
       });
       pipeline.push({
         $match: {
-          "questionData.category": category,
+          $or: [
+            { "_qdata.category": category },
+            { "_qdata": { $size: 0 }, category: category },
+          ],
         },
       });
     }
@@ -142,8 +147,9 @@ exports.getUserResponses = async (req, res) => {
         as: "questionData",
       },
     });
+    // preserveNullAndEmpty so responses with deleted questions still appear
     pipeline.push({
-      $unwind: "$questionData",
+      $unwind: { path: "$questionData", preserveNullAndEmptyArrays: true },
     });
 
     const responses = await StarResponse.aggregate(pipeline);
@@ -227,17 +233,14 @@ exports.getImprovementSuggestions = async (req, res) => {
  */
 exports.getPerformanceSummary = async (req, res) => {
   try {
-    console.log('📊 Getting performance summary for user:', req.user?.id);
     const userId = req.user.id;
 
     const responses = await StarResponse.find({ user: userId }).populate("question");
-    console.log('📊 Found responses:', responses.length);
 
-    // Filter out responses with deleted questions
-    const validResponses = responses.filter(r => r.question !== null);
-    console.log('📊 Valid responses with questions:', validResponses.length);
+    // All responses that have valid AI feedback (regardless of whether question still exists)
+    const scoredResponses = responses.filter(r => r.feedback && r.feedback.overallScore != null);
 
-    if (!validResponses.length) {
+    if (!scoredResponses.length) {
       return res.status(200).json({
         totalResponses: 0,
         averageScore: 0,
@@ -247,42 +250,31 @@ exports.getPerformanceSummary = async (req, res) => {
       });
     }
 
-    // Calculate stats by category
+    // Category breakdown — use stored category field as fallback when question was deleted
     const byCategory = {};
-    validResponses.forEach((r) => {
-      const cat = r.question.category;
+    scoredResponses.forEach((r) => {
+      const cat = (r.question && r.question.category) || r.category;
+      if (!cat) return;
       if (!byCategory[cat]) {
         byCategory[cat] = { count: 0, totalScore: 0, scores: [] };
       }
       byCategory[cat].count++;
-      byCategory[cat].totalScore += r.feedback.overallScore || 0;
-      byCategory[cat].scores.push(r.feedback.overallScore || 0);
+      const score = Number(r.feedback.overallScore) || 0;
+      byCategory[cat].totalScore += score;
+      byCategory[cat].scores.push(score);
     });
 
-    // Calculate averages
     Object.keys(byCategory).forEach((cat) => {
-      byCategory[cat].average = byCategory[cat].totalScore / byCategory[cat].count;
+      byCategory[cat].average = Math.round(byCategory[cat].totalScore / byCategory[cat].count);
     });
 
-    // Get top strengths and areas to improve
-    const allStrengths = [];
-    const allImprovements = [];
-
-    validResponses.forEach((r) => {
-      allStrengths.push(...(r.feedback.strengths || []));
-      allImprovements.push(...(r.feedback.improvements || []));
-    });
-
-    // Count frequency
+    // Strengths / improvements from ALL scored responses
     const strengthCounts = {};
     const improvementCounts = {};
 
-    allStrengths.forEach((s) => {
-      strengthCounts[s] = (strengthCounts[s] || 0) + 1;
-    });
-
-    allImprovements.forEach((i) => {
-      improvementCounts[i] = (improvementCounts[i] || 0) + 1;
+    scoredResponses.forEach((r) => {
+      (r.feedback.strengths || []).forEach(s => { strengthCounts[s] = (strengthCounts[s] || 0) + 1; });
+      (r.feedback.improvements || []).forEach(i => { improvementCounts[i] = (improvementCounts[i] || 0) + 1; });
     });
 
     const topStrengths = Object.entries(strengthCounts)
@@ -295,10 +287,12 @@ exports.getPerformanceSummary = async (req, res) => {
       .slice(0, 3)
       .map(([str]) => str);
 
-    const averageScore = (validResponses.reduce((sum, r) => sum + (r.feedback.overallScore || 0), 0) / validResponses.length).toFixed(1);
+    const averageScore = Math.round(
+      scoredResponses.reduce((sum, r) => sum + (Number(r.feedback.overallScore) || 0), 0) / scoredResponses.length
+    );
 
     res.status(200).json({
-      totalResponses: validResponses.length,
+      totalResponses: scoredResponses.length,
       averageScore,
       byCategory,
       topStrengths,
@@ -306,7 +300,6 @@ exports.getPerformanceSummary = async (req, res) => {
     });
   } catch (error) {
     console.error("GET SUMMARY ERROR:", error);
-    console.error("Error stack:", error.stack);
     res.status(500).json({ message: error.message || "Failed to fetch summary" });
   }
 };

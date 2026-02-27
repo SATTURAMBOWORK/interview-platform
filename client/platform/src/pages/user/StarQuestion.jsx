@@ -48,7 +48,8 @@ const FIELD_CFG = {
 };
 
 const FIELDS = ["situation", "task", "action", "result"];
-const MIN_CHARS = 40;
+const MIN_CHARS = 150;
+const MAX_CHARS = 1200;
 
 function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, totalQuestions }) {
   const [response, setResponse] = useState({ situation: "", task: "", action: "", result: "" });
@@ -68,9 +69,14 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
   };
 
   const handleSubmit = async () => {
-    const empty = FIELDS.filter(f => !response[f].trim());
-    if (empty.length) {
-      setError(`Missing segments: ${empty.map(f => FIELD_CFG[f].title).join(", ")}`);
+    const tooShort = FIELDS.filter(f => charCounts[f] < MIN_CHARS);
+    const tooLong  = FIELDS.filter(f => charCounts[f] > MAX_CHARS);
+    if (tooShort.length) {
+      setError(`Each segment needs at least ${MIN_CHARS} characters. Too short: ${tooShort.map(f => FIELD_CFG[f].title).join(", ")}`);
+      return;
+    }
+    if (tooLong.length) {
+      setError(`Each segment must be under ${MAX_CHARS} characters. Too long: ${tooLong.map(f => FIELD_CFG[f].title).join(", ")}`);
       return;
     }
     try {
@@ -100,8 +106,9 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
   }
 
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
-  const allFilled = FIELDS.every(f => response[f].length >= MIN_CHARS);
-  const filledCount = FIELDS.filter(f => response[f].length >= MIN_CHARS).length;
+  const charCounts = Object.fromEntries(FIELDS.map(f => [f, response[f].length]));
+  const allFilled = FIELDS.every(f => charCounts[f] >= MIN_CHARS && charCounts[f] <= MAX_CHARS);
+  const filledCount = FIELDS.filter(f => charCounts[f] >= MIN_CHARS && charCounts[f] <= MAX_CHARS).length;
 
   // SVG ring
   const ringRadius = 80;
@@ -147,7 +154,8 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
               <div
                 key={f}
                 className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                  response[f].length >= MIN_CHARS ? "bg-cyan-400" : "bg-white/10"
+                  charCounts[f] > MAX_CHARS ? "bg-rose-400" :
+                  charCounts[f] >= MIN_CHARS ? "bg-cyan-400" : "bg-white/10"
                 }`}
               />
             ))}
@@ -245,14 +253,16 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
           <div className="relative z-10 mt-10 pt-8 border-t border-white/5 grid grid-cols-4 gap-6">
             {FIELDS.map(f => {
               const cfg = FIELD_CFG[f];
-              const done = response[f].length >= MIN_CHARS;
+              const cc = charCounts[f];
+              const over = cc > MAX_CHARS;
+              const done = cc >= MIN_CHARS && !over;
               return (
                 <div key={f}>
                   <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-1">{cfg.title}</p>
                   <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full transition-all duration-300 bg-gradient-to-r ${done ? cfg.grad : ""} ${!done ? "bg-white/10" : ""}`} />
-                    <p className={`text-xs font-black font-mono ${done ? "text-cyan-400" : "text-slate-600"}`}>
-                      {done ? "READY" : `${response[f].length} CHR`}
+                    <div className={`w-2 h-2 rounded-full transition-all duration-300 bg-gradient-to-r ${done ? cfg.grad : ""} ${over ? "bg-rose-400" : ""} ${!done && !over ? "bg-white/10" : ""}`} />
+                    <p className={`text-xs font-black font-mono ${done ? "text-cyan-400" : over ? "text-rose-400" : "text-slate-600"}`}>
+                      {done ? "READY" : over ? `${cc} / ${MAX_CHARS}` : `${cc} CHR`}
                     </p>
                   </div>
                 </div>
@@ -268,7 +278,9 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
         {FIELDS.map((key, idx) => {
           const cfg = FIELD_CFG[key];
           const isFoc = focused === key;
-          const isDone = response[key].length >= MIN_CHARS;
+          const cc = charCounts[key];
+          const isOver = cc > MAX_CHARS;
+          const isDone = cc >= MIN_CHARS && !isOver;
 
           return (
             <motion.div
@@ -321,17 +333,19 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
                   rows={isFoc ? 6 : 4}
                   className="w-full bg-black/20 border border-white/[0.06] rounded-xl px-5 py-4 text-slate-200 placeholder:text-slate-700 text-sm font-sans leading-relaxed outline-none transition-all duration-200 resize-none focus:border-white/10 focus:bg-black/30"
                 />
-                {/* char bar */}
+                {/* char count bar */}
                 <div className="mt-2.5 flex items-center gap-3">
                   <div className="flex-1 h-0.5 bg-white/5 rounded-full overflow-hidden">
                     <motion.div
-                      animate={{ width: `${Math.min(100, (response[key].length / 400) * 100)}%` }}
+                      animate={{ width: `${Math.min(100, (cc / MAX_CHARS) * 100)}%` }}
                       transition={{ duration: 0.25 }}
-                      className={`h-full bg-gradient-to-r ${cfg.grad}`}
+                      className={`h-full bg-gradient-to-r ${isOver ? "from-rose-500 to-rose-400" : cfg.grad}`}
                     />
                   </div>
-                  <span className={`text-[10px] font-mono shrink-0 ${isDone ? "text-cyan-400" : "text-slate-600"}`}>
-                    {response[key].length} / 400
+                  <span className={`text-[10px] font-mono shrink-0 ${
+                    isOver ? "text-rose-400" : isDone ? "text-cyan-400" : "text-slate-600"
+                  }`}>
+                    {cc} / {MAX_CHARS}{cc < MIN_CHARS ? ` (min ${MIN_CHARS})` : ""}
                   </span>
                 </div>
               </div>

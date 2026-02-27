@@ -31,13 +31,13 @@ const STAR_FIELDS = [
   { key: "result",    label: "Result",    grad: "from-emerald-400 to-teal-500" },
 ];
 
-const CATEGORIES = ["all", "Leadership", "Teamwork", "Problem-Solving", "Communication", "Conflict Resolution", "Adaptability", "Customer Focus"];
+const CATEGORIES = ["Leadership", "Teamwork", "Problem-Solving", "Communication", "Conflict Resolution", "Adaptability", "Customer Focus"];
 
 function BehavioralProgress({ onBack, onRefresh }) {
   const [responses, setResponses]           = useState([]);
   const [loading, setLoading]               = useState(true);
   const [error, setError]                   = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("Leadership");
   const [expandedId, setExpandedId]         = useState(null);
 
   useEffect(() => { fetchResponses(); }, [selectedCategory]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -46,11 +46,9 @@ function BehavioralProgress({ onBack, onRefresh }) {
     try {
       setLoading(true);
       setError(null);
-      const url = selectedCategory === "all"
-        ? "/behavioral/responses"
-        : `/behavioral/responses?category=${selectedCategory}`;
+      const url = `/behavioral/responses?category=${selectedCategory}`;
       const res = await api.get(url);
-      setResponses(res.data.responses ?? []);
+      setResponses((res.data.responses ?? []).slice(0, 9));
     } catch (err) {
       console.error("Failed to fetch responses:", err);
       setError(err.response?.data?.message || "Failed to load responses");
@@ -130,7 +128,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
         ) : (
           /* ── RESPONSE CARDS ── */
           <div className="space-y-4">
-            {responses.map((resp, idx) => {
+            {responses.slice(0, 9).map((resp, idx) => {
               const tier = TIER(resp.feedback.overallScore);
               const isOpen = expandedId === String(resp._id);
 
@@ -153,7 +151,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
                         {/* category + date */}
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-[10px] font-black uppercase tracking-widest font-mono px-2.5 py-1 rounded-full border ${tier.badge}`}>
-                            {resp.questionData.category}
+                            {resp.questionData?.category || resp.category || "General"}
                           </span>
                           <span className="flex items-center gap-1 text-[10px] text-slate-600 font-mono">
                             <Calendar className="w-3 h-3" />
@@ -162,7 +160,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
                         </div>
                         {/* question */}
                         <p className="text-sm font-bold text-white leading-snug line-clamp-2">
-                          {resp.questionData.question}
+                          {resp.questionData?.question || resp.questionText || "Question no longer available"}
                         </p>
                         {/* metric pills */}
                         <div className="flex gap-2 flex-wrap pt-0.5">

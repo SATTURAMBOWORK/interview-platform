@@ -65,6 +65,9 @@ const starResponseSchema = new mongoose.Schema(
       enum: ["draft", "submitted", "reviewed"],
       default: "submitted",
     },
+    // Denormalised so stats survive question deletion
+    category: { type: String, default: "" },
+    questionText: { type: String, default: "" },
     submittedAt: {
       type: Date,
       default: Date.now,
