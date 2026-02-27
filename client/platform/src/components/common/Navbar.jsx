@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { motion } from "framer-motion";
-import { LogOut, LayoutDashboard, Shield, Menu, X } from "lucide-react";
+import { LogOut, LayoutDashboard, Shield, Menu, X, Trophy } from "lucide-react";
 import { useState } from "react";
 import { AuthContext } from "../../context/AuthContextValue";
 
@@ -51,6 +51,24 @@ const Navbar = () => {
                   </div>
                   Dashboard
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-indigo-400 to-indigo-200 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </motion.div>
+            )}
+
+            {role === "user" && (
+              <motion.div
+                whileHover={{ y: -2 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <Link
+                  to="/leaderboard"
+                  className="group flex items-center gap-2 text-slate-200 hover:text-indigo-200 font-medium transition-colors duration-300 relative"
+                >
+                  <div className="p-2 bg-slate-900/80 rounded-lg border border-white/10 group-hover:bg-slate-800 transition-colors">
+                    <Trophy className="w-4 h-4 text-amber-400" />
+                  </div>
+                  Leaderboard
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-amber-400 to-indigo-200 group-hover:w-full transition-all duration-300"></span>
                 </Link>
               </motion.div>
             )}
@@ -127,6 +145,25 @@ const Navbar = () => {
                   <LayoutDashboard className="w-5 h-5 text-indigo-200" />
                 </div>
                 <span>Dashboard</span>
+              </Link>
+            </motion.div>
+          )}
+
+          {role === "user" && (
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 }}
+            >
+              <Link
+                to="/leaderboard"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 p-3 rounded-xl bg-slate-900/80 border border-white/10 hover:border-white/20 transition-all duration-300 text-slate-100 font-medium"
+              >
+                <div className="p-2 bg-slate-800 rounded-lg border border-white/10">
+                  <Trophy className="w-5 h-5 text-amber-400" />
+                </div>
+                <span>Leaderboard</span>
               </Link>
             </motion.div>
           )}

@@ -25,6 +25,7 @@ import Register from "./pages/Register";
 import DsaSolve from "./pages/user/DsaSolve";
 import DsaDashboard from "./pages/user/DsaDashboard";
 import StarInterview from "./pages/user/StarInterview";
+import Leaderboard from "./pages/user/Leaderboard";
 
 function App() {
   return (
@@ -183,6 +184,16 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["user"]}>
               <StarInterview />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ LEADERBOARD ROUTE */}
+        <Route
+          path="/leaderboard"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <Leaderboard />
             </ProtectedRoute>
           }
         />
