@@ -13,14 +13,19 @@ const getAdminSummary = async (req, res) => {
     const totalSubjects = await Subject.countDocuments();
     const totalMcqs = await Mcq.countDocuments();
     const totalDsaProblems = await DsaProblem.countDocuments();
-    const totalAttempts = await Attempt.countDocuments();
+    const totalAttempts = await Attempt.countDocuments({ status: "completed" });
 
-    // Calculate average score from all attempts
+    // Calculate average percentage from completed attempts
     const scoreData = await Attempt.aggregate([
+      {
+        $match: {
+          status: "completed",
+        },
+      },
       {
         $group: {
           _id: null,
-          averageScore: { $avg: "$score" },
+          averageScore: { $avg: "$accuracy" },
         },
       },
     ]);
@@ -51,19 +56,27 @@ const getUserAnalytics = async (req, res) => {
     // Total users
     const totalUsers = await User.countDocuments();
 
-    // Active users (users with at least one attempt)
+    // Active users in past 1 month (users with at least one recent attempt)
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const activeUsers = await User.aggregate([
       {
         $lookup: {
           from: "attempts",
           localField: "_id",
           foreignField: "user",
-          as: "attempts",
+          pipeline: [
+            {
+              $match: {
+                createdAt: { $gte: monthAgo },
+              },
+            },
+          ],
+          as: "recentAttempts",
         },
       },
       {
         $match: {
-          "attempts.0": { $exists: true },
+          "recentAttempts.0": { $exists: true },
         },
       },
       {
