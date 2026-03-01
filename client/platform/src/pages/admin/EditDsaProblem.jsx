@@ -82,6 +82,7 @@ function EditDsaProblem() {
           ["constraints", "Constraints", true],
           ["sampleInput", "Sample Input", true],
           ["sampleOutput", "Sample Output", true],
+          ["boilerplateCode", "Boilerplate Code (C++) — shown to user in editor", true],
         ].map(([key, label, textarea]) => (
           <div key={key}>
             <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
@@ -90,21 +91,39 @@ function EditDsaProblem() {
             {textarea ? (
               <textarea
                 name={key}
-                value={formData[key]}
+                value={formData[key] ?? ""}
                 onChange={handleChange}
-                rows={3}
-                className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600 resize-none"
+                rows={key === "boilerplateCode" ? 8 : 3}
+                className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600 resize-none font-mono text-sm"
               />
             ) : (
               <input
                 name={key}
-                value={formData[key]}
+                value={formData[key] ?? ""}
                 onChange={handleChange}
                 className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600"
               />
             )}
           </div>
         ))}
+
+        {/* Driver Code — separate field so it renders properly with a note */}
+        <div>
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-1">
+            Driver Code — Hidden Main() Harness (C++)
+          </label>
+          <p className="text-[11px] text-slate-500 mb-2">
+            Server-side only. Reads stdin, calls Solution, prints output. Leave blank if boilerplateCode already contains main().
+          </p>
+          <textarea
+            name="driverCode"
+            value={formData.driverCode ?? ""}
+            onChange={handleChange}
+            rows={10}
+            className="w-full bg-white/[0.05] border border-yellow-500/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-yellow-400/50 placeholder:text-slate-600 resize-none font-mono text-sm"
+            placeholder={"int main() {\n    // read input from stdin\n    // call Solution sol;\n    // print output to stdout\n    return 0;\n}"}
+          />
+        </div>
 
         <div>
           <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">

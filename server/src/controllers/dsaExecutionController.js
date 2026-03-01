@@ -161,7 +161,13 @@ exports.runCode = async (req, res) => {
       expectedOutputArray: tc.expectedOutput, // Keep array for multi-output validation
     }));
 
-    const execResult = await runCppWithTestCases(code, testCases);
+    // Append driverCode (hidden main() harness) when the problem has one.
+    // This lets boilerplateCode be a pure Solution class while the test
+    // harness remains server-side only.
+    const driverCode = (problem.driverCode || "").trim();
+    const codeToRun = driverCode ? `${code}\n\n${driverCode}` : code;
+
+    const execResult = await runCppWithTestCases(codeToRun, testCases);
 
     if (!execResult.success) {
       return res.json({
@@ -234,7 +240,11 @@ exports.submitCode = async (req, res) => {
       expectedOutputArray: tc.expectedOutput, // Keep for validation
     }));
 
-    const execResult = await runCppWithTestCases(code, allTestCases);
+    // Append driverCode (hidden main() harness) when the problem has one.
+    const driverCodeSubmit = (problem.driverCode || "").trim();
+    const codeToSubmit = driverCodeSubmit ? `${code}\n\n${driverCodeSubmit}` : code;
+
+    const execResult = await runCppWithTestCases(codeToSubmit, allTestCases);
 
     // Compilation error
     if (!execResult.success) {

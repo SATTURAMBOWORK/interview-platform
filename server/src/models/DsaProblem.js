@@ -64,19 +64,24 @@ const dsaProblemSchema = new mongoose.Schema(
       default: "",
     },
 
-    // Boilerplate code template (per language)
+    // Boilerplate code template (C++ – plain string)
     boilerplateCode: {
-      type: Map,
-      of: String,
-      default: {},
-      // Example: { "javascript": "function twoSum(nums, target) {...}", "python": "def two_sum(nums, target):..." }
+      type: String,
+      default: "",
     },
 
-    // Function signature/template (per language)
+    // Function signature/template
     functionSignature: {
-      type: Map,
-      of: String,
-      default: {},
+      type: String,
+      default: "",
+    },
+
+    // Hidden main() test harness – appended server-side before compilation.
+    // Never exposed to the client. Reads test input from stdin, calls the
+    // user's Solution class, and prints the expected output to stdout.
+    driverCode: {
+      type: String,
+      default: "",
     },
 
     // 🔥 VISIBLE TEST CASES (shown to user during run)
@@ -165,6 +170,7 @@ dsaProblemSchema.set("toJSON", {
   virtuals: true,
   transform: function (_doc, ret) {
     delete ret.hiddenTestCases; // Never expose hidden test cases to the client
+    delete ret.driverCode;      // Never expose the test harness to the client
     delete ret.__v;
     return ret;
   },

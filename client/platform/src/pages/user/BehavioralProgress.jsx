@@ -129,7 +129,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
           /* ── RESPONSE CARDS ── */
           <div className="space-y-4">
             {responses.slice(0, 9).map((resp, idx) => {
-              const tier = TIER(resp.feedback.overallScore);
+              const tier = TIER(resp.feedback?.overallScore ?? 0);
               const isOpen = expandedId === String(resp._id);
 
               return (
@@ -165,9 +165,9 @@ function BehavioralProgress({ onBack, onRefresh }) {
                         {/* metric pills */}
                         <div className="flex gap-2 flex-wrap pt-0.5">
                           {[
-                            { label: "Clarity",      val: resp.feedback.clarity.score,      grad: "from-sky-400 to-blue-500"    },
-                            { label: "Impact",       val: resp.feedback.impact.score,       grad: "from-violet-400 to-purple-500"},
-                            { label: "Completeness", val: resp.feedback.completeness.score, grad: "from-emerald-400 to-teal-500" },
+                            { label: "Clarity",      val: resp.feedback?.clarity?.score      ?? 0, grad: "from-sky-400 to-blue-500"    },
+                            { label: "Impact",       val: resp.feedback?.impact?.score       ?? 0, grad: "from-violet-400 to-purple-500"},
+                            { label: "Completeness", val: resp.feedback?.completeness?.score ?? 0, grad: "from-emerald-400 to-teal-500" },
                           ].map(m => (
                             <span key={m.label} className="text-[10px] font-mono text-slate-500 flex items-center gap-1">
                               <span className={`font-black bg-gradient-to-r ${m.grad} bg-clip-text text-transparent`}>{m.val}</span>
@@ -181,7 +181,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
                       <div className="flex items-center gap-4 shrink-0">
                         <div className="text-right">
                           <p className={`text-3xl font-black font-mono bg-gradient-to-r ${tier.grad} bg-clip-text text-transparent leading-none`}>
-                            {resp.feedback.overallScore}
+                            {resp.feedback?.overallScore ?? 0}
                           </p>
                           <p className="text-[10px] text-slate-600 font-mono mt-1 uppercase tracking-widest">{tier.label}</p>
                         </div>
@@ -208,7 +208,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
                           {/* overall feedback */}
                           <div>
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">Overall Feedback</p>
-                            <p className="text-sm text-slate-300 leading-relaxed">{resp.feedback.overallFeedback}</p>
+                            <p className="text-sm text-slate-300 leading-relaxed">{resp.feedback?.overallFeedback ?? ""}</p>
                           </div>
 
                           {/* 3 metric comments */}
@@ -222,9 +222,9 @@ function BehavioralProgress({ onBack, onRefresh }) {
                                 <div className="flex items-center gap-1.5">
                                   <Icon className="w-3.5 h-3.5 text-slate-600" />
                                   <span className={`text-[10px] font-black uppercase tracking-widest font-mono bg-gradient-to-r ${grad} bg-clip-text text-transparent`}>{label}</span>
-                                  <span className={`ml-auto text-xs font-black font-mono bg-gradient-to-r ${grad} bg-clip-text text-transparent`}>{resp.feedback[key].score}/10</span>
+                                  <span className={`ml-auto text-xs font-black font-mono bg-gradient-to-r ${grad} bg-clip-text text-transparent`}>{resp.feedback?.[key]?.score ?? 0}/10</span>
                                 </div>
-                                <p className="text-xs text-slate-400 leading-relaxed">{resp.feedback[key].comment}</p>
+                                <p className="text-xs text-slate-400 leading-relaxed">{resp.feedback?.[key]?.comment ?? ""}</p>
                               </div>
                             ))}
                           </div>
@@ -237,7 +237,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
                                 <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 font-mono">Strengths</span>
                               </div>
                               <ul className="space-y-2">
-                                {resp.feedback.strengths?.map((s, i) => (
+                                {resp.feedback?.strengths?.map((s, i) => (
                                   <li key={i} className="flex gap-2 text-xs text-slate-400">
                                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
                                     {s}
@@ -251,7 +251,7 @@ function BehavioralProgress({ onBack, onRefresh }) {
                                 <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 font-mono">Improvements</span>
                               </div>
                               <ul className="space-y-2">
-                                {resp.feedback.improvements?.map((imp, i) => (
+                                {resp.feedback?.improvements?.map((imp, i) => (
                                   <li key={i} className="flex gap-2 text-xs text-slate-400">
                                     <span className="text-amber-500 font-black shrink-0">›</span>
                                     {imp}

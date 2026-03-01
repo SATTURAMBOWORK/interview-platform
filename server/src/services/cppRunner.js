@@ -33,7 +33,30 @@ function runCppWithTestCases(code, testCases) {
     const cppFile = path.join(TEMP_DIR, `${id}.cpp`);
     const exeFile = path.join(TEMP_DIR, `${id}.exe`);
 
-    fs.writeFileSync(cppFile, code);
+    // Ensure every submission has the standard header so that NULL,
+    // cout, vector, etc. are always in scope regardless of what the
+    // problem boilerplate or user code includes.
+    const PREAMBLE = `#include <bits/stdc++.h>\nusing namespace std;\n`;
+    const hasInclude = /^\s*#\s*include\s*[<"]bits\/stdc\+\+\.h[>"]/m.test(code);
+    const finalCode = hasInclude ? code : PREAMBLE + code;
+
+    // Guard: if there is no main() function the linker will fail with
+    // "undefined reference to WinMain@16".  Surface a friendly error
+    // before we even try to compile.
+    if (!/\bint\s+main\s*\(/.test(finalCode)) {
+      return resolve({
+        success: false,
+        type: "compile",
+        error:
+          "Compilation Error: No main() function found.\n\n" +
+          "This problem is missing a Driver Code (test harness).\n" +
+          "Go to Admin → Edit Problem and add a driverCode that\n" +
+          "reads test input from stdin, calls your Solution class,\n" +
+          "and prints the result to stdout.",
+      });
+    }
+
+    fs.writeFileSync(cppFile, finalCode);
 
     // 1️⃣ Compile (ABSOLUTE PATH, no shell)
     const compile = spawn(GPP_PATH, [cppFile, "-o", exeFile]);

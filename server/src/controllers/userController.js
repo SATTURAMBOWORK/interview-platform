@@ -154,3 +154,59 @@ exports.searchUsers = async (req, res) => {
     res.status(500).json({ message: "Failed to search users" });
   }
 };
+
+// Update current user profile picture
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Please upload an image file" });
+    }
+
+    if (!req.file.mimetype?.startsWith("image/")) {
+      return res.status(400).json({ message: "Only image files are allowed" });
+    }
+
+    const profilePicture = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Profile picture updated",
+      user,
+    });
+  } catch (err) {
+    console.error("UPDATE PROFILE PICTURE ERROR:", err);
+    res.status(500).json({ message: "Failed to update profile picture" });
+  }
+};
+
+// Remove current user profile picture
+exports.removeProfilePicture = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture: "" },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Profile picture removed",
+      user,
+    });
+  } catch (err) {
+    console.error("REMOVE PROFILE PICTURE ERROR:", err);
+    res.status(500).json({ message: "Failed to remove profile picture" });
+  }
+};

@@ -287,7 +287,7 @@ export default function ResumeScore() {
                           onChange={(e) => setResumeText(e.target.value)}
                           placeholder="Paste your full resume content here..."
                           rows={13}
-                          className="w-full rounded-xl bg-black/20 border border-white/8 px-4 py-3 text-sm text-white/75 placeholder-white/15 font-mono resize-none focus:outline-none focus:border-cyan-500/50 focus:bg-black/30 transition-all"
+                          className="w-full h-[320px] rounded-xl bg-black/20 border border-white/8 px-4 py-3 text-sm text-white/75 placeholder-white/15 font-mono resize-none focus:outline-none focus:border-cyan-500/50 focus:bg-black/30 transition-all"
                         />
                         {resumeText && (
                           <p className="mt-1.5 text-[10px] text-white/20 font-mono text-right">{resumeText.length} chars</p>
@@ -303,7 +303,7 @@ export default function ResumeScore() {
                         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                         onDragLeave={() => setIsDragging(false)}
                         onClick={() => fileRef.current?.click()}
-                        className={`flex flex-col items-center justify-center gap-4 h-52 rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+                        className={`flex flex-col items-center justify-center gap-4 h-[320px] rounded-xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
                           isDragging
                             ? "border-cyan-400 bg-cyan-500/10 scale-[1.01]"
                             : pdfFile
@@ -347,7 +347,7 @@ export default function ResumeScore() {
               </div>
 
               {/* ── Right: JD Panel ── */}
-              <div className="group relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-md p-5 hover:border-violet-500/30 transition-all duration-300">
+              <div className="group relative rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-md p-5 space-y-4 hover:border-violet-500/30 transition-all duration-300">
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-4">
@@ -360,8 +360,8 @@ export default function ResumeScore() {
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                     placeholder="Paste the complete job description here..."
-                    rows={16}
-                    className="w-full rounded-xl bg-black/20 border border-white/8 px-4 py-3 text-sm text-white/75 placeholder-white/15 font-mono resize-none focus:outline-none focus:border-violet-500/50 focus:bg-black/30 transition-all"
+                    rows={13}
+                    className="w-full h-[320px] rounded-xl bg-black/20 border border-white/8 px-4 py-3 text-sm text-white/75 placeholder-white/15 font-mono resize-none focus:outline-none focus:border-violet-500/50 focus:bg-black/30 transition-all"
                   />
                   {jobDescription && (
                     <p className="mt-1.5 text-[10px] text-white/20 font-mono text-right">{jobDescription.length} chars</p>

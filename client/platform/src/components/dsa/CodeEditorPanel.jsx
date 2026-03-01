@@ -13,9 +13,20 @@ int main() {
 
 const CodeEditorPanel = ({ problemId, problem, fontSize = 14 }) => {
   const initialCode = useMemo(() => {
-    return problem?.boilerplateCode?.trim()
-      ? problem.boilerplateCode
-      : defaultStarterCode;
+    const bc = problem?.boilerplateCode;
+    // boilerplateCode may be a string (normal) or an object/Map (legacy bulk-upload)
+    let boilerplate = "";
+    if (typeof bc === "string") {
+      boilerplate = bc;
+    } else if (bc && typeof bc === "object") {
+      // Mongoose Map serialised as plain object – extract cpp key
+      boilerplate =
+        bc.cpp ||
+        (typeof bc.get === "function" && bc.get("cpp")) ||
+        Object.values(bc).find((v) => typeof v === "string") ||
+        "";
+    }
+    return boilerplate.trim() ? boilerplate : defaultStarterCode;
   }, [problem]);
 
   const [code, setCode] = useState(initialCode);

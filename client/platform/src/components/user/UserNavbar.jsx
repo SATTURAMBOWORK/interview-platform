@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Layers, Code2, Award, LogOut, Menu, X, Flame, Trophy, FileSearch,
+  Layers, Code2, Award, LogOut, Menu, X, Flame, Trophy, FileSearch, Camera, Trash2,
 } from "lucide-react";
 import api from "../../api/axios";
 import { AuthContext } from "../../context/AuthContextValue";
@@ -16,6 +16,9 @@ const UserNavbar = () => {
   const [streak, setStreak] = useState(0);
   const [level, setLevel] = useState(1);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showProfilePictureOption, setShowProfilePictureOption] = useState(false);
+  const [uploadingProfilePicture, setUploadingProfilePicture] = useState(false);
+  const profilePictureInputRef = useRef(null);
 
   // Smooth spring configuration for fluid movement
   const smoothSpring = {
@@ -91,11 +94,92 @@ const UserNavbar = () => {
     navigate("/login");
   };
 
+  const triggerProfilePictureUpload = () => {
+    profilePictureInputRef.current?.click();
+  };
+
+  const handleProfilePictureUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type?.startsWith("image/")) {
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      setUploadingProfilePicture(true);
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const { data } = await api.post("/users/profile-picture", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (data?.user) {
+        setUser(data.user);
+      }
+
+      setShowProfilePictureOption(false);
+    } catch (error) {
+      console.error("Profile picture upload failed", error);
+    } finally {
+      setUploadingProfilePicture(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleRemoveProfilePicture = async () => {
+    try {
+      setUploadingProfilePicture(true);
+      const { data } = await api.delete("/users/profile-picture");
+      if (data?.user) {
+        setUser(data.user);
+      }
+      setShowProfilePictureOption(false);
+    } catch (error) {
+      console.error("Profile picture remove failed", error);
+    } finally {
+      setUploadingProfilePicture(false);
+    }
+  };
+
   const isActive = (path) => location.pathname.startsWith(path);
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a16]/80 backdrop-blur-xl">
-      <div className="max-w-[1600px] mx-auto px-6">
+      <div className="max-w-[1600px] mx-auto px-6 relative">
+        <input
+          ref={profilePictureInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleProfilePictureUpload}
+        />
+
+        {showProfilePictureOption && (
+          <div className="absolute right-6 top-16 z-50 rounded-xl border border-white/10 bg-[#0a0a16]/95 backdrop-blur-xl p-2 shadow-2xl">
+            <button
+              type="button"
+              onClick={triggerProfilePictureUpload}
+              disabled={uploadingProfilePicture}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-mono uppercase tracking-wider text-white/90 hover:bg-white/10 disabled:opacity-60"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              {uploadingProfilePicture ? "Uploading..." : "Add Profile Picture"}
+            </button>
+            <button
+              type="button"
+              onClick={handleRemoveProfilePicture}
+              disabled={uploadingProfilePicture || !user?.profilePicture}
+              className="mt-1 flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-mono uppercase tracking-wider text-white/90 hover:bg-white/10 disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Remove Profile Picture
+            </button>
+          </div>
+        )}
+
         <div className="h-16 flex items-center justify-between gap-6">
 
           {/* LOGO */}
@@ -140,7 +224,7 @@ const UserNavbar = () => {
                   transition={smoothSpring}
                   className="relative flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.2em] outline-none text-white/70 hover:text-white"
                 >
-                  <Icon className="w-4 h-4" /> 
+                  <Icon className="w-4 h-4" />
                   {label}
                   {active && (
                     <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-white/40" />
@@ -164,11 +248,24 @@ const UserNavbar = () => {
 
             <div className="hidden lg:flex items-center gap-8">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center">
-                  <span className="text-xs font-bold text-white font-mono">
-                    {user?.username?.charAt(0)?.toUpperCase() || "U"}
-                  </span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowProfilePictureOption((prev) => !prev)}
+                  className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center overflow-hidden"
+                  title="Profile picture options"
+                >
+                  {user?.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt="Profile"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-xs font-bold text-white font-mono">
+                      {user?.username?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                  )}
+                </button>
                 <span className="text-sm text-white font-semibold tracking-tight">
                   {user?.username || "User"}
                 </span>
@@ -217,7 +314,7 @@ const UserNavbar = () => {
                   { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
                   { path: "/resume-score", icon: FileSearch, label: "Resume" },
                 ].map(({ path, icon: Icon, label }) => (
-                  <motion.button 
+                  <motion.button
                     key={path}
                     whileTap={{ scale: 0.97 }}
                     whileHover={{ color: "#22d3ee" }}
@@ -226,7 +323,8 @@ const UserNavbar = () => {
                       isActive(path) ? "text-white font-bold" : "text-white/60"
                     }`}
                   >
-                    <Icon className="w-4 h-4" /> {label}
+                    <Icon className="w-4 h-4" />
+                    {label}
                     {isActive(path) && (
                       <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/50" />
                     )}
@@ -236,9 +334,22 @@ const UserNavbar = () => {
 
               <div className="flex items-center justify-between pt-6 border-t border-white/10">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-white text-xs font-mono">
-                    {user?.username?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowProfilePictureOption((prev) => !prev)}
+                    className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-white text-xs font-mono overflow-hidden"
+                    title="Profile picture options"
+                  >
+                    {user?.profilePicture ? (
+                      <img
+                        src={user.profilePicture}
+                        alt="Profile"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      user?.username?.charAt(0)?.toUpperCase() || "U"
+                    )}
+                  </button>
                   <span className="text-white text-sm font-medium">{user?.username || "User"}</span>
                 </div>
                 <button

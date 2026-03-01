@@ -19,6 +19,7 @@ function AddDsaProblem() {
     sampleInput: "",
     sampleOutput: "",
     boilerplateCode: "",
+    driverCode: "",
     acceptanceCriteria: "EXACT_MATCH",
     visibleTestCases: [{ input: "", expectedOutput: [""] }],
     hiddenTestCases: [{ input: "", expectedOutput: [""] }],
@@ -341,10 +342,27 @@ function AddDsaProblem() {
               </label>
               <textarea
                 name="boilerplateCode"
-                placeholder={'#include<bits/stdc++.h>\nusing namespace std;\n\nint solve(vector<int>& arr) {\n    // Write your code here\n    return 0;\n}'}
+                placeholder={'class Solution {\npublic:\n    int solve() {\n        // Write your solution here\n        return 0;\n    }\n};'}
                 rows={6}
                 className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none"
                 value={formData.boilerplateCode}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
+                Driver Code — Hidden Main() Harness (C++)
+              </label>
+              <p className="text-[11px] text-slate-500 mb-2">
+                Server-side only. Reads test input from stdin, calls your Solution class, prints output. Leave blank if boilerplateCode already contains main().
+              </p>
+              <textarea
+                name="driverCode"
+                placeholder={'int main() {\n    int n;\n    cin >> n;\n    vector<int> nums(n);\n    for (int i = 0; i < n; i++) cin >> nums[i];\n    Solution sol;\n    cout << sol.solve(nums) << endl;\n    return 0;\n}'}
+                rows={8}
+                className="w-full px-4 py-2 bg-white/[0.05] border border-yellow-500/20 text-white rounded-xl focus:outline-none focus:border-yellow-400/50 font-mono text-sm resize-none"
+                value={formData.driverCode}
                 onChange={handleChange}
               />
             </div>

@@ -2,6 +2,24 @@ const mongoose = require("mongoose");
 const DsaProblem = require("../models/DsaProblem");
 const Submission = require("../models/Submission");
 
+/**
+ * Coerce boilerplateCode to a plain string regardless of whether it
+ * arrived as a string, a Mongoose Map-serialised object, or anything else.
+ */
+const normalizeBoilerplate = (bc) => {
+  if (!bc) return "";
+  if (typeof bc === "string") return bc;
+  if (typeof bc === "object") {
+    return (
+      bc.cpp ||
+      (typeof bc.get === "function" && bc.get("cpp")) ||
+      Object.values(bc).find((v) => typeof v === "string") ||
+      ""
+    );
+  }
+  return "";
+};
+
 /* =========================================================
    ADMIN APIs
    ========================================================= */
@@ -23,6 +41,7 @@ exports.createDsaProblem = async (req, res) => {
       hiddenTestCases,
       acceptanceCriteria = "EXACT_MATCH", // NEW
       boilerplateCode = "", // NEW
+      driverCode = "",      // Hidden main() test harness (server-side only)
     } = req.body;
 
     if (!title || !description || !difficulty) {
@@ -63,7 +82,8 @@ exports.createDsaProblem = async (req, res) => {
       constraints,
       sampleInput,
       sampleOutput,
-      boilerplateCode,
+      boilerplateCode: normalizeBoilerplate(boilerplateCode),
+      driverCode: (driverCode || "").trim(),
       acceptanceCriteria,
       visibleTestCases: validateTestCases(visibleTestCases),
       hiddenTestCases: validateTestCases(hiddenTestCases),
@@ -149,7 +169,8 @@ exports.bulkUploadDsaProblems = async (req, res) => {
           sampleInput: p.sampleInput || "",
           sampleOutput: p.sampleOutput || "",
           functionSignature: p.functionSignature || "",
-          boilerplateCode: p.boilerplateCode || "",
+          boilerplateCode: normalizeBoilerplate(p.boilerplateCode),
+          driverCode: (p.driverCode || "").trim(),
           acceptanceCriteria: p.acceptanceCriteria || "EXACT_MATCH",
           visibleTestCases: validateTestCases(p.visibleTestCases),
           hiddenTestCases: validateTestCases(p.hiddenTestCases),
@@ -246,6 +267,14 @@ exports.updateDsaProblem = async (req, res) => {
       req.body.tags = Array.isArray(req.body.tags)
         ? req.body.tags.map(t => t.toLowerCase())
         : [req.body.tags.toLowerCase()];
+    }
+
+    // Normalize boilerplateCode and driverCode if provided
+    if (req.body.boilerplateCode !== undefined) {
+      req.body.boilerplateCode = normalizeBoilerplate(req.body.boilerplateCode);
+    }
+    if (req.body.driverCode !== undefined) {
+      req.body.driverCode = (req.body.driverCode || "").trim();
     }
 
     // Validate test cases if updating
@@ -436,6 +465,24 @@ exports.getDsaProblemForUser = async (req, res) => {
       return res.status(404).json({
         message: "Problem not found",
       });
+    }
+
+    // Normalise boilerplateCode to always be a plain string.
+    // Older documents (bulk-uploaded) may have been stored as a Map/object
+    // because the schema previously used `type: Map`. We coerce it here so
+    // the frontend always receives a string it can safely call .trim() on.
+    const rawBc = problem.boilerplateCode;
+    if (rawBc !== undefined && typeof rawBc !== "string") {
+      if (rawBc && typeof rawBc === "object") {
+        // Serialised Mongoose Map → plain object, try common language keys
+        problem.boilerplateCode =
+          rawBc.cpp ||
+          rawBc.get?.("cpp") ||
+          Object.values(rawBc).find((v) => typeof v === "string") ||
+          "";
+      } else {
+        problem.boilerplateCode = "";
+      }
     }
 
     res.status(200).json({

@@ -76,10 +76,23 @@ exports.submitResponse = async (req, res) => {
     const fullResponse = `Situation: ${response.situation}\n\nTask: ${response.task}\n\nAction: ${response.action}\n\nResult: ${response.result}`;
 
     console.log('🤖 Calling AI analysis...');
-    // Get AI feedback
-    const feedback = await analyzeStarResponse(response, question);
-    
-    console.log('✅ AI analysis complete');
+    // Get AI feedback — use a fallback if the AI service is temporarily unavailable
+    let feedback;
+    try {
+      feedback = await analyzeStarResponse(response, question);
+      console.log('✅ AI analysis complete');
+    } catch (aiError) {
+      console.error('⚠️  AI analysis failed, saving with fallback feedback:', aiError.message);
+      feedback = {
+        clarity:      { score: 0, comment: "AI analysis temporarily unavailable." },
+        impact:       { score: 0, comment: "AI analysis temporarily unavailable." },
+        completeness: { score: 0, comment: "AI analysis temporarily unavailable." },
+        overallScore: 0,
+        overallFeedback: "Your response has been saved. AI analysis is temporarily unavailable — please try viewing this response later or re-submit for feedback.",
+        strengths:    [],
+        improvements: ["Try re-submitting this question later for full AI feedback."],
+      };
+    }
 
     // Save response
     const starResponse = new StarResponse({

@@ -237,6 +237,7 @@ const DsaDashboard = () => {
                 medium={{ solved: stats?.medium?.solved || 0, total: stats?.medium?.total || 0 }}
                 hard={{ solved: stats?.hard?.solved || 0, total: stats?.hard?.total || 0 }}
                 attemptedCount={attemptedProblemIds.length}
+                acceptanceRate={acceptanceRate}
               />
             </motion.div>
           </div>

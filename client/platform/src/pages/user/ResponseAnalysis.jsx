@@ -24,7 +24,15 @@ const METRIC_CFG = [
 ];
 
 function ResponseAnalysis({ question, response, feedback, onNext }) {
-  const tier = TIER(feedback.overallScore);
+  if (!feedback) {
+    return (
+      <div className="min-h-screen bg-[#0a0a16] flex items-center justify-center">
+        <p className="text-slate-400 font-mono">No feedback available.</p>
+      </div>
+    );
+  }
+
+  const tier = TIER(feedback?.overallScore ?? 0);
 
   // SVG ring
   const radius = 80;
@@ -65,7 +73,7 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
                 <h1 className={`text-6xl md:text-8xl font-black tracking-tighter leading-none font-mono bg-gradient-to-r ${tier.grad} bg-clip-text text-transparent`}
                   style={{ filter: `drop-shadow(0 0 20px ${tier.glow})` }}
                 >
-                  {feedback.overallScore}
+                  {feedback?.overallScore ?? 0}
                 </h1>
                 <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-slate-500 font-mono mt-2">
                   Out of 100 &nbsp;·&nbsp; {tier.label}
@@ -73,14 +81,14 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
               </div>
 
               <p className="text-slate-300 text-base leading-relaxed max-w-lg">
-                {feedback.overallFeedback}
+                {feedback?.overallFeedback ?? ""}
               </p>
 
               {/* mini metric pills */}
               <div className="flex flex-wrap gap-3 pt-1">
                 {METRIC_CFG.map(({ key, label, grad }) => (
                   <span key={key} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-[11px] font-bold font-mono">
-                    <span className={`bg-gradient-to-r ${grad} bg-clip-text text-transparent`}>{feedback[key].score}</span>
+                    <span className={`bg-gradient-to-r ${grad} bg-clip-text text-transparent`}>{feedback[key]?.score ?? 0}</span>
                     <span className="text-slate-500">/ 10 {label}</span>
                   </span>
                 ))}
@@ -98,14 +106,14 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
                     strokeWidth="12"
                     strokeDasharray={circumference}
                     initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: circumference - (circumference * feedback.overallScore) / 100 }}
+                    animate={{ strokeDashoffset: circumference - (circumference * (feedback?.overallScore ?? 0)) / 100 }}
                     transition={{ duration: 1.4, ease: "easeOut", delay: 0.2 }}
                     style={{ stroke: tier.ring, strokeLinecap: "round", filter: `drop-shadow(0 0 8px ${tier.glow})` }}
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span className={`text-5xl md:text-6xl font-black tracking-tighter font-mono bg-gradient-to-r ${tier.grad} bg-clip-text text-transparent`}>
-                    {feedback.overallScore}
+                    {feedback?.overallScore ?? 0}
                   </span>
                   <span className="text-[11px] font-bold uppercase tracking-[0.3em] mt-2 font-mono" style={{ color: tier.ring }}>
                     {tier.label}
@@ -120,7 +128,7 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
             {METRIC_CFG.map(({ key, label }) => (
               <div key={key}>
                 <p className="text-[10px] uppercase tracking-widest text-slate-500 font-mono mb-1">{label}</p>
-                <p className="text-2xl font-black font-mono text-white">{feedback[key].score}<span className="text-slate-600 text-sm">/10</span></p>
+                <p className="text-2xl font-black font-mono text-white">{feedback[key]?.score ?? 0}<span className="text-slate-600 text-sm">/10</span></p>
               </div>
             ))}
           </div>
@@ -142,7 +150,7 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
                   className={`shrink-0 w-14 h-14 rounded-xl flex flex-col items-center justify-center bg-gradient-to-br ${grad} font-mono`}
                   style={{ boxShadow: `0 0 16px ${glow}` }}
                 >
-                  <span className="text-xl font-black text-white leading-none">{feedback[key].score}</span>
+                  <span className="text-xl font-black text-white leading-none">{feedback[key]?.score ?? 0}</span>
                   <span className="text-[9px] text-white/70 font-bold">/ 10</span>
                 </div>
 
@@ -153,19 +161,19 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
                       {label}
                     </h3>
                   </div>
-                  <p className="text-sm text-slate-400 leading-relaxed">{feedback[key].comment}</p>
+                  <p className="text-sm text-slate-400 leading-relaxed">{feedback[key]?.comment ?? ""}</p>
 
                   {/* score bar */}
                   <div className="mt-3 flex items-center gap-3">
                     <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${(feedback[key].score / 10) * 100}%` }}
+                        animate={{ width: `${((feedback[key]?.score ?? 0) / 10) * 100}%` }}  
                         transition={{ duration: 0.8, delay: 0.3 + idx * 0.1, ease: "easeOut" }}
                         className={`h-full rounded-full bg-gradient-to-r ${grad}`}
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-slate-600 shrink-0">{feedback[key].score}/10</span>
+                    <span className="text-[10px] font-mono text-slate-600 shrink-0">{feedback[key]?.score ?? 0}/10</span>
                   </div>
                 </div>
               </div>
@@ -188,7 +196,7 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
               <h3 className="text-sm font-black uppercase tracking-wider font-mono text-emerald-400">Strengths</h3>
             </div>
             <ul className="space-y-3">
-              {feedback.strengths?.map((s, i) => (
+              {feedback?.strengths?.map((s, i) => (
                 <motion.li
                   key={i}
                   initial={{ opacity: 0, x: -10 }}
@@ -215,7 +223,7 @@ function ResponseAnalysis({ question, response, feedback, onNext }) {
               <h3 className="text-sm font-black uppercase tracking-wider font-mono text-amber-400">Improvements</h3>
             </div>
             <ul className="space-y-3">
-              {feedback.improvements?.map((imp, i) => (
+              {feedback?.improvements?.map((imp, i) => (
                 <motion.li
                   key={i}
                   initial={{ opacity: 0, x: -10 }}

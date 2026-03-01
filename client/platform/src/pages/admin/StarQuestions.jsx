@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 import {
   Trash2,
   Edit,

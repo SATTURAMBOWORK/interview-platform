@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import usePageTitle from "../../hooks/usePageTitle";
 import { motion, useMotionValue } from "framer-motion";
@@ -19,6 +19,7 @@ import {
   Brain,
   Rocket,
   Heart,
+  Camera,
 } from "lucide-react";
 import api from "../../api/axios";
 import SubjectCard from "../../components/user/SubjectCard";
@@ -34,6 +35,9 @@ function UserDashboard() {
   const [dsaStats, setDsaStats] = useState(null);
   const [starResponses, setStarResponses] = useState([]);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [showProfilePictureOption, setShowProfilePictureOption] = useState(false);
+  const [uploadingProfilePicture, setUploadingProfilePicture] = useState(false);
+  const profilePictureInputRef = useRef(null);
 
   // Mouse tracking for parallax (left card only)
   const mouseX = useMotionValue(0);
@@ -79,6 +83,41 @@ function UserDashboard() {
 
     fetchData();
   }, []);
+
+  const triggerProfilePictureUpload = () => {
+    profilePictureInputRef.current?.click();
+  };
+
+  const handleProfilePictureUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type?.startsWith("image/")) {
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      setUploadingProfilePicture(true);
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const { data } = await api.post("/users/profile-picture", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (data?.user) {
+        setUser(data.user);
+      }
+
+      setShowProfilePictureOption(false);
+    } catch (error) {
+      console.error("Profile picture upload failed", error);
+    } finally {
+      setUploadingProfilePicture(false);
+      event.target.value = "";
+    }
+  };
 
   /* ===================== */
   /* KPI CALCULATIONS */
@@ -251,6 +290,14 @@ function UserDashboard() {
 
   const bestSubject = getBestSubject();
 
+  const hasSubjectData = weakestSubject && weakestSubject.attempts > 0;
+  const isMasteryMode =
+    hasSubjectData &&
+    weakestSubject.avgScore >= 60 &&
+    weakestSubject.avgScore < 80 &&
+    !!bestSubject;
+  const focusSubject = isMasteryMode ? bestSubject : weakestSubject;
+
   const getScoreTrend = () => {
     return sortedAttempts.slice(0, 7).reverse().map((attempt, idx) => ({
       day: idx + 1,
@@ -319,6 +366,14 @@ function UserDashboard() {
 
       {/* MAIN CONTENT */}
       <div className="max-w-[1600px] mx-auto px-8 py-12 space-y-12 pt-8">
+        <input
+          ref={profilePictureInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleProfilePictureUpload}
+        />
+
         {/* 3-COLUMN MAIN GRID (aligned + equal heights) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-stretch lg:auto-rows-fr">
           {/* LEFT COLUMN */}
@@ -741,7 +796,7 @@ function UserDashboard() {
                 e.currentTarget.style.setProperty("--mouse-y", "50%");
               }}
               style={{ "--mouse-x": "50%", "--mouse-y": "50%", flex: 1 }}
-              onClick={() => weakestSubject && navigate(`/dashboard/subject/${weakestSubject.subject._id}`)}
+              onClick={() => focusSubject && navigate(`/dashboard/subject/${focusSubject.subject._id}`)}
               className="group cursor-pointer relative overflow-hidden transition-all duration-300 flex flex-col"
             >
               <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
@@ -770,25 +825,67 @@ function UserDashboard() {
                 ))}
               </div>
 
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-900/30 to-slate-900/60 rounded-3xl border border-orange-400/20 backdrop-blur-xl" />
+              <div
+                className={`absolute inset-0 rounded-3xl border backdrop-blur-xl ${
+                  isMasteryMode
+                    ? "bg-gradient-to-br from-emerald-900/30 to-slate-900/60 border-emerald-400/20"
+                    : "bg-gradient-to-br from-orange-900/30 to-slate-900/60 border-orange-400/20"
+                }`}
+              />
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-400/15 via-transparent to-amber-400/10 rounded-3xl" />
+                <div
+                  className={`absolute inset-0 rounded-3xl ${
+                    isMasteryMode
+                      ? "bg-gradient-to-br from-emerald-400/15 via-transparent to-green-400/10"
+                      : "bg-gradient-to-br from-orange-400/15 via-transparent to-amber-400/10"
+                  }`}
+                />
               </div>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(251,146,60,0.2),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-orange-400/30 via-transparent to-amber-400/20 opacity-0 group-hover:opacity-100 transition-opacity blur-xl -inset-1" />
+              <div
+                className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl ${
+                  isMasteryMode
+                    ? "bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(52,211,153,0.2),transparent_60%)]"
+                    : "bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(251,146,60,0.2),transparent_60%)]"
+                }`}
+              />
+              <div
+                className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity blur-xl -inset-1 ${
+                  isMasteryMode
+                    ? "bg-gradient-to-r from-emerald-400/30 via-transparent to-green-400/20"
+                    : "bg-gradient-to-r from-orange-400/30 via-transparent to-amber-400/20"
+                }`}
+              />
 
-              <div className="relative p-6 rounded-3xl border border-orange-400/30 group-hover:border-orange-400/60 transition-all bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-md flex-1 flex flex-col">
+              <div
+                className={`relative p-6 rounded-3xl border transition-all bg-gradient-to-br from-white/5 to-white/0 backdrop-blur-md flex-1 flex flex-col ${
+                  isMasteryMode
+                    ? "border-emerald-400/30 group-hover:border-emerald-400/60"
+                    : "border-orange-400/30 group-hover:border-orange-400/60"
+                }`}
+              >
                 <div className="flex flex-col gap-4 flex-1 justify-between">
                   <div>
                     <motion.div
                       whileHover={{ scale: 1.05 }}
-                      className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-400/30 cursor-pointer mb-4"
+                      className={`inline-flex items-center gap-3 px-4 py-2 rounded-full cursor-pointer mb-4 ${
+                        isMasteryMode
+                          ? "bg-emerald-500/10 border border-emerald-400/30"
+                          : "bg-orange-500/10 border border-orange-400/30"
+                      }`}
                     >
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
-                        <Brain className="w-4 h-4 text-orange-400" />
+                        {isMasteryMode ? (
+                          <Trophy className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <Brain className="w-4 h-4 text-orange-400" />
+                        )}
                       </motion.div>
-                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-orange-400 font-mono">
-                        Recommended Focus
+                      <span
+                        className={`text-xs font-bold uppercase tracking-[0.2em] font-mono ${
+                          isMasteryMode ? "text-emerald-400" : "text-orange-400"
+                        }`}
+                      >
+                        {isMasteryMode ? "Move Towards Mastery" : "Recommended Focus"}
                       </span>
                     </motion.div>
 
@@ -797,86 +894,125 @@ function UserDashboard() {
                       className="text-3xl font-black text-white tracking-tighter leading-tight uppercase cursor-default"
                       style={{ fontFamily: "var(--font-header)" }}
                     >
-                      {weakestSubject ? weakestSubject.subject.name : "Keep Practicing"}{" "}
+                      {focusSubject ? focusSubject.subject.name : "Keep Practicing"}{" "}
                       <motion.span
                         animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
                         transition={{ duration: 5, repeat: Infinity }}
-                        className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(251,146,60,0.5)] block"
+                        className={`bg-clip-text text-transparent block ${
+                          isMasteryMode
+                            ? "bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 drop-shadow-[0_0_20px_rgba(52,211,153,0.5)]"
+                            : "bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 drop-shadow-[0_0_20px_rgba(251,146,60,0.5)]"
+                        }`}
                         style={{ backgroundSize: "200% 200%" }}
                       >
-                        {weakestSubject ? "needs work" : ""}
+                        {focusSubject ? (isMasteryMode ? "build mastery" : "needs work") : ""}
                       </motion.span>
                     </motion.h1>
 
                     <p className="text-sm text-slate-400 leading-relaxed mt-3" style={{ fontFamily: "var(--font-body)" }}>
-                      {weakestSubject
-                        ? `Your accuracy is at ${weakestSubject.avgScore}%. Boost it to unlock the next level!`
+                      {focusSubject
+                        ? isMasteryMode
+                          ? `${focusSubject.subject.name} is your strongest area at ${focusSubject.avgScore}%. Keep pushing toward 80%+ mastery.`
+                          : `Your accuracy is at ${focusSubject.avgScore}%. Boost it to unlock the next level!`
                         : "Start solving problems to get personalised recommendations"}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Accuracy", value: weakestSubject ? `${weakestSubject.avgScore}%` : "—", icon: Target },
-                      { label: "Attempts", value: weakestSubject ? weakestSubject.attempts : "—", icon: Zap },
-                      { label: "Goal", value: "80%", icon: Rocket },
+                      { label: "Accuracy", value: focusSubject ? `${focusSubject.avgScore}%` : "—", icon: Target },
+                      { label: "Attempts", value: focusSubject ? focusSubject.attempts : "—", icon: Zap },
+                      { label: "Stage", value: isMasteryMode ? "Mastery" : "Focus", icon: Rocket },
                     ].map((stat, i) => (
                       <motion.div
                         key={i}
                         whileHover={{ scale: 1.1, y: -5, rotate: [0, -2, 2, 0] }}
-                        className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-orange-400/50 transition-all group/stat cursor-pointer text-center"
+                        className={`p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all group/stat cursor-pointer text-center ${
+                          isMasteryMode ? "hover:border-emerald-400/50" : "hover:border-orange-400/50"
+                        }`}
                       >
-                        <stat.icon className="w-4 h-4 text-orange-400 mx-auto mb-2 group-hover/stat:scale-110 transition-transform" />
+                        <stat.icon
+                          className={`w-4 h-4 mx-auto mb-2 group-hover/stat:scale-110 transition-transform ${
+                            isMasteryMode ? "text-emerald-400" : "text-orange-400"
+                          }`}
+                        />
                         <p className="text-xs font-bold text-white font-mono">{stat.value}</p>
                         <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">{stat.label}</p>
                       </motion.div>
                     ))}
                   </div>
 
-                  <motion.div whileHover={{ scale: 1.02 }} className="p-5 rounded-2xl bg-black/40 border border-orange-400/20 backdrop-blur-sm cursor-pointer">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    className={`p-5 rounded-2xl bg-black/40 backdrop-blur-sm cursor-pointer ${
+                      isMasteryMode ? "border border-emerald-400/20" : "border border-orange-400/20"
+                    }`}
+                  >
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                        Skill Gap
+                        Progress
                       </p>
                       <motion.div animate={{ opacity: [0, 1, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-                        <Brain className="w-4 h-4 text-orange-400" />
+                        {isMasteryMode ? (
+                          <Trophy className="w-4 h-4 text-emerald-400" />
+                        ) : (
+                          <Brain className="w-4 h-4 text-orange-400" />
+                        )}
                       </motion.div>
                     </div>
 
                     <div className="space-y-2">
-                      {[
-                        { label: "Current", pct: weakestSubject ? Math.min(weakestSubject.avgScore, 100) : 0, color: "#fb923c" },
-                        { label: "Target", pct: 80, color: "#fbbf24" },
-                      ].map((bar, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                          <p className="text-[9px] font-mono text-slate-500 w-16 uppercase tracking-wider shrink-0">{bar.label}</p>
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/10">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${bar.pct}%` }}
-                              transition={{ duration: 1.3, ease: "easeOut", delay: i * 0.15 }}
-                              className="h-full rounded-full"
-                              style={{ background: bar.color, boxShadow: `0 0 8px ${bar.color}80` }}
-                            />
-                          </div>
-                          <p className="text-[9px] font-mono w-8 text-right" style={{ color: bar.color }}>
-                            {bar.pct}%
-                          </p>
+                      <div className="flex items-center gap-3">
+                        <p className="text-[9px] font-mono text-slate-500 w-16 uppercase tracking-wider shrink-0">
+                          {isMasteryMode ? "Mastery" : "Current"}
+                        </p>
+                        <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden border border-white/10">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${focusSubject ? Math.min(focusSubject.avgScore, 100) : 0}%` }}
+                            transition={{ duration: 1.3, ease: "easeOut" }}
+                            className="h-full rounded-full"
+                            style={{
+                              background: isMasteryMode ? "#34d399" : "#fb923c",
+                              boxShadow: isMasteryMode ? "0 0 8px #34d39980" : "0 0 8px #fb923c80",
+                            }}
+                          />
                         </div>
-                      ))}
+                        <p
+                          className="text-[9px] font-mono w-8 text-right"
+                          style={{ color: isMasteryMode ? "#34d399" : "#fb923c" }}
+                        >
+                          {focusSubject ? Math.min(focusSubject.avgScore, 100) : 0}%
+                        </p>
+                      </div>
                     </div>
                   </motion.div>
 
                   <motion.button
-                    whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(251,146,60,0.7)" }}
+                    whileHover={{
+                      scale: 1.05,
+                      boxShadow: isMasteryMode
+                        ? "0 0 30px rgba(52,211,153,0.7)"
+                        : "0 0 30px rgba(251,146,60,0.7)",
+                    }}
                     whileTap={{ scale: 0.95 }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (weakestSubject) navigate(`/dashboard/subject/${weakestSubject.subject._id}`);
+                      if (focusSubject) navigate(`/dashboard/subject/${focusSubject.subject._id}`);
                     }}
-                    className="w-full px-6 py-3 bg-gradient-to-r from-orange-400 to-amber-400 text-slate-900 font-bold rounded-full text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(251,146,60,0.5)] hover:shadow-[0_0_30px_rgba(251,146,60,0.7)] transition-all border border-orange-400/50 font-mono uppercase tracking-widest"
+                    className={`w-full px-6 py-3 text-slate-900 font-bold rounded-full text-sm flex items-center justify-center gap-2 transition-all font-mono uppercase tracking-widest ${
+                      isMasteryMode
+                        ? "bg-gradient-to-r from-emerald-400 to-green-400 shadow-[0_0_20px_rgba(52,211,153,0.5)] hover:shadow-[0_0_30px_rgba(52,211,153,0.7)] border border-emerald-400/50"
+                        : "bg-gradient-to-r from-orange-400 to-amber-400 shadow-[0_0_20px_rgba(251,146,60,0.5)] hover:shadow-[0_0_30px_rgba(251,146,60,0.7)] border border-orange-400/50"
+                    }`}
                   >
-                    <span>{weakestSubject ? "Start Practice" : "Explore Subjects"}</span>
+                    <span>
+                      {focusSubject
+                        ? isMasteryMode
+                          ? "Move Towards Mastery"
+                          : "Start Practice"
+                        : "Explore Subjects"}
+                    </span>
                     <motion.div animate={{ x: [0, 5, 0] }} transition={{ duration: 1, repeat: Infinity }}>
                       <Rocket className="w-4 h-4" />
                     </motion.div>
@@ -911,14 +1047,38 @@ function UserDashboard() {
 
             <div className="relative z-10 flex-1 flex flex-col">
               {/* IDENTITY */}
-              <div className="text-center mb-6 pb-6 border-b border-white/10">
-                <motion.div
+              <div className="text-center mb-6 pb-6 border-b border-white/10 relative">
+                {showProfilePictureOption && (
+                  <div className="absolute left-1/2 -translate-x-1/2 top-24 z-20 rounded-xl border border-white/10 bg-[#0a0a16]/95 backdrop-blur-xl p-2 shadow-2xl">
+                    <button
+                      type="button"
+                      onClick={triggerProfilePictureUpload}
+                      disabled={uploadingProfilePicture}
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-mono uppercase tracking-wider text-white/90 hover:bg-white/10 disabled:opacity-60"
+                    >
+                      <Camera className="w-3.5 h-3.5" />
+                      {uploadingProfilePicture ? "Uploading..." : "Add Profile Picture"}
+                    </button>
+                  </div>
+                )}
+
+                <motion.button
+                  type="button"
+                  onClick={() => setShowProfilePictureOption((prev) => !prev)}
                   whileHover={{ scale: 1.1, rotate: 360 }}
                   transition={{ duration: 0.5 }}
                   className="w-20 h-20 rounded-full border-2 border-cyan-400/50 flex items-center justify-center bg-gradient-to-br from-cyan-500/30 to-purple-500/30 backdrop-blur-sm shadow-[0_0_20px_rgba(6,182,212,0.4)] mx-auto mb-4 cursor-pointer"
                 >
-                  <Trophy className="w-10 h-10 text-cyan-400" />
-                </motion.div>
+                  {user?.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt="Profile"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <Trophy className="w-10 h-10 text-cyan-400" />
+                  )}
+                </motion.button>
 
                 <motion.h4 whileHover={{ scale: 1.05 }} className="font-bold text-white text-lg font-mono">
                   {user?.username || "User"}

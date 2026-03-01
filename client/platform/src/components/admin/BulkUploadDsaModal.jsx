@@ -27,18 +27,19 @@ function BulkUploadDsaModal({ onClose, onSuccess }) {
     "difficulty": "Easy",
     "tags": ["Array", "Hash Table"],
     "constraints": "2 <= nums.length <= 10^4, -10^9 <= nums[i] <= 10^9",
-    "sampleInput": "[2, 7, 11, 15], target = 9",
-    "sampleOutput": "[0, 1]",
+    "sampleInput": "4 9\\n2 7 11 15",
+    "sampleOutput": "0 1",
     "functionSignature": "vector<int> twoSum(vector<int>& nums, int target)",
-    "boilerplateCode": "int main() {\\n  vector<int> nums = {2, 7, 11, 15};\\n  int target = 9;\\n  Solution sol;\\n  vector<int> result = sol.twoSum(nums, target);\\n  cout << result[0] << \\\",\\\" << result[1];\\n  return 0;\\n}",
+    "boilerplateCode": "class Solution {\\npublic:\\n    vector<int> twoSum(vector<int>& nums, int target) {\\n        // Write your solution here\\n        \\n    }\\n};",
+    "driverCode": "int main() {\\n    int n, target;\\n    cin >> n >> target;\\n    vector<int> nums(n);\\n    for (int i = 0; i < n; i++) cin >> nums[i];\\n    Solution sol;\\n    vector<int> res = sol.twoSum(nums, target);\\n    cout << res[0] << \\\' \\\' << res[1] << endl;\\n    return 0;\\n}",
     "acceptanceCriteria": "EXACT_MATCH",
     "visibleTestCases": [
-      { "input": "[2, 7, 11, 15], target = 9", "expectedOutput": ["[0, 1]"], "explanation": "nums[0] + nums[1] == 9, so return [0, 1]" },
-      { "input": "[3, 2, 4], target = 6", "expectedOutput": ["[1, 2]"], "explanation": "nums[1] + nums[2] == 6, so return [1, 2]" }
+      { "input": "4 9\\n2 7 11 15", "expectedOutput": ["0 1"], "explanation": "nums[0] + nums[1] == 9, return indices 0 and 1" },
+      { "input": "3 6\\n3 2 4", "expectedOutput": ["1 2"], "explanation": "nums[1] + nums[2] == 6, return indices 1 and 2" }
     ],
     "hiddenTestCases": [
-      { "input": "[3, 3], target = 6", "expectedOutput": ["[0, 1]"], "explanation": "" },
-      { "input": "[-1000000000, 1000000000], target = 0", "expectedOutput": ["[0, 1]"], "explanation": "" }
+      { "input": "2 6\\n3 3", "expectedOutput": ["0 1"], "explanation": "" },
+      { "input": "2 0\\n-1000000000 1000000000", "expectedOutput": ["0 1"], "explanation": "" }
     ]
   },
   {
@@ -47,17 +48,18 @@ function BulkUploadDsaModal({ onClose, onSuccess }) {
     "difficulty": "Easy",
     "tags": ["Array"],
     "constraints": "1 <= nums.length <= 10^5",
-    "sampleInput": "[1, 2, 3, 4, 5]",
-    "sampleOutput": "[5, 4, 3, 2, 1]",
+    "sampleInput": "5\\n1 2 3 4 5",
+    "sampleOutput": "5 4 3 2 1",
     "functionSignature": "void reverseArray(vector<int>& nums)",
-    "boilerplateCode": "int main() {\\n  vector<int> nums = {1, 2, 3, 4, 5};\\n  Solution sol;\\n  sol.reverseArray(nums);\\n  for(int x : nums) cout << x << \\\" \\\";\\n  return 0;\\n}",
+    "boilerplateCode": "class Solution {\\npublic:\\n    void reverseArray(vector<int>& nums) {\\n        // Write your solution here\\n        \\n    }\\n};",
+    "driverCode": "int main() {\\n    int n;\\n    cin >> n;\\n    vector<int> nums(n);\\n    for (int i = 0; i < n; i++) cin >> nums[i];\\n    Solution sol;\\n    sol.reverseArray(nums);\\n    for (int i = 0; i < n; i++) {\\n        if (i) cout << \\\' \\\';\\n        cout << nums[i];\\n    }\\n    cout << endl;\\n    return 0;\\n}",
     "acceptanceCriteria": "EXACT_MATCH",
     "visibleTestCases": [
-      { "input": "[1, 2, 3, 4, 5]", "expectedOutput": ["[5, 4, 3, 2, 1]"], "explanation": "Array is reversed" }
+      { "input": "5\\n1 2 3 4 5", "expectedOutput": ["5 4 3 2 1"], "explanation": "Array is reversed" }
     ],
     "hiddenTestCases": [
-      { "input": "[1]", "expectedOutput": ["[1]"], "explanation": "" },
-      { "input": "[1, 2]", "expectedOutput": ["[2, 1]"], "explanation": "" }
+      { "input": "1\\n1", "expectedOutput": ["1"], "explanation": "" },
+      { "input": "2\\n1 2", "expectedOutput": ["2 1"], "explanation": "" }
     ]
   }
 ]`;
@@ -336,7 +338,7 @@ function BulkUploadDsaModal({ onClose, onSuccess }) {
                   <li>• <strong>description</strong> - Problem statement</li>
                   <li>• <strong>difficulty</strong> - "Easy", "Medium", or "Hard"</li>
                   <li>• <strong>functionSignature</strong> - Function to implement</li>
-                  <li>• <strong>boilerplateCode</strong> - Main function with test handling</li>
+                  <li>• <strong>boilerplateCode</strong> - Solution class stub shown in the editor</li>
                   <li>• <strong>visibleTestCases</strong> - Array of test cases shown on run</li>
                   <li>• <strong>hiddenTestCases</strong> - Array of test cases checked on submit</li>
                 </ul>
@@ -347,6 +349,7 @@ function BulkUploadDsaModal({ onClose, onSuccess }) {
                   Optional Fields:
                 </h4>
                 <ul className="space-y-2 text-slate-700 ml-4">
+                  <li>• <strong className="text-amber-700">driverCode</strong> - Hidden <code>main()</code> harness appended server-side before compilation. Reads test input from stdin, calls the Solution class, and prints output. Required when <code>boilerplateCode</code> is just a Solution class with no <code>main()</code>.</li>
                   <li>• <strong>tags</strong> - Array of topic tags (e.g., ["Array", "Sorting"])</li>
                   <li>• <strong>constraints</strong> - Problem constraints</li>
                   <li>• <strong>sampleInput</strong> - Example input</li>

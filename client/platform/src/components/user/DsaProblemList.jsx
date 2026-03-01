@@ -3,6 +3,17 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, CheckCircle2, AlertCircle, Circle, Users, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+const getUserId = () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) return "guest";
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.id || "guest";
+  } catch {
+    return "guest";
+  }
+};
+
 const difficultyStyles = {
   Easy: "text-emerald-300 border-emerald-400/30 bg-emerald-500/10",
   Medium: "text-amber-300 border-amber-400/30 bg-amber-500/10",
@@ -18,9 +29,11 @@ const DsaProblemTable = ({
   const navigate = useNavigate();
   const topics = useMemo(() => Object.keys(groupedProblems), [groupedProblems]);
   const [expandedTopics, setExpandedTopics] = useState({});
+  const storageKey = `dsa_bookmarks_${getUserId()}`;
+
   const [bookmarked, setBookmarked] = useState(() => {
     try {
-      return new Set(JSON.parse(localStorage.getItem("dsa_bookmarks") || "[]"));
+      return new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
     } catch { return new Set(); }
   });
 
@@ -29,7 +42,7 @@ const DsaProblemTable = ({
     setBookmarked((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
-      localStorage.setItem("dsa_bookmarks", JSON.stringify([...next]));
+      localStorage.setItem(storageKey, JSON.stringify([...next]));
       return next;
     });
   };
