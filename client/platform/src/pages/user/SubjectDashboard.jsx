@@ -81,7 +81,7 @@ function SubjectDashboard() {
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-600 rounded-full filter blur-[100px]"></div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-6 py-10 space-y-10">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 sm:space-y-10">
         
         {/* COMPACT NAV */}
         <motion.button
@@ -123,7 +123,7 @@ function SubjectDashboard() {
             <div className="relative z-10 space-y-4">
               
               
-              <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase font-header">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter uppercase font-header">
                 <span className="bg-gradient-to-r from-white via-slate-300 to-slate-500 bg-clip-text text-transparent opacity-50">Analysis:</span><br />
                 <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(6,182,212,0.4)] pb-1 inline-block">
                   {subject?.name}
@@ -252,7 +252,7 @@ function SubjectDashboard() {
             whileHover={{ scale: 1.01, boxShadow: "0 0 20px rgba(6,182,212,0.3)" }}
             whileTap={{ scale: 0.99 }}
             onClick={() => navigate(`/test/${subjectId}`)}
-            className="px-8 py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-[#0a0a16] font-black rounded-2xl text-[10px] uppercase tracking-[0.3em] font-mono shadow-lg"
+            className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-[#0a0a16] font-black rounded-2xl text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] font-mono shadow-lg"
           >
             Execute Assessment
           </motion.button>
@@ -260,7 +260,7 @@ function SubjectDashboard() {
             whileHover={{ backgroundColor: "rgba(255,255,255,0.08)" }}
             whileTap={{ scale: 0.99 }}
             onClick={() => navigate("/dashboard")}
-            className="px-8 py-5 border border-white/10 text-slate-400 font-bold rounded-2xl text-[10px] uppercase tracking-[0.3em] font-mono"
+            className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-5 border border-white/10 text-slate-400 font-bold rounded-2xl text-[10px] uppercase tracking-[0.25em] sm:tracking-[0.3em] font-mono"
           >
             Return to Core
           </motion.button>

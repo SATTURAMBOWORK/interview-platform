@@ -24,7 +24,7 @@ const MainLayout = () => {
             ? "w-full max-w-none p-0 h-screen"
             : isFullWidth
             ? "w-full max-w-none p-0"
-            : "max-w-6xl mx-auto px-6 py-8"
+            : "max-w-6xl mx-auto px-3 sm:px-6 py-6 sm:py-8"
         }
       >
         <Outlet />

@@ -125,7 +125,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
       </div>
 
       {/* ── TOP NAV ── */}
-      <div className="relative pt-6 pb-0 px-6 max-w-[1400px] mx-auto flex items-center justify-between">
+      <div className="relative pt-6 pb-0 px-4 sm:px-6 max-w-[1400px] mx-auto flex flex-wrap items-center justify-between gap-3">
         <motion.button
           whileHover={{ x: -4 }}
           whileTap={{ scale: 0.95 }}
@@ -136,11 +136,11 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
           Dashboard
         </motion.button>
 
-        <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-5 py-2 rounded-2xl backdrop-blur-md">
+        <div className="flex items-center gap-3 sm:gap-4 bg-white/5 border border-white/10 px-3 sm:px-5 py-2 rounded-2xl backdrop-blur-md">
           <span className="text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-widest">
             Q {currentIndex + 1} / {totalQuestions}
           </span>
-          <div className="w-28 h-1.5 bg-white/10 rounded-full overflow-hidden">
+          <div className="w-20 sm:w-28 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
@@ -164,7 +164,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
       </div>
 
       {/* ── HERO — identical structure to DsaDashboard ── */}
-      <header className="relative pt-6 pb-4 px-6 max-w-[1400px] mx-auto">
+      <header className="relative pt-6 pb-4 px-4 sm:px-6 max-w-[1400px] mx-auto">
         <motion.div
           style={{ rotateX: heroRotateX, rotateY: heroRotateY, transformPerspective: 1200, "--mouse-x": "50%", "--mouse-y": "50%" }}
           onMouseMove={(e) => {
@@ -191,7 +191,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
                 {question.category}
               </div>
 
-              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight uppercase">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-black text-white tracking-tighter leading-tight uppercase break-words">
                 {question.question}
               </h1>
 
@@ -240,7 +240,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none font-mono">
+                  <span className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-none font-mono">
                     {filledCount}<span className="text-3xl text-slate-600">/4</span>
                   </span>
                   <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-cyan-400 mt-2 font-mono">Segments</span>
@@ -250,7 +250,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
           </div>
 
           {/* BOTTOM STATS ROW */}
-          <div className="relative z-10 mt-10 pt-8 border-t border-white/5 grid grid-cols-4 gap-6">
+          <div className="relative z-10 mt-10 pt-8 border-t border-white/5 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {FIELDS.map(f => {
               const cfg = FIELD_CFG[f];
               const cc = charCounts[f];
@@ -273,7 +273,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
       </header>
 
       {/* ── STAR ANSWER FIELDS ── */}
-      <main className="max-w-[1400px] mx-auto px-6 py-8 space-y-5">
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-5">
 
         {FIELDS.map((key, idx) => {
           const cfg = FIELD_CFG[key];
@@ -300,7 +300,7 @@ function StarQuestion({ question, onResponseSubmitted, onBack, currentIndex, tot
               }}
             >
               {/* header row */}
-              <div className="flex items-center justify-between px-6 pt-5 pb-3">
+              <div className="flex items-center justify-between px-4 sm:px-6 pt-5 pb-3">
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-white text-sm bg-gradient-to-br ${cfg.grad} font-mono shrink-0`}

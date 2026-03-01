@@ -220,7 +220,7 @@ function StarInterview() {
           <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
 
             {/* HERO — identical structure to DsaDashboard */}
-            <header className="relative pt-8 pb-4 px-6 max-w-[1600px] mx-auto">
+            <header className="relative pt-6 sm:pt-8 pb-4 px-4 sm:px-6 max-w-[1600px] mx-auto">
               <motion.div
                 style={{ rotateX: heroRotateX, rotateY: heroRotateY, transformPerspective: 1200, "--mouse-x": "50%", "--mouse-y": "50%" }}
                 onMouseMove={(e) => {
@@ -244,7 +244,7 @@ function StarInterview() {
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-400/30 text-[11px] font-bold tracking-[0.2em] text-purple-400 uppercase font-mono">
                       <Activity className="w-4 h-4 animate-pulse" /> Behavioral Engine Online
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight uppercase">
+                    <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight uppercase">
                       Master Your <br />
                       <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">
                         STAR Story
@@ -290,7 +290,7 @@ function StarInterview() {
                         );
                       })()}
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                        <span className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-none font-mono">
+                        <span className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-none font-mono">
                           {Math.round(performanceSummary?.averageScore ?? 0)}
                         </span>
                         <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-purple-400 mt-2">Avg Score</span>
@@ -317,7 +317,7 @@ function StarInterview() {
             </header>
 
             {/* CATEGORY CARDS */}
-            <main className="max-w-[1600px] mx-auto px-6 py-8">
+            <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold uppercase tracking-widest text-white font-mono">Choose a Category</h2>
                 <motion.button

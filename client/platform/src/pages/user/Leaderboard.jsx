@@ -227,8 +227,9 @@ function Leaderboard() {
 
         {/* ── RANKINGS TABLE ── */}
         <div className="relative rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-md overflow-hidden shadow-2xl">
+          <div className="overflow-x-auto">
           {/* Table Head */}
-          <div className="grid grid-cols-[64px_1fr_80px_auto] gap-3 items-center px-6 py-4 border-b border-white/10 bg-white/[0.02]">
+          <div className="min-w-[680px] grid grid-cols-[64px_1fr_80px_auto] gap-3 items-center px-4 sm:px-6 py-4 border-b border-white/10 bg-white/[0.02]">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">Rank</span>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">Competitor</span>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono text-right">Power Level</span>
@@ -245,7 +246,7 @@ function Leaderboard() {
               <AlertCircle className="w-5 h-5" /> {error}
             </div>
           ) : (
-            <div className="divide-y divide-white/[0.05]">
+            <div className="min-w-[680px] divide-y divide-white/[0.05]">
               {paginatedUsers.map((user, idx) => {
                 const isMe = user.username === myUsername;
                 const isTop3 = user.rank <= 3;
@@ -255,7 +256,7 @@ function Leaderboard() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.03 }}
-                    className={`grid grid-cols-[64px_1fr_80px_auto] gap-3 items-center px-6 py-3 group transition-all duration-300 ${
+                    className={`grid grid-cols-[64px_1fr_80px_auto] gap-3 items-center px-4 sm:px-6 py-3 group transition-all duration-300 ${
                       isMe ? "bg-indigo-500/10" : "hover:bg-white/[0.05]"
                     }`}
                   >
@@ -301,6 +302,7 @@ function Leaderboard() {
               })}
             </div>
           )}
+          </div>
         </div>
 
         {/* ── PAGINATION ── */}

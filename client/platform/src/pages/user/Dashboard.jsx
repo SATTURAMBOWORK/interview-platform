@@ -365,7 +365,7 @@ function UserDashboard() {
 
 
       {/* MAIN CONTENT */}
-      <div className="max-w-[1600px] mx-auto px-8 py-12 space-y-12 pt-8">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12 pt-6 sm:pt-8">
         <input
           ref={profilePictureInputRef}
           type="file"

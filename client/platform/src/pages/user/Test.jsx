@@ -290,11 +290,11 @@ function Test() {
       
       {/* HEADER */}
       <header className="sticky top-0 z-40 bg-[#0a0a16]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex flex-wrap justify-between items-center gap-3">
             
             {/* LEFT - PROGRESS */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="text-sm font-semibold text-slate-300">
                 Question <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400">{currentIndex + 1}</span> of <span className="text-white">{mcqs.length}</span>
               </div>
@@ -314,7 +314,7 @@ function Test() {
             <motion.div
               animate={isWarning ? { scale: [1, 1.05, 1] } : {}}
               transition={isWarning ? { duration: 1, repeat: Infinity } : {}}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-lg transition-all duration-300 ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 ${
                 isWarning
                   ? "bg-gradient-to-r from-rose-500 to-red-500 text-white shadow-[0_0_20px_rgba(244,63,94,0.6)]"
                   : "bg-white/5 backdrop-blur-md border-2 border-cyan-500/30 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]"
@@ -355,7 +355,7 @@ function Test() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="lg:col-span-8 p-6 lg:p-8 overflow-y-auto"
+            className="lg:col-span-8 p-4 sm:p-6 lg:p-8 overflow-y-auto"
           >
             
             {/* QUESTION CARD */}
@@ -365,7 +365,7 @@ function Test() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ type: "spring", stiffness: 100, damping: 15 }}
-              className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_40px_rgba(6,182,212,0.2)] hover:border-cyan-500/30 transition-all duration-500 mb-8"
+              className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-5 sm:p-8 shadow-[0_8px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_8px_40px_rgba(6,182,212,0.2)] hover:border-cyan-500/30 transition-all duration-500 mb-8"
             >
               
               {/* QUESTION HEADER */}
@@ -374,7 +374,7 @@ function Test() {
                   <p className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-400 uppercase tracking-wide mb-2">
                     Question {currentIndex + 1} of {mcqs.length}
                   </p>
-                  <h3 className="text-2xl font-bold text-white leading-relaxed">
+                  <h3 className="text-xl sm:text-2xl font-bold text-white leading-relaxed">
                     {currentQuestion.question}
                   </h3>
                 </div>
@@ -471,13 +471,13 @@ function Test() {
             </motion.div>
 
             {/* NAVIGATION BUTTONS */}
-            <div className="flex gap-4 justify-between">
+            <div className="flex flex-wrap gap-3 justify-between">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 disabled={currentIndex === 0}
                 onClick={() => setCurrentIndex((i) => i - 1)}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 hover:bg-white/5 hover:border-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-slate-200 transition-all duration-300 backdrop-blur-md"
+                className="flex items-center gap-2 px-4 sm:px-6 py-3 rounded-xl border border-white/10 hover:bg-white/5 hover:border-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-slate-200 transition-all duration-300 backdrop-blur-md"
               >
                 <ChevronLeft className="w-5 h-5" />
                 Previous
@@ -488,7 +488,7 @@ function Test() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowConfirmSubmit(true)}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold rounded-xl shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.5)] transition-all duration-300"
+                  className="flex items-center gap-2 px-4 sm:px-8 py-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold rounded-xl shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.5)] transition-all duration-300"
                 >
                   <CheckCircle2 className="w-5 h-5" />
                   Submit Test
@@ -498,7 +498,7 @@ function Test() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setCurrentIndex((i) => i + 1)}
-                  className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl shadow-[0_8px_30px_rgba(6,182,212,0.3)] hover:shadow-[0_12px_40px_rgba(6,182,212,0.5)] transition-all duration-300"
+                  className="flex items-center gap-2 px-4 sm:px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-semibold rounded-xl shadow-[0_8px_30px_rgba(6,182,212,0.3)] hover:shadow-[0_12px_40px_rgba(6,182,212,0.5)] transition-all duration-300"
                 >
                   Next
                   <ChevronRight className="w-5 h-5" />
@@ -513,7 +513,7 @@ function Test() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="lg:col-span-4 p-6 lg:p-8 border-l border-white/10 overflow-y-auto"
+            className="lg:col-span-4 p-4 sm:p-6 lg:p-8 border-l border-white/10 overflow-y-auto"
           >
             
             {/* STATS CARD */}

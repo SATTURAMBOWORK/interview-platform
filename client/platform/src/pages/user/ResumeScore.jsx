@@ -203,7 +203,7 @@ export default function ResumeScore() {
         </svg>
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 space-y-10">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8 sm:space-y-10">
 
         {/* ── Header ── */}
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-3">
@@ -212,7 +212,7 @@ export default function ResumeScore() {
           </div>
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
-              <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-white uppercase leading-none">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-white uppercase leading-none">
                 Resume<br />
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-500 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(6,182,212,0.4)]">
                   Scanner
@@ -388,7 +388,7 @@ export default function ResumeScore() {
                   type="button"
                   onClick={handleAnalyze}
                   disabled={loading}
-                  className="relative flex items-center gap-3 px-12 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-600 text-white font-black text-sm tracking-wider uppercase disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                  className="relative flex items-center gap-3 px-8 sm:px-12 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-600 text-white font-black text-sm tracking-wider uppercase disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
                 >
                   {!loading && (
                     <motion.div

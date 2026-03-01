@@ -148,7 +148,7 @@ const UserNavbar = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a16]/80 backdrop-blur-xl">
-      <div className="max-w-[1600px] mx-auto px-6 relative">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 relative">
         <input
           ref={profilePictureInputRef}
           type="file"
@@ -158,7 +158,7 @@ const UserNavbar = () => {
         />
 
         {showProfilePictureOption && (
-          <div className="absolute right-6 top-16 z-50 rounded-xl border border-white/10 bg-[#0a0a16]/95 backdrop-blur-xl p-2 shadow-2xl">
+          <div className="absolute right-3 sm:right-6 top-16 z-50 rounded-xl border border-white/10 bg-[#0a0a16]/95 backdrop-blur-xl p-2 shadow-2xl w-[220px] max-w-[calc(100vw-1.5rem)]">
             <button
               type="button"
               onClick={triggerProfilePictureUpload}
