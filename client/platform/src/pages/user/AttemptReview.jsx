@@ -6,10 +6,12 @@ import {
   ChevronDown, ChevronUp, Code2, Terminal, Loader,
 } from 'lucide-react';
 import { fetchAttemptById } from '../../services/attemptService';
+import usePageTitle from '../../hooks/usePageTitle';
 
 const spring = { type: 'spring', stiffness: 300, damping: 18 };
 
 const AttemptReview = () => {
+  usePageTitle('Attempt Review');
   const { attemptId } = useParams();
   const navigate = useNavigate();
   const [attempt, setAttempt]       = useState(null);

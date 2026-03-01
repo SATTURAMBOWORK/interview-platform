@@ -22,6 +22,7 @@ function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setShowSidebar] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [expandDSA, setExpandDSA] = useState(false);
 
@@ -103,6 +104,14 @@ function AdminLayout() {
   return (
     <div className="min-h-screen flex bg-[#0a0a16] text-slate-300 selection:bg-indigo-500/30">
 
+      {/* ── MOBILE BACKDROP ── */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* ── BACKGROUND EFFECTS ── */}
       <div className="fixed inset-0 -z-20 bg-[#0a0a16]" />
       <div className="fixed inset-0 -z-10 opacity-20 pointer-events-none">
@@ -122,7 +131,10 @@ function AdminLayout() {
 
       {/* ── SIDEBAR ── */}
       <aside
-        className={`${sidebarOpen ? "w-64" : "w-[68px]"} relative z-20 border-r border-white/[0.08] bg-[#0d0d1a]/80 backdrop-blur-xl transition-all duration-300 flex flex-col flex-shrink-0`}
+        className={`fixed inset-y-0 left-0 z-40 md:relative md:z-20 md:inset-auto
+          ${mobileOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0
+          ${sidebarOpen ? "w-64" : "w-[68px]"}
+          border-r border-white/[0.08] bg-[#0d0d1a]/80 backdrop-blur-xl transition-all duration-300 flex flex-col flex-shrink-0`}
       >
         {/* LOGO */}
         <div className="border-b border-white/[0.08] px-4 py-5">
@@ -247,6 +259,13 @@ function AdminLayout() {
 
             {/* PAGE TITLE */}
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileOpen(!mobileOpen)}
+                className="md:hidden text-slate-400 hover:text-white transition-colors mr-1"
+                aria-label="Toggle mobile menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
               <Shield className="w-4 h-4 text-indigo-400" />
               <span className="text-sm font-black uppercase tracking-widest text-white font-mono">
                 {currentLabel}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import usePageTitle from "../../hooks/usePageTitle";
 import { motion, useMotionValue } from "framer-motion";
 import {
   TrendingUp,
@@ -25,6 +26,7 @@ import SubjectCard from "../../components/user/SubjectCard";
 const formatDateKey = (date) => date.toISOString().slice(0, 10);
 
 function UserDashboard() {
+  usePageTitle("Dashboard");
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [attempts, setAttempts] = useState([]);

@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, TrendingUp, CheckCircle2, XCircle, Award, Zap, BookOpen, BarChart3 } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function Result() {
+  usePageTitle("Test Result");
   const { attemptId } = useParams();
   const navigate = useNavigate();
 

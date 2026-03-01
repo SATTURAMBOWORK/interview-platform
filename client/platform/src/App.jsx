@@ -4,6 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import MainLayout from "./layouts/MainLayout";
 import Login from "./pages/Login";
+import NotFound from "./pages/NotFound";
 
 /* ADMIN PAGES */
 import Dashboard from "./pages/admin/Dashboard";
@@ -221,7 +222,7 @@ function App() {
       </Route>
 
       {/* 404 */}
-      <Route path="*" element={<h1>404</h1>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

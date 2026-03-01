@@ -3,8 +3,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, BookOpen, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Flag, RotateCcw } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function Test() {
+  usePageTitle("MCQ Test");
   const { subjectId } = useParams();
   const navigate = useNavigate();
 

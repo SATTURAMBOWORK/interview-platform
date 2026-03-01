@@ -11,8 +11,10 @@ import {
   Zap
 } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function SubjectDashboard() {
+  usePageTitle("Subject Overview");
   const { subjectId } = useParams();
   const navigate = useNavigate();
 

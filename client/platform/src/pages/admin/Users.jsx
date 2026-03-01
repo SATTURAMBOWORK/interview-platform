@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Users, ShieldCheck, UserCircle } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function UsersPage() {
+  usePageTitle("Users | Admin");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");

@@ -52,6 +52,7 @@ const EMPTY_FORM = {
 };
 
 function StarQuestions() {
+  usePageTitle("STAR Questions | Admin");
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");

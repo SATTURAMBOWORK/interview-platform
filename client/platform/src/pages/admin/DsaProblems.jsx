@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function DsaProblems() {
+  usePageTitle("DSA Problems | Admin");
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

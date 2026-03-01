@@ -1,11 +1,13 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { Eye, EyeOff, User, Lock, Mail, UserCircle, AlertCircle, Loader, Terminal, Sparkles, Rocket, Star, Heart, Zap, Shield } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContextValue";
 
 function Register() {
+  usePageTitle("Register");
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 

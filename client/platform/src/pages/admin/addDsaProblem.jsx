@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle2, Loader, Plus, Trash2, Upload } from "lucide-react";
 import api from "../../api/axios";
 import BulkUploadDsaModal from "../../components/admin/BulkUploadDsaModal";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function AddDsaProblem() {
+  usePageTitle("Add DSA Problem | Admin");
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({

@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 import {
   Trash2,
   Edit,
@@ -15,6 +16,7 @@ import BulkUploadModal from "../../components/admin/BulkUploadModal";
 const ITEMS_PER_PAGE = 50;
 
 function Mcqs() {
+  usePageTitle("MCQs | Admin");
   const [mcqs, setMcqs] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState("");

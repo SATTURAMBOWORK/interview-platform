@@ -29,8 +29,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function Analytics() {
+  usePageTitle("Analytics | Admin");
   const [loading, setLoading] = useState(true);
   const [summaryData, setSummaryData] = useState(null);
   const [userData, setUserData] = useState(null);

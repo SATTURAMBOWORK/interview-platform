@@ -10,8 +10,10 @@ import DsaCalendar from "../../components/user/DsaCalendar";
 import DsaProblemTable from "../../components/user/DsaProblemList";
 import DsaProgressRing from "../../components/user/DsaProgressRing";
 import DsaSkeletonDashboard from "../../components/user/DsaDashboardSkeleton";
+import usePageTitle from "../../hooks/usePageTitle";
 
 const DsaDashboard = () => {
+  usePageTitle("DSA Arena");
   const [stats, setStats] = useState(null);
   const [calendar, setCalendar] = useState([]);
   const [loading, setLoading] = useState(true);

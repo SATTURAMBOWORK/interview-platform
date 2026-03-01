@@ -5,6 +5,7 @@ import {
   Flame, Award, Loader2, AlertCircle, RefreshCw, Sparkles, Terminal
 } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ── Rank Badge (Matches Login Icon Styles) ── */
 const RankBadge = ({ rank }) => {
@@ -59,6 +60,7 @@ const XPBar = ({ level, totalXP }) => {
 const USERS_PER_PAGE = 20;
 
 function Leaderboard() {
+  usePageTitle("Leaderboard");
   const [leaderboard, setLeaderboard] = useState([]);
   const [myUsername, setMyUsername] = useState(null);
   const [loading, setLoading] = useState(true);

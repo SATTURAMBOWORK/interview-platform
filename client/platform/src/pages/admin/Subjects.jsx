@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 import {
   Plus,
   Trash2,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 
 function Subjects() {
+  usePageTitle("Subjects | Admin");
   const [subjects, setSubjects] = useState([]);
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState("");

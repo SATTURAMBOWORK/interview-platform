@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import axios from "../../api/axios";
 import { AuthContext } from "../../context/AuthContextValue";
+import usePageTitle from "../../hooks/usePageTitle";
 
 import ResizableSplit from "../../components/dsa/ResizableSplit";
 import ProblemTabs from "../../components/dsa/ProblemTabs";
@@ -30,6 +31,7 @@ const DifficultyBadge = ({ difficulty }) => {
 };
 
 const DsaSolve = () => {
+  usePageTitle("Solve Problem | DSA");
   const { id } = useParams();
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);

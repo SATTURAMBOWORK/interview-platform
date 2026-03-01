@@ -20,8 +20,10 @@ import {
   Eye,
 } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 function AdminDashboard() {
+  usePageTitle("Dashboard | Admin");
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

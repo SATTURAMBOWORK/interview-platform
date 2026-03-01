@@ -6,6 +6,7 @@ import api from "../../api/axios";
 import StarQuestion from "./StarQuestion";
 import ResponseAnalysis from "./ResponseAnalysis";
 import BehavioralProgress from "./BehavioralProgress";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ─── Per-card component so each gets its own motion values ─── */
 const CategoryCard = ({ category, stats, cfg, loading, onClick, index }) => {
@@ -124,6 +125,7 @@ const CategoryCard = ({ category, stats, cfg, loading, onClick, index }) => {
 };
 
 function StarInterview() {
+  usePageTitle("Behavioral Interview");
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [currentQuestion, setCurrentQuestion] = useState(null);

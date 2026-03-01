@@ -1,11 +1,13 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import usePageTitle from "../hooks/usePageTitle";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import { Eye, EyeOff, User, Lock, AlertCircle, Loader, Terminal, Zap, Shield, Code2, Sparkles, Rocket, Star, Heart } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContextValue";
 
 function Login() {
+  usePageTitle("Login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

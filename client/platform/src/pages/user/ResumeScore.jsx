@@ -6,6 +6,7 @@ import {
   Target, Zap, Sparkles, RefreshCw, Brain, ArrowLeft
 } from "lucide-react";
 import api from "../../api/axios";
+import usePageTitle from "../../hooks/usePageTitle";
 
 /* ─────────────────────────────────── helpers ───── */
 const scoreColor = (s) => {
@@ -121,6 +122,7 @@ const SectionBar = ({ label, score, comment, delay = 0 }) => {
 
 /* ─────────────────────────────────── Main Page ── */
 export default function ResumeScore() {
+  usePageTitle("Resume ATS Score");
   const [inputMode, setInputMode] = useState("paste");
   const [resumeText, setResumeText] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
