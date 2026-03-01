@@ -53,20 +53,27 @@ function EditDsaProblem() {
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center py-40">
+      <div className="w-10 h-10 border-4 border-white/[0.1] border-t-indigo-400 rounded-full animate-spin" />
+    </div>
+  );
   if (!formData) return null;
 
   return (
-    <div className="p-6 max-w-3xl">
-      <h1 className="text-2xl font-bold mb-6">Edit DSA Problem</h1>
+    <div className="space-y-6 max-w-3xl">
+      <div>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-[10px] font-black tracking-widest text-indigo-400 uppercase font-mono mb-2">Edit Problem</div>
+        <h1 className="text-4xl font-black text-white uppercase tracking-tight">Edit DSA Problem</h1>
+      </div>
 
       {error && (
-        <div className="bg-red-100 text-red-700 px-4 py-2 rounded mb-4">
+        <div className="bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-3 rounded-xl">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {[
           ["title", "Title"],
           ["description", "Description", true],
@@ -75,7 +82,7 @@ function EditDsaProblem() {
           ["sampleOutput", "Sample Output", true],
         ].map(([key, label, textarea]) => (
           <div key={key}>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
               {label}
             </label>
             {textarea ? (
@@ -84,28 +91,28 @@ function EditDsaProblem() {
                 value={formData[key]}
                 onChange={handleChange}
                 rows={3}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600 resize-none"
               />
             ) : (
               <input
                 name={key}
                 value={formData[key]}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded"
+                className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600"
               />
             )}
           </div>
         ))}
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
             Difficulty
           </label>
           <select
             name="difficulty"
             value={formData.difficulty}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            className="bg-[#0d0d1a] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 w-full"
           >
             <option>Easy</option>
             <option>Medium</option>
@@ -114,25 +121,25 @@ function EditDsaProblem() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
             Tags
           </label>
           <input
             name="tags"
             value={formData.tags}
             onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
+            className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600"
           />
         </div>
 
-        <div className="flex gap-4">
-          <button className="bg-blue-600 text-white px-6 py-2 rounded">
+        <div className="flex gap-4 pt-2">
+          <button className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-indigo-700 hover:to-violet-700 transition">
             Update
           </button>
           <button
             type="button"
             onClick={() => navigate("/admin/dsa")}
-            className="border px-6 py-2 rounded"
+            className="border border-white/10 text-slate-400 px-6 py-3 rounded-xl hover:bg-white/[0.04] transition"
           >
             Cancel
           </button>

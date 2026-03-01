@@ -155,7 +155,7 @@ function AddDsaProblem() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white p-6">
+    <div className="space-y-6">
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* HEADER */}
@@ -165,8 +165,8 @@ function AddDsaProblem() {
           className="flex items-start justify-between"
         >
           <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-slate-900">Add DSA Problem</h1>
-            <p className="text-slate-600">Create a new coding challenge for the platform</p>
+            <h1 className="text-4xl font-black text-white uppercase tracking-tight">Add DSA Problem</h1>
+            <p className="text-slate-500 text-sm">Create a new coding challenge for the platform</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -184,10 +184,10 @@ function AddDsaProblem() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-xl border bg-rose-50 border-rose-200 flex items-start gap-3"
+            className="p-4 rounded-xl border bg-rose-500/10 border-rose-500/20 flex items-start gap-3"
           >
-            <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-            <p className="text-rose-700">{error}</p>
+            <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+            <p className="text-rose-400">{error}</p>
           </motion.div>
         )}
 
@@ -195,10 +195,10 @@ function AddDsaProblem() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-xl border bg-emerald-50 border-emerald-200 flex items-start gap-3"
+            className="p-4 rounded-xl border bg-emerald-500/10 border-emerald-500/20 flex items-start gap-3"
           >
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-            <p className="text-emerald-700">{success}</p>
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <p className="text-emerald-400">{success}</p>
           </motion.div>
         )}
 
@@ -206,30 +206,30 @@ function AddDsaProblem() {
         <form onSubmit={handleSubmit} className="space-y-6">
           
           {/* BASIC INFO */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
-            <h2 className="text-xl font-bold text-slate-900">Basic Information</h2>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.08] p-6 space-y-4">
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 font-mono">Basic Information</h2>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                 Problem Title *
               </label>
               <input
                 name="title"
                 placeholder="e.g., Two Sum, Reverse Array"
-                className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50"
                 value={formData.title}
                 onChange={handleChange}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                 Description *
               </label>
               <textarea
                 name="description"
                 placeholder="Detailed problem description..."
-                className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 resize-none"
                 rows={4}
                 value={formData.description}
                 onChange={handleChange}
@@ -238,12 +238,12 @@ function AddDsaProblem() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                   Difficulty *
                 </label>
                 <select
                   name="difficulty"
-                  className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50"
                   value={formData.difficulty}
                   onChange={handleChange}
                 >
@@ -254,12 +254,12 @@ function AddDsaProblem() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                   Output Comparison *
                 </label>
                 <select
                   name="acceptanceCriteria"
-                  className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50"
                   value={formData.acceptanceCriteria}
                   onChange={handleChange}
                 >
@@ -272,26 +272,26 @@ function AddDsaProblem() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                 Tags (comma separated) *
               </label>
               <input
                 name="tags"
                 placeholder="e.g., array, sorting, binary search"
-                className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50"
                 value={formData.tags}
                 onChange={handleChange}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                 Constraints
               </label>
               <textarea
                 name="constraints"
                 placeholder="e.g., 1 ≤ n ≤ 10^5, -10^6 ≤ arr[i] ≤ 10^6"
-                className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
+                className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 resize-none"
                 rows={3}
                 value={formData.constraints}
                 onChange={handleChange}
@@ -300,33 +300,33 @@ function AddDsaProblem() {
           </div>
 
           {/* SAMPLE & BOILERPLATE */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
-            <h2 className="text-xl font-bold text-slate-900">Sample & Template</h2>
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.08] p-6 space-y-4">
+            <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 font-mono">Sample & Template</h2>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                   Sample Input
                 </label>
                 <textarea
                   name="sampleInput"
                   placeholder="[1, 2, 3]"
                   rows={3}
-                  className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none"
+                  className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none"
                   value={formData.sampleInput}
                   onChange={handleChange}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                   Sample Output
                 </label>
                 <textarea
                   name="sampleOutput"
                   placeholder="6"
                   rows={3}
-                  className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none"
+                  className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none"
                   value={formData.sampleOutput}
                   onChange={handleChange}
                 />
@@ -334,14 +334,14 @@ function AddDsaProblem() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono mb-2">
                 Boilerplate Code (C++)
               </label>
               <textarea
                 name="boilerplateCode"
                 placeholder={'#include<bits/stdc++.h>\nusing namespace std;\n\nint solve(vector<int>& arr) {\n    // Write your code here\n    return 0;\n}'}
                 rows={6}
-                className="w-full px-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none"
+                className="w-full px-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none"
                 value={formData.boilerplateCode}
                 onChange={handleChange}
               />
@@ -349,15 +349,15 @@ function AddDsaProblem() {
           </div>
 
           {/* VISIBLE TEST CASES */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.08] p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Visible Test Cases *</h2>
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 font-mono">Visible Test Cases *</h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => addTestCase("visibleTestCases")}
-                className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm"
+                className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg hover:bg-emerald-500/20 transition text-sm"
               >
                 <Plus className="w-4 h-4" />
                 Add Test Case
@@ -365,9 +365,9 @@ function AddDsaProblem() {
             </div>
 
             {formData.visibleTestCases.map((testCase, index) => (
-              <div key={index} className="border-2 border-slate-200 rounded-lg p-4 space-y-3">
+              <div key={index} className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-slate-900">Test Case {index + 1}</h3>
+                  <h3 className="font-bold text-white">Test Case {index + 1}</h3>
                   {formData.visibleTestCases.length > 1 && (
                     <button
                       type="button"
@@ -380,11 +380,11 @@ function AddDsaProblem() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Input</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">Input</label>
                   <textarea
                     placeholder="[1, 2, 3]"
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none mt-1"
+                    className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none mt-1"
                     value={testCase.input}
                     onChange={(e) =>
                       handleTestCaseChange(
@@ -399,13 +399,13 @@ function AddDsaProblem() {
 
                 {/* EXPECTED OUTPUT - PRIMARY */}
                 <div>
-                  <label className="text-sm font-medium text-slate-700">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">
                     Primary Expected Output
                   </label>
                   <textarea
                     placeholder="6"
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none mt-1"
+                    className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none mt-1"
                     value={testCase.expectedOutput[0] || ""}
                     onChange={(e) =>
                       handleTestCaseChange(
@@ -420,8 +420,8 @@ function AddDsaProblem() {
 
                 {/* ALTERNATE OUTPUTS */}
                 {testCase.expectedOutput.length > 1 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 space-y-2">
-                    <label className="text-sm font-medium text-slate-700">
+                  <div className="bg-indigo-500/[0.06] border border-indigo-500/20 rounded-xl p-3 space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">
                       Alternate Valid Outputs
                     </label>
                     {testCase.expectedOutput.slice(1).map((output, outIdx) => (
@@ -430,7 +430,7 @@ function AddDsaProblem() {
                           type="text"
                           value={output}
                           readOnly
-                          className="flex-1 px-2 py-1 border border-slate-300 rounded bg-slate-100 text-sm"
+                          className="flex-1 px-2 py-1 border border-white/10 rounded-lg bg-white/[0.04] text-slate-300 text-sm"
                         />
                         <button
                           type="button"
@@ -446,7 +446,7 @@ function AddDsaProblem() {
 
                 {/* ADD ALTERNATE OUTPUT */}
                 <div>
-                  <label className="text-xs font-medium text-slate-600">
+                  <label className="text-[10px] font-medium text-slate-500">
                     Add Alternate Valid Output (for problems with multiple answers)
                   </label>
                   <div className="flex gap-2 mt-1">
@@ -454,7 +454,7 @@ function AddDsaProblem() {
                       type="text"
                       id={`alt-output-${index}`}
                       placeholder="e.g., [3, 2, 1] for Two Sum"
-                      className="flex-1 px-3 py-1 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                      className="flex-1 px-3 py-1 bg-white/[0.05] border border-white/10 text-white rounded-lg focus:outline-none focus:border-indigo-400/50 text-sm"
                     />
                     <button
                       type="button"
@@ -465,7 +465,7 @@ function AddDsaProblem() {
                           input.value = "";
                         }
                       }}
-                      className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                      className="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm"
                     >
                       Add
                     </button>
@@ -476,15 +476,15 @@ function AddDsaProblem() {
           </div>
 
           {/* HIDDEN TEST CASES */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+          <div className="bg-white/[0.03] rounded-2xl border border-white/[0.08] p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-900">Hidden Test Cases</h2>
+              <h2 className="text-sm font-black uppercase tracking-widest text-slate-400 font-mono">Hidden Test Cases</h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={() => addTestCase("hiddenTestCases")}
-                className="flex items-center gap-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition text-sm"
+                className="flex items-center gap-2 px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg hover:bg-purple-500/20 transition text-sm"
               >
                 <Plus className="w-4 h-4" />
                 Add Test Case
@@ -492,9 +492,9 @@ function AddDsaProblem() {
             </div>
 
             {formData.hiddenTestCases.map((testCase, index) => (
-              <div key={index} className="border-2 border-slate-200 rounded-lg p-4 space-y-3">
+              <div key={index} className="bg-white/[0.03] border border-white/[0.08] rounded-xl p-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-semibold text-slate-900">Hidden Test Case {index + 1}</h3>
+                  <h3 className="font-bold text-white">Hidden Test Case {index + 1}</h3>
                   {formData.hiddenTestCases.length > 1 && (
                     <button
                       type="button"
@@ -507,11 +507,11 @@ function AddDsaProblem() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Input</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">Input</label>
                   <textarea
                     placeholder="[1, 2, 3]"
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none mt-1"
+                    className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none mt-1"
                     value={testCase.input}
                     onChange={(e) =>
                       handleTestCaseChange(
@@ -525,13 +525,13 @@ function AddDsaProblem() {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-slate-700">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">
                     Primary Expected Output
                   </label>
                   <textarea
                     placeholder="6"
                     rows={2}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 font-mono text-sm resize-none mt-1"
+                    className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 text-white rounded-xl focus:outline-none focus:border-indigo-400/50 font-mono text-sm resize-none mt-1"
                     value={testCase.expectedOutput[0] || ""}
                     onChange={(e) =>
                       handleTestCaseChange(
@@ -546,8 +546,8 @@ function AddDsaProblem() {
 
                 {/* ALTERNATE OUTPUTS */}
                 {testCase.expectedOutput.length > 1 && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 space-y-2">
-                    <label className="text-sm font-medium text-slate-700">
+                  <div className="bg-purple-500/[0.06] border border-purple-500/20 rounded-xl p-3 space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 font-mono">
                       Alternate Valid Outputs
                     </label>
                     {testCase.expectedOutput.slice(1).map((output, outIdx) => (
@@ -556,7 +556,7 @@ function AddDsaProblem() {
                           type="text"
                           value={output}
                           readOnly
-                          className="flex-1 px-2 py-1 border border-slate-300 rounded bg-slate-100 text-sm"
+                          className="flex-1 px-2 py-1 border border-white/10 rounded-lg bg-white/[0.04] text-slate-300 text-sm"
                         />
                         <button
                           type="button"
@@ -572,7 +572,7 @@ function AddDsaProblem() {
 
                 {/* ADD ALTERNATE OUTPUT */}
                 <div>
-                  <label className="text-xs font-medium text-slate-600">
+                  <label className="text-[10px] font-medium text-slate-500">
                     Add Alternate Valid Output
                   </label>
                   <div className="flex gap-2 mt-1">
@@ -580,7 +580,7 @@ function AddDsaProblem() {
                       type="text"
                       id={`alt-hidden-output-${index}`}
                       placeholder="e.g., [3, 2, 1]"
-                      className="flex-1 px-3 py-1 border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+                      className="flex-1 px-3 py-1 bg-white/[0.05] border border-white/10 text-white rounded-lg focus:outline-none focus:border-indigo-400/50 text-sm"
                     />
                     <button
                       type="button"
@@ -607,7 +607,7 @@ function AddDsaProblem() {
             whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold rounded-xl hover:from-indigo-700 hover:to-violet-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

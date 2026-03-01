@@ -14,6 +14,7 @@ import Mcqs from "./pages/admin/Mcqs";
 import DsaProblems from "./pages/admin/DsaProblems";
 import AddDsaProblem from "./pages/admin/AddDsaProblem";
 import EditDsaProblem from "./pages/admin/EditDsaProblem";
+import StarQuestions from "./pages/admin/StarQuestions";
 
 /* USER PAGES */
 import UserDashboard from "./pages/user/Dashboard";
@@ -108,6 +109,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <Mcqs />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="star-questions"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <StarQuestions />
             </ProtectedRoute>
           }
         />

@@ -204,13 +204,7 @@ function Subjects() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
-      
-      {/* ANIMATED BACKGROUND */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-20 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-40 -left-40 w-80 h-80 bg-blue-300/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
-      </div>
+    <div className="space-y-10">
 
       {/* TOAST MESSAGES */}
       {successMessage && (
@@ -220,9 +214,9 @@ function Subjects() {
           exit={{ opacity: 0, x: 400 }}
           className="fixed top-6 right-6 z-50"
         >
-          <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-4 flex items-center gap-3 shadow-lg backdrop-blur-sm">
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-            <p className="text-emerald-800 font-medium">{successMessage}</p>
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-4 flex items-center gap-3 shadow-lg backdrop-blur-sm">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <p className="text-emerald-400 font-medium">{successMessage}</p>
           </div>
         </motion.div>
       )}
@@ -234,15 +228,15 @@ function Subjects() {
           exit={{ opacity: 0, x: 400 }}
           className="fixed top-6 right-6 z-50"
         >
-          <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-4 flex items-center gap-3 shadow-lg backdrop-blur-sm">
-            <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0" />
-            <p className="text-rose-800 font-medium">{errorMessage}</p>
+          <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-4 flex items-center gap-3 shadow-lg backdrop-blur-sm">
+            <AlertCircle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+            <p className="text-rose-400 font-medium">{errorMessage}</p>
           </div>
         </motion.div>
       )}
 
       {/* MAIN CONTENT */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-8 md:py-12 space-y-12">
+      <div className="max-w-7xl mx-auto space-y-10">
 
         {/* HEADER */}
         <motion.div
@@ -256,10 +250,11 @@ function Subjects() {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-900">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-[10px] font-black tracking-widest text-indigo-400 uppercase font-mono mb-2">Subject Management</div>
+              <h1 className="text-4xl font-black text-white uppercase tracking-tight">
                 Subjects
               </h1>
-              <p className="text-slate-600 mt-1">
+              <p className="text-slate-500 mt-1 text-sm">
                 Manage your course subjects and content
               </p>
             </div>
@@ -271,13 +266,11 @@ function Subjects() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="group relative bg-white rounded-2xl border border-blue-100/60 p-6 shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden"
+          className="bg-white/[0.03] rounded-2xl border border-white/[0.08] p-6 hover:border-indigo-400/30 transition-all duration-300"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-          <div className="relative space-y-4">
-            <h3 className="font-bold text-slate-900 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-blue-600" />
+          <div className="space-y-4">
+            <h3 className="font-black text-white flex items-center gap-2 text-sm uppercase tracking-widest font-mono">
+              <Plus className="w-5 h-5 text-indigo-400" />
               Add New Subject
             </h3>
 
@@ -288,14 +281,14 @@ function Subjects() {
                 value={newSubject}
                 onChange={(e) => setNewSubject(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="flex-1 border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition bg-slate-50 hover:bg-white"
+                className="flex-1 bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600 transition"
               />
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleAddSubject}
                 disabled={loading || !newSubject.trim()}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-indigo-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 <Plus className="w-5 h-5" />
                 <span className="hidden sm:inline">Add Subject</span>
@@ -315,7 +308,7 @@ function Subjects() {
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-              className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full"
+              className="w-12 h-12 border-4 border-white/[0.1] border-t-indigo-400 rounded-full"
             />
           </motion.div>
         ) : (
@@ -326,7 +319,7 @@ function Subjects() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
-                className="bg-white rounded-2xl border border-blue-100/60 p-4 shadow-sm flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+                className="bg-white/[0.03] rounded-2xl border border-white/[0.08] p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
               >
                 <div className="flex gap-3 items-center flex-1">
                   <div className="relative flex-1 max-w-sm">
@@ -336,7 +329,7 @@ function Subjects() {
                       placeholder="Search subjects..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-12 pr-4 py-2 border-2 border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition bg-slate-50 hover:bg-white"
+                      className="w-full pl-12 pr-4 py-2 bg-white/[0.05] border border-white/10 text-white rounded-lg focus:outline-none focus:border-indigo-400/50 placeholder:text-slate-600 transition"
                     />
                   </div>
 
@@ -347,8 +340,8 @@ function Subjects() {
                       onClick={() => setViewMode("grid")}
                       className={`p-2 rounded-lg transition ${
                         viewMode === "grid"
-                          ? "bg-blue-100 text-blue-600"
-                          : "text-slate-600 hover:bg-slate-100"
+                          ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                          : "text-slate-500 hover:bg-white/[0.06]"
                       }`}
                       title="Grid view"
                     >
@@ -360,8 +353,8 @@ function Subjects() {
                       onClick={() => setViewMode("list")}
                       className={`p-2 rounded-lg transition ${
                         viewMode === "list"
-                          ? "bg-blue-100 text-blue-600"
-                          : "text-slate-600 hover:bg-slate-100"
+                          ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                          : "text-slate-500 hover:bg-white/[0.06]"
                       }`}
                       title="List view"
                     >
@@ -374,9 +367,9 @@ function Subjects() {
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex gap-3 items-center bg-red-50 px-4 py-2 rounded-lg border border-red-200"
+                    className="flex gap-3 items-center bg-red-500/[0.08] px-4 py-2 rounded-lg border border-red-500/20"
                   >
-                    <span className="text-sm font-semibold text-red-700">
+                    <span className="text-sm font-semibold text-red-400">
                       {selectedSubjects.size} selected
                     </span>
                     <motion.button
@@ -384,7 +377,7 @@ function Subjects() {
                       whileTap={{ scale: 0.95 }}
                       onClick={handleBulkDelete}
                       disabled={loading}
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg font-medium transition flex items-center gap-2 disabled:opacity-50"
+                      className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-3 py-1 rounded-lg font-medium transition flex items-center gap-2 disabled:opacity-50"
                     >
                       <Trash2 className="w-4 h-4" />
                       Delete
@@ -401,14 +394,14 @@ function Subjects() {
                 animate={{ opacity: 1 }}
                 className="text-center py-24"
               >
-                <div className="bg-white rounded-2xl p-12 border border-slate-200 inline-block">
-                  <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-6">
-                    <BookOpen className="w-8 h-8 text-slate-400" />
+                <div className="bg-white/[0.03] rounded-2xl p-12 border border-white/[0.08] inline-block">
+                  <div className="h-16 w-16 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mx-auto mb-6">
+                    <BookOpen className="w-8 h-8 text-indigo-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-2">
+                  <h3 className="text-2xl font-black text-white mb-2">
                     No subjects yet
                   </h3>
-                  <p className="text-slate-600 max-w-sm mx-auto mb-8">
+                  <p className="text-slate-500 max-w-sm mx-auto mb-8">
                     Add your first subject to get started organizing your course content
                   </p>
                 </div>
@@ -419,8 +412,8 @@ function Subjects() {
                 animate={{ opacity: 1 }}
                 className="text-center py-12"
               >
-                <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-600 font-medium">
+                <AlertCircle className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                <p className="text-slate-400 font-medium">
                   No subjects match your search
                 </p>
               </motion.div>
@@ -444,9 +437,9 @@ function Subjects() {
                         filteredSubjects.length > 0
                       }
                       onChange={toggleSelectAll}
-                      className="w-5 h-5 rounded border-slate-300 text-blue-600 cursor-pointer"
+                      className="w-5 h-5 rounded border-white/20 text-indigo-500 cursor-pointer accent-indigo-500"
                     />
-                    <span className="text-sm font-medium text-slate-600">
+                    <span className="text-sm font-medium text-slate-400">
                       Select all on this page
                     </span>
                   </motion.label>
@@ -460,51 +453,51 @@ function Subjects() {
                         key={subject._id}
                         variants={itemVariants}
                         whileHover={{ y: -4 }}
-                        className={`group relative bg-white rounded-2xl border-2 p-6 shadow-sm hover:shadow-lg transition-all duration-500 overflow-hidden cursor-pointer ${
+                        className={`group relative bg-white/[0.03] rounded-2xl border p-6 transition-all duration-300 overflow-hidden cursor-pointer ${
                           selectedSubjects.has(subject._id)
-                            ? "ring-2 ring-blue-500 border-blue-300"
-                            : "border-slate-200 hover:border-blue-300"
+                            ? "border-indigo-400/50 bg-indigo-500/[0.08]"
+                            : "border-white/[0.08] hover:border-indigo-400/30"
                         }`}
                         onClick={() => toggleSubjectSelection(subject._id)}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
 
                         {/* CHECKBOX */}
                         <input
                           type="checkbox"
                           checked={selectedSubjects.has(subject._id)}
                           onChange={() => {}}
-                          className="absolute top-4 right-4 w-5 h-5 rounded border-slate-300 text-blue-600 cursor-pointer"
+                          className="absolute top-4 right-4 w-5 h-5 rounded accent-indigo-500 cursor-pointer"
                           onClick={(e) => e.stopPropagation()}
                         />
 
                         <div className="relative space-y-4">
                           {/* HEADER */}
                           <div className="flex items-start gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0 group-hover:from-blue-200 group-hover:to-indigo-200 transition">
-                              <BookOpen className="w-6 h-6 text-blue-600" />
+                            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-violet-500/10 border border-indigo-500/20 flex items-center justify-center flex-shrink-0 transition">
+                              <BookOpen className="w-6 h-6 text-indigo-400" />
                             </div>
                             <div className="flex-1">
-                              <h3 className="font-bold text-slate-900 text-lg group-hover:text-blue-600 transition">
+                              <h3 className="font-bold text-white text-lg group-hover:text-indigo-300 transition">
                                 {subject.name}
                               </h3>
                             </div>
                           </div>
 
                           {/* STATS */}
-                          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
+                          <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/[0.06]">
                             <div className="text-center">
-                              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">MCQs</p>
-                              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.mcqs}</p>
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">MCQs</p>
+                              <p className="text-2xl font-black text-white mt-1">{stats.mcqs}</p>
                             </div>
                             <div className="text-center">
-                              <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">DSA</p>
-                              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.dsa}</p>
+                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest font-mono">DSA</p>
+                              <p className="text-2xl font-black text-white mt-1">{stats.dsa}</p>
                             </div>
                           </div>
 
                           {/* ACTIONS */}
-                          <div className="flex gap-2 pt-4 border-t border-slate-100">
+                          <div className="flex gap-2 pt-4 border-t border-white/[0.06]">
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
@@ -512,7 +505,7 @@ function Subjects() {
                                 e.stopPropagation();
                                 setEditingSubject(subject);
                               }}
-                              className="flex-1 text-blue-600 hover:bg-blue-50 py-2 rounded-lg transition font-medium flex items-center justify-center gap-2"
+                              className="flex-1 text-indigo-400 hover:bg-indigo-500/[0.08] py-2 rounded-lg transition font-medium flex items-center justify-center gap-2"
                             >
                               <Edit2 className="w-4 h-4" />
                               Edit
@@ -524,7 +517,7 @@ function Subjects() {
                                 e.stopPropagation();
                                 handleDelete(subject._id, subject.name);
                               }}
-                              className="flex-1 text-red-600 hover:bg-red-50 py-2 rounded-lg transition font-medium flex items-center justify-center gap-2"
+                              className="flex-1 text-red-400 hover:bg-red-500/[0.08] py-2 rounded-lg transition font-medium flex items-center justify-center gap-2"
                             >
                               <Trash2 className="w-4 h-4" />
                               Delete
@@ -545,7 +538,7 @@ function Subjects() {
                 className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm"
               >
                 {/* LIST HEADER */}
-                <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-700 text-sm">
+                <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-white/[0.08] bg-white/[0.02] font-mono text-[10px] font-black uppercase tracking-widest text-slate-500">
                   <div className="col-span-1 flex items-center">
                     <input
                       type="checkbox"
@@ -554,7 +547,7 @@ function Subjects() {
                         filteredSubjects.length > 0
                       }
                       onChange={toggleSelectAll}
-                      className="w-5 h-5 rounded border-slate-300 text-blue-600 cursor-pointer"
+                      className="w-5 h-5 rounded accent-indigo-500 cursor-pointer"
                     />
                   </div>
                   <div className="col-span-4">Subject Name</div>
@@ -570,36 +563,33 @@ function Subjects() {
                     <motion.div
                       key={subject._id}
                       variants={itemVariants}
-                      className={`grid grid-cols-12 gap-4 px-6 py-4 items-center border-b border-slate-100 hover:bg-slate-50 transition ${
-                        selectedSubjects.has(subject._id) ? "bg-blue-50" : ""
+                      className={`grid grid-cols-12 gap-4 px-6 py-4 items-center border-b border-white/[0.05] hover:bg-white/[0.04] transition ${
+                        selectedSubjects.has(subject._id) ? "bg-indigo-500/[0.06]" : ""
                       } ${index === filteredSubjects.length - 1 ? "border-b-0" : ""}`}
                     >
-                      <div className="col-span-1">
+                      <div className="col-span-1 flex items-center gap-2">
                         <input
                           type="checkbox"
                           checked={selectedSubjects.has(subject._id)}
                           onChange={() => toggleSubjectSelection(subject._id)}
-                          className="w-5 h-5 rounded border-slate-300 text-blue-600 cursor-pointer"
+                          className="w-5 h-5 rounded accent-indigo-500 cursor-pointer"
                         />
+                        <BookOpen className="w-5 h-5 text-blue-600" />
                       </div>
-
-                      <div className="col-span-4 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center flex-shrink-0">
-                          <BookOpen className="w-5 h-5 text-blue-600" />
-                        </div>
+                      <div className="col-span-4">
                         <span className="font-medium text-slate-900">
                           {subject.name}
                         </span>
                       </div>
 
                       <div className="col-span-2 text-center">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 rounded-lg font-semibold">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-lg font-black text-sm">
                           {stats.mcqs}
                         </span>
                       </div>
 
                       <div className="col-span-2 text-center">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-50 text-purple-700 rounded-lg font-semibold">
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg font-black text-sm">
                           {stats.dsa}
                         </span>
                       </div>
@@ -609,7 +599,7 @@ function Subjects() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setEditingSubject(subject)}
-                          className="text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg transition flex items-center gap-1"
+                          className="text-indigo-400 hover:bg-indigo-500/[0.08] px-3 py-2 rounded-lg transition flex items-center gap-1"
                         >
                           <Edit2 className="w-4 h-4" />
                           <span className="hidden sm:inline text-sm">Edit</span>
@@ -618,7 +608,7 @@ function Subjects() {
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleDelete(subject._id, subject.name)}
-                          className="text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg transition flex items-center gap-1"
+                          className="text-red-400 hover:bg-red-500/[0.08] px-3 py-2 rounded-lg transition flex items-center gap-1"
                         >
                           <Trash2 className="w-4 h-4" />
                           <span className="hidden sm:inline text-sm">Delete</span>
@@ -646,9 +636,9 @@ function Subjects() {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl"
+            className="bg-[#0d0d1a] border border-white/10 rounded-2xl max-w-md w-full p-8 shadow-2xl"
           >
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
+            <h2 className="text-xl font-black text-white uppercase tracking-tight font-mono mb-6">
               Edit Subject
             </h2>
 
@@ -661,7 +651,7 @@ function Subjects() {
               onKeyPress={(e) => {
                 if (e.key === "Enter") handleEditSubject();
               }}
-              className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition mb-6"
+              className="w-full bg-white/[0.05] border border-white/10 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-400/50 transition mb-6 placeholder:text-slate-600"
               autoFocus
             />
 
@@ -670,7 +660,7 @@ function Subjects() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setEditingSubject(null)}
-                className="flex-1 px-4 py-3 border-2 border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition"
+                className="flex-1 px-4 py-3 border border-white/10 text-slate-400 font-semibold rounded-xl hover:bg-white/[0.04] transition"
               >
                 Cancel
               </motion.button>
@@ -680,7 +670,7 @@ function Subjects() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleEditSubject}
                 disabled={loading}
-                className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-violet-700 transition disabled:opacity-50"
               >
                 {loading ? "Saving..." : "Save Changes"}
               </motion.button>

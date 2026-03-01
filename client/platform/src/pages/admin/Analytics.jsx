@@ -77,36 +77,38 @@ function Analytics() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white flex items-center justify-center">
+      <div className="flex items-center justify-center py-40">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full"
+          className="w-12 h-12 border-4 border-white/[0.1] border-t-indigo-400 rounded-full"
         />
       </div>
     );
   }
 
-  const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
+  const COLORS = ["#818cf8", "#34d399", "#fbbf24", "#f87171", "#a78bfa", "#fb7185"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white p-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-slate-900 mb-2">Platform Analytics</h1>
-        <p className="text-slate-600">Comprehensive insights to manage your platform effectively</p>
+      <div className="mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-[10px] font-black tracking-widest text-indigo-400 uppercase font-mono mb-3">
+          Platform Analytics
+        </div>
+        <h1 className="text-4xl font-black text-white uppercase tracking-tight">Analytics</h1>
+        <p className="text-slate-500 text-sm mt-1">Comprehensive insights to manage your platform effectively</p>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mb-8 flex-wrap">
+      <div className="flex gap-2 mb-6 flex-wrap">
         {["summary", "users", "content", "activity", "dsa"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all capitalize ${
+            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest font-mono transition-all capitalize ${
               activeTab === tab
-                ? "bg-blue-600 text-white shadow-lg"
-                : "bg-white text-slate-600 border border-slate-200 hover:border-blue-300"
+                ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30 border border-indigo-400"
+                : "bg-white/[0.04] text-slate-500 border border-white/[0.08] hover:border-indigo-400/30 hover:text-slate-300"
             }`}
           >
             {tab}
@@ -131,13 +133,13 @@ function Analytics() {
               return (
                 <motion.div
                   key={idx}
-                  whileHover={{ translateY: -5 }}
-                  className={`p-6 rounded-xl bg-white border-2 border-${stat.color}-100 shadow-sm hover:shadow-lg transition-all`}
+                  whileHover={{ translateY: -3 }}
+                  className={`p-5 rounded-2xl bg-white/[0.03] border border-white/[0.08] hover:border-indigo-400/30 transition-all`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-slate-500 text-sm font-medium">{stat.label}</p>
-                      <p className={`text-3xl font-bold text-${stat.color}-600 mt-2`}>{stat.value}</p>
+                      <p className="text-slate-500 text-xs font-mono uppercase tracking-widest">{stat.label}</p>
+                      <p className={`text-3xl font-black text-${stat.color}-400 mt-2`}>{stat.value}</p>
                     </div>
                     <Icon className={`w-12 h-12 text-${stat.color}-400 opacity-50`} />
                   </div>
@@ -148,9 +150,9 @@ function Analytics() {
 
           {/* Engagement Overview */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <PieChartIcon className="w-5 h-5 text-blue-600" />
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono flex items-center gap-2">
+                <PieChartIcon className="w-4 h-4 text-indigo-400" />
                 Users by Role
               </h3>
               {userData?.usersByRole && (
@@ -179,28 +181,28 @@ function Analytics() {
               )}
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">User Engagement Metrics</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">User Engagement Metrics</h3>
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-slate-600 mb-1">Engagement Rate</p>
-                  <div className="w-full bg-slate-100 rounded-full h-3">
+                  <p className="text-xs text-slate-500 mb-1 font-mono">Engagement Rate</p>
+                  <div className="w-full bg-white/[0.06] rounded-full h-2.5">
                     <div
-                      className="bg-blue-600 h-3 rounded-full transition-all"
+                      className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-2.5 rounded-full transition-all"
                       style={{ width: `${userData?.userEngagementRate || 0}%` }}
                     />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900 mt-1">{userData?.userEngagementRate || 0}%</p>
+                  <p className="text-sm font-black text-white mt-1">{userData?.userEngagementRate || 0}%</p>
                 </div>
 
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-slate-600 mb-2">New Users This Week</p>
-                  <p className="text-2xl font-bold text-green-600">{userData?.newUsersThisWeek || 0}</p>
+                <div className="pt-4 border-t border-white/[0.06]">
+                  <p className="text-xs text-slate-500 mb-2 font-mono">New Users This Week</p>
+                  <p className="text-2xl font-black text-emerald-400">{userData?.newUsersThisWeek || 0}</p>
                 </div>
 
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-slate-600 mb-2">Avg Attempts Per User</p>
-                  <p className="text-2xl font-bold text-purple-600">{userData?.avgAttemptsPerUser || 0}</p>
+                <div className="pt-4 border-t border-white/[0.06]">
+                  <p className="text-xs text-slate-500 mb-2 font-mono">Avg Attempts Per User</p>
+                  <p className="text-2xl font-black text-purple-400">{userData?.avgAttemptsPerUser || 0}</p>
                 </div>
               </div>
             </div>
@@ -212,30 +214,30 @@ function Analytics() {
       {activeTab === "users" && userData && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">User Overview</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-3 border-b">
-                  <span className="text-slate-600">Total Users</span>
-                  <span className="text-2xl font-bold text-blue-600">{userData.totalUsers}</span>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">User Overview</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center pb-3 border-b border-white/[0.06]">
+                  <span className="text-slate-400 text-sm">Total Users</span>
+                  <span className="text-2xl font-black text-indigo-400">{userData.totalUsers}</span>
                 </div>
-                <div className="flex justify-between items-center pb-3 border-b">
-                  <span className="text-slate-600">Active Users</span>
-                  <span className="text-2xl font-bold text-green-600">{userData.activeUsers}</span>
+                <div className="flex justify-between items-center pb-3 border-b border-white/[0.06]">
+                  <span className="text-slate-400 text-sm">Active Users</span>
+                  <span className="text-2xl font-black text-emerald-400">{userData.activeUsers}</span>
                 </div>
-                <div className="flex justify-between items-center pb-3 border-b">
-                  <span className="text-slate-600">Engagement Rate</span>
-                  <span className="text-2xl font-bold text-purple-600">{userData.userEngagementRate}%</span>
+                <div className="flex justify-between items-center pb-3 border-b border-white/[0.06]">
+                  <span className="text-slate-400 text-sm">Engagement Rate</span>
+                  <span className="text-2xl font-black text-purple-400">{userData.userEngagementRate}%</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-600">New This Week</span>
-                  <span className="text-2xl font-bold text-amber-600">{userData.newUsersThisWeek}</span>
+                  <span className="text-slate-400 text-sm">New This Week</span>
+                  <span className="text-2xl font-black text-amber-400">{userData.newUsersThisWeek}</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Users by Role</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Users by Role</h3>
               {userData.usersByRole && (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart
@@ -244,9 +246,9 @@ function Analytics() {
                       count,
                     }))}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="role" />
-                    <YAxis />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="role" tick={{ fill: '#64748b', fontSize: 11 }} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
                     <Tooltip />
                     <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]} />
                   </BarChart>
@@ -261,17 +263,17 @@ function Analytics() {
       {activeTab === "content" && contentData && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
           {/* Subject Performance */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
+          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-indigo-400" />
               Subject-wise Performance
             </h3>
             {contentData.subjectWiseScores && contentData.subjectWiseScores.length > 0 ? (
               <ResponsiveContainer width="100%" height={400}>
                 <BarChart data={contentData.subjectWiseScores.slice(0, 8)}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="_id" angle={-45} textAnchor="end" height={100} />
-                  <YAxis />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="_id" angle={-45} textAnchor="end" height={100} tick={{ fill: '#64748b', fontSize: 10 }} />
+                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
                   <Tooltip />
                   <Bar dataKey="avgScore" fill="#10b981" name="Avg Score" radius={[8, 8, 0, 0]} />
                   <Bar dataKey="attemptCount" fill="#60a5fa" name="Attempt Count" radius={[8, 8, 0, 0]} />
@@ -284,34 +286,34 @@ function Analytics() {
 
           {/* Difficulty Performance */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Performance by Difficulty</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Performance by Difficulty</h3>
               {contentData.difficultyPerformance && (
                 <div className="space-y-4">
                   {contentData.difficultyPerformance.map((item, idx) => (
-                    <div key={idx} className="pb-3 border-b last:border-b-0">
-                      <p className="font-semibold text-slate-900 capitalize">{item._id}</p>
-                      <p className="text-sm text-slate-600">
+                    <div key={idx} className="pb-3 border-b border-white/[0.06] last:border-b-0">
+                      <p className="font-black text-white capitalize text-sm">{item._id}</p>
+                      <p className="text-xs text-slate-500">
                         Avg Score: {Number.isFinite(item.avgScore) ? item.avgScore.toFixed(2) : "0.00"}%
                       </p>
-                      <p className="text-sm text-slate-600">Attempts: {item.totalAttempts}</p>
+                      <p className="text-xs text-slate-500">Attempts: {item.totalAttempts}</p>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Lowest Performing MCQs</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Lowest Performing MCQs</h3>
               {contentData.lowestPerformingMcqs && (
                 <div className="space-y-3">
                   {contentData.lowestPerformingMcqs.map((mcq, idx) => (
-                    <div key={idx} className="p-3 bg-slate-50 rounded-lg">
-                      <p className="text-sm font-semibold text-slate-900 truncate">{mcq.question}</p>
-                      <p className="text-xs text-red-600 font-semibold">
+                    <div key={idx} className="p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
+                      <p className="text-sm font-semibold text-white truncate">{mcq.question}</p>
+                      <p className="text-xs text-red-400 font-semibold">
                         Success Rate: {Number.isFinite(mcq.successRate) ? mcq.successRate.toFixed(2) : "0.00"}%
                       </p>
-                      <p className="text-xs text-slate-600">Attempts: {mcq.attempts}</p>
+                      <p className="text-xs text-slate-500">Attempts: {mcq.attempts}</p>
                     </div>
                   ))}
                 </div>
@@ -320,14 +322,14 @@ function Analytics() {
           </div>
 
           {/* Subject MCQ Distribution */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">MCQ Distribution by Subject</h3>
+          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">MCQ Distribution by Subject</h3>
             {contentData.subjectWiseMcqs && (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={contentData.subjectWiseMcqs.slice(0, 10)}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-                  <YAxis />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} tick={{ fill: '#64748b', fontSize: 10 }} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
                   <Tooltip />
                   <Bar dataKey="mcqCount" fill="#f59e0b" name="MCQ Count" radius={[8, 8, 0, 0]} />
                 </BarChart>
@@ -341,10 +343,10 @@ function Analytics() {
       {activeTab === "activity" && activityData && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
           {/* Attempts Trend */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-              <LineChartIcon className="w-5 h-5 text-blue-600" />
-              Attempts & Score Trend (Last 30 Days)
+          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono flex items-center gap-2">
+              <LineChartIcon className="w-4 h-4 text-indigo-400" />
+              Attempts &amp; Score Trend (Last 30 Days)
             </h3>
             {activityData.attemptsLast30Days && activityData.dailyScoreTrend && (
               <ResponsiveContainer width="100%" height={400}>
@@ -356,10 +358,10 @@ function Analytics() {
                       activityData.dailyScoreTrend.find((score) => score._id === attempt._id)?.avgScore || 0,
                   }))}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" angle={-45} textAnchor="end" height={100} />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="date" angle={-45} textAnchor="end" height={100} tick={{ fill: '#64748b', fontSize: 10 }} />
+                  <YAxis yAxisId="left" tick={{ fill: '#64748b', fontSize: 11 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fill: '#64748b', fontSize: 11 }} />
                   <Tooltip />
                   <Legend />
                   <Line
@@ -385,27 +387,27 @@ function Analytics() {
 
           {/* Peak Activity & Top Performers */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Peak Activity Hour</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Peak Activity Hour</h3>
               {activityData.peakActivityHour !== null ? (
                 <div className="text-center py-8">
-                  <p className="text-6xl font-bold text-blue-600">{activityData.peakActivityHour}:00</p>
-                  <p className="text-slate-600 mt-2">Most tests taken at this hour</p>
+                  <p className="text-6xl font-black text-indigo-400">{activityData.peakActivityHour}:00</p>
+                  <p className="text-slate-500 mt-2 text-sm">Most tests taken at this hour</p>
                 </div>
               ) : (
                 <p className="text-slate-500">No data available</p>
               )}
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Top 5 Performers</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Top 5 Performers</h3>
               {activityData.topPerformingUsers && activityData.topPerformingUsers.length > 0 ? (
                 <div className="space-y-3">
                   {activityData.topPerformingUsers.slice(0, 5).map((user, idx) => (
-                    <div key={idx} className="p-3 bg-gradient-to-r from-blue-50 to-transparent rounded-lg">
-                      <p className="font-semibold text-slate-900 text-sm">{idx + 1}. {user.name}</p>
-                      <p className="text-xs text-slate-600">{user.email}</p>
-                      <p className="text-sm font-bold text-blue-600 mt-1">
+                    <div key={idx} className="p-3 bg-gradient-to-r from-indigo-500/[0.08] to-transparent rounded-xl border border-indigo-500/10">
+                      <p className="font-black text-white text-sm">{idx + 1}. {user.name}</p>
+                      <p className="text-xs text-slate-500">{user.email}</p>
+                      <p className="text-sm font-black text-indigo-400 mt-1">
                         Avg: {user.avgScore.toFixed(2)}% ({user.attemptCount} attempts)
                       </p>
                     </div>
@@ -424,16 +426,16 @@ function Analytics() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
           {/* DSA Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Total DSA Problems</h3>
-              <p className="text-4xl font-bold text-purple-600">{dsaData.totalDsaProblems}</p>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Total DSA Problems</h3>
+              <p className="text-5xl font-black text-purple-400">{dsaData.totalDsaProblems}</p>
             </div>
           </div>
 
           {/* DSA by Difficulty */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">DSA by Difficulty</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">DSA by Difficulty</h3>
               {dsaData.dsaByDifficulty && dsaData.dsaByDifficulty.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart
@@ -442,9 +444,9 @@ function Analytics() {
                       count: item.count,
                     }))}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="difficulty" />
-                    <YAxis />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="difficulty" tick={{ fill: '#64748b', fontSize: 11 }} />
+                    <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
                     <Tooltip />
                     <Bar dataKey="count" fill="#a855f7" radius={[8, 8, 0, 0]} />
                   </BarChart>
@@ -455,14 +457,14 @@ function Analytics() {
             </div>
 
             {/* DSA by Topic */}
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Top Problem Topics</h3>
+            <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Top Problem Topics</h3>
               {dsaData.dsaByTopic && dsaData.dsaByTopic.length > 0 ? (
                 <div className="space-y-2">
                   {dsaData.dsaByTopic.slice(0, 8).map((topic, idx) => (
-                    <div key={idx} className="flex justify-between items-center p-2 bg-slate-50 rounded">
-                      <span className="text-sm font-semibold text-slate-900">{topic._id}</span>
-                      <span className="text-sm font-bold text-purple-600">{topic.count} problems</span>
+                    <div key={idx} className="flex justify-between items-center p-2 bg-white/[0.03] rounded-lg border border-white/[0.05]">
+                      <span className="text-sm font-semibold text-white">{topic._id}</span>
+                      <span className="text-sm font-black text-purple-400">{topic.count} problems</span>
                     </div>
                   ))}
                 </div>
@@ -473,27 +475,27 @@ function Analytics() {
           </div>
 
           {/* Recent DSA Problems */}
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Sample DSA Problems</h3>
+          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/[0.08]">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 font-mono">Sample DSA Problems</h3>
             {dsaData.recentDsaProblems && dsaData.recentDsaProblems.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {dsaData.recentDsaProblems.slice(0, 6).map((problem, idx) => (
-                  <div key={idx} className="p-4 border border-slate-200 rounded-lg hover:shadow-md transition-all">
-                    <p className="font-semibold text-slate-900 text-sm line-clamp-2">{problem.title}</p>
+                  <div key={idx} className="p-4 border border-white/[0.08] rounded-xl bg-white/[0.03] hover:border-indigo-400/30 transition-all">
+                    <p className="font-semibold text-white text-sm line-clamp-2">{problem.title}</p>
                     <div className="flex gap-2 mt-3 flex-wrap">
                       <span
-                        className={`text-xs font-semibold px-2 py-1 rounded ${
+                        className={`text-xs font-semibold px-2 py-1 rounded-lg ${
                           problem.difficulty === "Easy"
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : problem.difficulty === "Medium"
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-red-100 text-red-700"
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "bg-red-500/10 text-red-400 border border-red-500/20"
                         }`}
                       >
                         {problem.difficulty}
                       </span>
                       {problem.tags && problem.tags.slice(0, 2).map((tag, tagIdx) => (
-                        <span key={tagIdx} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        <span key={tagIdx} className="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-1 rounded-lg">
                           {tag}
                         </span>
                       ))}
