@@ -22,6 +22,7 @@ const DsaDashboard = () => {
   const [totalSubmissions, setTotalSubmissions] = useState(0);
   const [acceptedSubmissions, setAcceptedSubmissions] = useState(0);
   const [groupedTopicProblems, setGroupedTopicProblems] = useState({});
+  const [userProblemStats, setUserProblemStats] = useState({});
 
   // 3D Physics for Hero Tilt
   const heroRotateX = useSpring(0, { stiffness: 150, damping: 20 });
@@ -42,6 +43,7 @@ const DsaDashboard = () => {
       setAttemptedProblemIds(solvedRes.data.attemptedProblemIds || []);
       setTotalSubmissions(solvedRes.data.totalSubmissions || 0);
       setAcceptedSubmissions(solvedRes.data.acceptedSubmissions || 0);
+      setUserProblemStats(solvedRes.data.perProblemStats || {});
 
       const nextGroupedProblems = (Array.isArray(problemsRes.data) ? problemsRes.data : []).reduce((acc, problem) => {
         const tags = Array.isArray(problem.tags) && problem.tags.length > 0
@@ -416,6 +418,7 @@ const DsaDashboard = () => {
                 groupedProblems={groupedTopicProblems}
                 solvedProblemIds={solvedProblemIds}
                 attemptedProblemIds={attemptedProblemIds}
+                userProblemStats={userProblemStats}
               />
             </motion.div>
           </section>

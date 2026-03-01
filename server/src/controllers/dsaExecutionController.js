@@ -92,6 +92,8 @@ exports.getSolvedProblems = async (req, res) => {
 
     const solvedSet = new Set();
     const submittedSet = new Set();
+    // per-problem counts for THIS user
+    const perProblem = {};
 
     const isAcceptedStatus = (status) =>
       String(status || "").trim().toLowerCase() === "accepted";
@@ -100,6 +102,10 @@ exports.getSolvedProblems = async (req, res) => {
       const pid = sub.problemId.toString();
       submittedSet.add(pid);
       if (isAcceptedStatus(sub.status)) solvedSet.add(pid);
+
+      if (!perProblem[pid]) perProblem[pid] = { total: 0, accepted: 0 };
+      perProblem[pid].total += 1;
+      if (isAcceptedStatus(sub.status)) perProblem[pid].accepted += 1;
     });
 
     const attemptedSet = new Set(
@@ -115,6 +121,8 @@ exports.getSolvedProblems = async (req, res) => {
       attemptedProblemIds: Array.from(attemptedSet),
       totalSubmissions,
       acceptedSubmissions,
+      // per-problem stats keyed by problemId string
+      perProblemStats: perProblem,
     });
   } catch (error) {
     console.error("FETCH SOLVED ERROR:", error);

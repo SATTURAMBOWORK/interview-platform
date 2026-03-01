@@ -13,6 +13,7 @@ const DsaProblemTable = ({
   groupedProblems = {},
   solvedProblemIds = [],
   attemptedProblemIds = [],
+  userProblemStats = {},
 }) => {
   const navigate = useNavigate();
   const topics = useMemo(() => Object.keys(groupedProblems), [groupedProblems]);
@@ -174,8 +175,11 @@ const DsaProblemTable = ({
                     </div>
 
                     {topicProblems.map((problem, pi) => {
-                      const totalSubs = problem.userSubmissions || 0;
-                      const acceptanceRate = problem.userAcceptanceRate || 0;
+                      const userStats = userProblemStats[problem._id?.toString()] || {};
+                      const totalSubs = userStats.total || 0;
+                      const acceptanceRate = totalSubs > 0
+                        ? Math.round((userStats.accepted / totalSubs) * 100)
+                        : 0;
 
                       return (
                         <motion.div
