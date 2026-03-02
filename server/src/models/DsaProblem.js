@@ -139,7 +139,6 @@ const dsaProblemSchema = new mongoose.Schema(
 dsaProblemSchema.index({ difficulty: 1 });
 dsaProblemSchema.index({ tags: 1 });
 dsaProblemSchema.index({ createdBy: 1 });
-dsaProblemSchema.index({ slug: 1 });
 dsaProblemSchema.index({ title: "text", description: "text" }); // Full-text search
 
 // ──────────��────────────────────────────────────

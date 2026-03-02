@@ -26,11 +26,13 @@ Your DSA execution compiles C++ (`g++`) on server side. Docker ensures every dep
 2. Connect this GitHub repo.
 3. Render auto-detects `render.yaml` at repo root.
 4. Create service `interview-prep-api`.
-5. Add environment variables in Render:
+5. Add environment variables in Render.
+   Do **not** paste your entire local `.env` file blindly. Only set the required keys below with production-safe values:
    - `MONGO_URI` = your Atlas connection string
    - `JWT_SECRET` = long random string
    - `GROQ_API_KEY` = your Groq API key
    - `CLIENT_URL` = your frontend URL (after Vercel deploy)
+   - Optional: `PORT` (Render usually provides this automatically)
 
 6. Deploy and copy backend URL (example):
    - `https://interview-prep-api.onrender.com`
@@ -46,7 +48,7 @@ Your DSA execution compiles C++ (`g++`) on server side. Docker ensures every dep
 2. Import this same GitHub repo.
 3. Set **Root Directory** to `client/platform`.
 4. Framework preset: Vite (auto-detected).
-5. Add environment variable:
+5. Add environment variable (frontend only needs this one):
    - `VITE_API_URL` = `https://interview-prep-api.onrender.com/api`
 6. Deploy.
 

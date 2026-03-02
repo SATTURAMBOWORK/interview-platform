@@ -13,7 +13,7 @@ import UsersPage from "./pages/admin/Users";
 import Subjects from "./pages/admin/Subjects";
 import Mcqs from "./pages/admin/Mcqs";
 import DsaProblems from "./pages/admin/DsaProblems";
-import AddDsaProblem from "./pages/admin/AddDsaProblem";
+import AddDsaProblem from "./pages/admin/addDsaProblem";
 import EditDsaProblem from "./pages/admin/EditDsaProblem";
 import StarQuestions from "./pages/admin/StarQuestions";
 
