@@ -18,14 +18,18 @@ const behavioralRoutes = require("./routes/behavioralRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const resumeRoutes = require("./routes/resumeRoutes");
 
-
-
-
-
 // ✅ middleware FIRST
-const allowedOrigins = process.env.CLIENT_URL
-  ? [process.env.CLIENT_URL, "http://localhost:5173"]
-  : ["http://localhost:5173", "http://localhost:3000"];
+const parseAllowedOrigins = () => {
+  const defaults = ["http://localhost:5173", "http://localhost:3000"];
+  const configured = (process.env.CLIENT_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  return [...new Set([...defaults, ...configured])];
+};
+
+const allowedOrigins = parseAllowedOrigins();
 
 app.use(
   cors({
@@ -56,10 +60,6 @@ app.use("/api/dsa", dsaStatsRoutes);
 app.use("/api/behavioral", behavioralRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/resume", resumeRoutes);
-
-
-
-
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
