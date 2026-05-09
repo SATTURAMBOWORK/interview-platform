@@ -1,10 +1,175 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import usePageTitle from "../hooks/usePageTitle";
-import { motion, useMotionValue, useTransform } from "framer-motion";
-import { Eye, EyeOff, User, Lock, AlertCircle, Loader, Terminal, Zap, Shield, Code2, Sparkles, Rocket, Star, Heart } from "lucide-react";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import { Eye, EyeOff, User, Lock, AlertCircle, Loader, Terminal, Zap, Shield, Code2, Rocket } from "lucide-react";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContextValue";
+
+// ── DSA Animation Components ───────────────────────────────────────────────
+
+const initial = [
+  { id: 'a', val: 5 }, { id: 'b', val: 2 }, { id: 'c', val: 8 },
+  { id: 'd', val: 1 }, { id: 'e', val: 9 }, { id: 'f', val: 3 },
+];
+
+const SortingArray = () => {
+  const [items, setItems]         = useState(initial);
+  const [comparing, setComparing] = useState([]);
+  const stepRef  = useRef(0);
+  const itemsRef = useRef(initial);
+
+  useEffect(() => {
+    const swaps = [[0,1],[2,3],[4,5],[1,2],[3,4],[0,1],[2,3],[1,2],[3,4],[0,1],[2,3]];
+    const id = setInterval(() => {
+      const [i, j] = swaps[stepRef.current % swaps.length];
+      setComparing([i, j]);
+      setTimeout(() => {
+        const next = [...itemsRef.current];
+        if (next[i].val > next[j].val) [next[i], next[j]] = [next[j], next[i]];
+        itemsRef.current = next;
+        setItems([...next]);
+        setComparing([]);
+        stepRef.current++;
+        if (stepRef.current >= swaps.length) {
+          stepRef.current = 0;
+          setTimeout(() => { itemsRef.current = initial; setItems(initial); }, 900);
+        }
+      }, 480);
+    }, 1300);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+      className="absolute top-14 left-10 flex flex-col items-start gap-1.5">
+      <p className="text-[8px] font-mono text-white/20 uppercase tracking-[0.2em]">bubble sort</p>
+      <div className="flex gap-1">
+        {items.map((item, i) => (
+          <motion.div
+            key={item.id}
+            layout
+            animate={{
+              backgroundColor: comparing.includes(i) ? 'rgba(139,92,246,0.45)' : 'rgba(6,182,212,0.12)',
+              borderColor:     comparing.includes(i) ? 'rgba(139,92,246,0.7)'  : 'rgba(6,182,212,0.35)',
+              scale: comparing.includes(i) ? 1.18 : 1,
+              y:     comparing.includes(i) ? -5   : 0,
+            }}
+            transition={{ layout: { type: 'spring', stiffness: 350, damping: 28 }, default: { duration: 0.28 } }}
+            className="w-8 h-8 border rounded-md flex items-center justify-center font-mono text-[11px] text-white/70"
+          >
+            {item.val}
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
+};
+
+const LinkedListViz = () => {
+  const pool   = [3, 7, 1, 9, 5, 2, 8, 4, 6, 0];
+  const headRef = useRef(0);
+  const [head, setHead] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      headRef.current = (headRef.current + 1) % pool.length;
+      setHead(headRef.current);
+    }, 1800);
+    return () => clearInterval(id);
+  }, []);
+
+  const visible = [0, 1, 2, 3].map(i => pool[(head + i) % pool.length]);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.0 }}
+      className="absolute bottom-20 left-10 flex flex-col items-start gap-1.5">
+      <p className="text-[8px] font-mono text-white/20 uppercase tracking-[0.2em]">linked list</p>
+      <div className="flex items-center">
+        <AnimatePresence mode="popLayout" initial={false}>
+          {visible.map((val, i) => (
+            <motion.div key={`${head}-${i}`}
+              initial={{ opacity: 0, x: 32 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -32 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              className="flex items-center"
+            >
+              <div className="flex flex-col">
+                <div className="w-9 h-6 border border-cyan-400/50 bg-white/[0.04] rounded-t-md flex items-center justify-center font-mono text-[11px] text-cyan-300">
+                  {val}
+                </div>
+                <div className="w-9 h-4 border-x border-b border-cyan-400/25 bg-white/[0.02] rounded-b-md flex items-center justify-center">
+                  <span className="text-[9px] text-cyan-400/40 font-mono">→</span>
+                </div>
+              </div>
+              {i < 3 && <span className="text-cyan-400/40 font-mono text-xs px-0.5">→</span>}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        <span className="text-white/20 font-mono text-[10px] ml-1.5">null</span>
+      </div>
+    </motion.div>
+  );
+};
+
+const StackViz = () => {
+  const pushPool = [5, 8, 1, 9, 3, 6, 4, 7];
+  const [items, setItems] = useState([4, 7, 2]);
+  const [label, setLabel] = useState('');
+  const itemsRef = useRef([4, 7, 2]);
+  const pushIdx  = useRef(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const cur = itemsRef.current;
+      let next, lbl;
+      if (cur.length < 5) {
+        const v = pushPool[pushIdx.current % pushPool.length];
+        next = [...cur, v]; lbl = `push(${v})`; pushIdx.current++;
+      } else {
+        const v = cur[cur.length - 1];
+        next = cur.slice(0, -1); lbl = `pop() → ${v}`;
+      }
+      itemsRef.current = next;
+      setItems(next);
+      setLabel(lbl);
+      setTimeout(() => setLabel(''), 850);
+    }, 1300);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}
+      className="absolute top-10 right-12 flex flex-col items-center gap-1">
+      <AnimatePresence>
+        {label && (
+          <motion.p key={label} initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="text-[8px] font-mono text-purple-400 tracking-widest uppercase h-4">{label}</motion.p>
+        )}
+        {!label && <div className="h-4" />}
+      </AnimatePresence>
+      <div className="w-16 border-x border-b border-cyan-400/30 rounded-b-lg p-1 flex flex-col-reverse gap-1 min-h-[90px]">
+        <AnimatePresence initial={false}>
+          {items.map((val, i) => (
+            <motion.div key={`${i}-${val}`}
+              initial={{ opacity: 0, scaleY: 0, y: -10 }}
+              animate={{ opacity: 1, scaleY: 1, y: 0 }}
+              exit={{ opacity: 0, scaleY: 0, y: -10 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="h-6 bg-cyan-500/15 border border-cyan-400/40 rounded flex items-center justify-center font-mono text-[11px] text-cyan-300"
+            >
+              {val}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+      <p className="text-[8px] font-mono text-white/20 uppercase tracking-[0.2em]">stack</p>
+    </motion.div>
+  );
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
 
 function Login() {
   usePageTitle("Login");
@@ -141,99 +306,45 @@ function Login() {
           }}
         >
           
-          {/* Interactive floating elements */}
+          {/* DSA Floating Animations */}
           <div className="absolute inset-0 pointer-events-none">
-            <motion.div
-              style={{ rotateX, rotateY }}
-              animate={{ y: [0, -15, 0], rotate: [0, 3, 0] }}
-              transition={{ duration: 6, repeat: Infinity }}
-              className="absolute top-20 left-20 w-20 h-20 border-2 border-cyan-400/40 rounded-lg backdrop-blur-sm"
-            >
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute inset-0 bg-cyan-400/20 rounded-lg"
-              />
-            </motion.div>
-            
-            <motion.div
-              style={{ rotateX, rotateY }}
-              animate={{ y: [0, 15, 0], rotate: [0, -3, 0] }}
-              transition={{ duration: 5, repeat: Infinity }}
-              className="absolute top-32 right-24 w-24 h-24 border-2 border-purple-400/40 rounded-full backdrop-blur-sm"
-            >
-              <motion.div
-                animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-                className="absolute inset-0 bg-purple-400/20 rounded-full"
-              />
-            </motion.div>
-            
-            <motion.div
-              style={{ rotateX, rotateY }}
-              animate={{ x: [0, 15, 0] }}
-              transition={{ duration: 5.5, repeat: Infinity }}
-              className="absolute bottom-32 left-32 w-16 h-16 border-2 border-pink-400/40 rounded-lg backdrop-blur-sm"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-transparent rounded-lg"
-              />
-            </motion.div>
 
-            {/* Floating sparkles - More playful */}
-            {[...Array(8)].map((_, i) => (
-              <motion.div
+            {/* Array bubble sort - top left */}
+            <SortingArray />
+
+            {/* Stack push/pop - top right */}
+            <StackViz />
+
+            {/* Linked list - bottom left */}
+            <LinkedListViz />
+
+            {/* Floating DSA symbols */}
+            {[
+              { symbol: 'O(1)',     left: '12%', top: '44%', color: 'text-cyan-400',    delay: 0   },
+              { symbol: 'O(n²)',    left: '25%', top: '50%', color: 'text-purple-400',  delay: 0.6 },
+              { symbol: 'O(log n)', left: '42%', top: '42%', color: 'text-cyan-300',    delay: 1.2 },
+              { symbol: '[ ]',      left: '60%', top: '48%', color: 'text-pink-400',    delay: 0.3 },
+              { symbol: '{ }',      left: '75%', top: '54%', color: 'text-blue-400',    delay: 0.9 },
+              { symbol: 'BFS',      left: '18%', top: '56%', color: 'text-emerald-400', delay: 1.5 },
+              { symbol: 'DFS',      left: '50%', top: '60%', color: 'text-purple-300',  delay: 0.7 },
+              { symbol: 'DP',       left: '80%', top: '40%', color: 'text-cyan-400',    delay: 1.1 },
+              { symbol: '→',        left: '35%', top: '58%', color: 'text-cyan-400/60', delay: 0.4 },
+              { symbol: 'null',     left: '65%', top: '62%', color: 'text-white/30',    delay: 1.8 },
+              { symbol: 'push()',   left: '30%', top: '46%', color: 'text-purple-300',  delay: 2.0 },
+              { symbol: 'pop()',    left: '55%', top: '52%', color: 'text-rose-400',    delay: 2.3 },
+            ].map((item, i) => (
+              <motion.span
                 key={i}
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: [0, 1, 0],
-                  y: [0, -120],
-                  x: Math.random() * 80 - 40,
-                  rotate: [0, 360]
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  delay: i * 0.4,
-                  ease: "easeOut"
-                }}
-                className="absolute"
-                style={{
-                  left: `${15 + i * 12}%`,
-                  top: `${40 + Math.random() * 30}%`,
-                }}
+                initial={{ opacity: 0, y: 0 }}
+                animate={{ opacity: [0, 0.85, 0.85, 0], y: -100 }}
+                transition={{ duration: 4.5, repeat: Infinity, delay: item.delay, ease: 'easeOut' }}
+                className={`absolute font-mono text-xs font-bold ${item.color}`}
+                style={{ left: item.left, top: item.top }}
               >
-                <Sparkles className="w-3 h-3 text-cyan-400" />
-              </motion.div>
+                {item.symbol}
+              </motion.span>
             ))}
 
-            {/* Fun floating hearts */}
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={`heart-${i}`}
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: [0, 0.6, 0],
-                  y: [0, -100],
-                  scale: [0.8, 1.2, 0.8]
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  delay: i * 1.5,
-                  ease: "easeOut"
-                }}
-                className="absolute"
-                style={{
-                  right: `${20 + i * 20}%`,
-                  bottom: `${30 + i * 10}%`,
-                }}
-              >
-                <Heart className="w-4 h-4 text-pink-400 fill-pink-400/30" />
-              </motion.div>
-            ))}
           </div>
 
           {/* Content */}
@@ -407,35 +518,6 @@ function Login() {
               />
             </motion.div>
 
-            {/* Fun stats counter - Compact */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.1 }}
-              className="flex items-center justify-center gap-8 pt-6"
-            >
-              {[
-                { count: "1K+", label: "Problems", icon: "📚" },
-                { count: "50K+", label: "Users", icon: "👥" },
-                { count: "99%", label: "Success", icon: "🎯" },
-              ].map((stat, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ y: -5, scale: 1.15 }}
-                  className="flex flex-col items-center cursor-pointer"
-                >
-                  <motion.span
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
-                    className="text-2xl mb-1"
-                  >
-                    {stat.icon}
-                  </motion.span>
-                  <span className="text-xl font-black text-white">{stat.count}</span>
-                  <span className="text-xs text-slate-400 uppercase tracking-wider">{stat.label}</span>
-                </motion.div>
-              ))}
-            </motion.div>
           </motion.div>
         </motion.div>
 
