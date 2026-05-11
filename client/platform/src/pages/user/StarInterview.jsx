@@ -241,9 +241,6 @@ function StarInterview() {
                 <div className="relative z-10 grid lg:grid-cols-5 gap-12 items-center">
                   {/* LEFT — title + tags */}
                   <div className="lg:col-span-3 space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-400/30 text-[11px] font-bold tracking-[0.2em] text-purple-400 uppercase font-mono">
-                      <Activity className="w-4 h-4 animate-pulse" /> Behavioral Engine Online
-                    </div>
                     <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight uppercase">
                       Master Your <br />
                       <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-pink-400 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]">

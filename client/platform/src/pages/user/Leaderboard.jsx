@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, useMotionValue, useTransform } from "framer-motion";
 import {
   Crown, Trophy, Medal, Star, Zap, Code2, Brain,
-  Flame, Award, Loader2, AlertCircle, RefreshCw, Sparkles, Terminal
+  Flame, Award, Loader2, AlertCircle, RefreshCw, Sparkles
 } from "lucide-react";
 import api from "../../api/axios";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -159,9 +159,6 @@ function Leaderboard() {
         >
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/20 text-[10px] font-bold tracking-widest text-indigo-400 uppercase font-mono">
-                <Terminal className="w-3.5 h-3.5" /> Ranking Protocol v2.0
-              </div>
               <h1 className="text-5xl md:text-6xl font-black tracking-tighter text-white uppercase leading-none">
                 Global <br />
                 <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
@@ -356,7 +353,7 @@ function Leaderboard() {
         <div className="flex flex-col items-center gap-4 py-10 opacity-50">
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
           <p className="text-[10px] font-mono tracking-[0.3em] uppercase">
-            © 2026 InterviewPrep · Leaderboard Sync Complete · v2.0
+            © 2026 InterviewPrep
           </p>
         </div>
       </div>

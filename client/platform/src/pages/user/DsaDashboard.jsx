@@ -156,9 +156,6 @@ const DsaDashboard = () => {
           
           <div className="relative z-10 grid lg:grid-cols-5 gap-12 items-center">
             <div className="lg:col-span-3 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-[11px] font-bold tracking-[0.2em] text-cyan-400 uppercase font-mono">
-                <Activity className="w-4 h-4 animate-pulse" /> System Interface Online
-              </div>
               <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight font-header uppercase">
                 Ascend Your <br />
                 <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(6,182,212,0.5)]">
@@ -258,10 +255,6 @@ const DsaDashboard = () => {
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--mouse-x)_var(--mouse-y),rgba(6,182,212,0.12),transparent_60%)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               <div className="flex items-center justify-between mb-10">
                 <h4 className="text-lg font-bold uppercase tracking-tighter text-white font-header">Consistency Heatmap</h4>
-                <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                  <span className="w-3 h-3 rounded-full bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,1)]"></span>
-                  <span className="text-xs font-mono text-slate-400">Active Monitoring</span>
-                </div>
               </div>
               <DsaCalendar data={calendar} />
             </motion.div>

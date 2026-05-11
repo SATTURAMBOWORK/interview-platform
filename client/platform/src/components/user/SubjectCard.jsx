@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { ArrowRight, Sparkles, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 
 const SUBJECT_META = {
@@ -136,7 +136,6 @@ const SubjectCard = ({ subject }) => {
                 <span className="text-3xl font-black text-white font-mono">
                   {subject.totalMcqs ?? 0}
                 </span>
-                <Zap className="w-4 h-4 text-yellow-400 animate-pulse" />
               </div>
             </div>
           </div>

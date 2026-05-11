@@ -545,9 +545,8 @@ function UserDashboard() {
                     >
                       {totalQuestions}
                     </motion.p>
-                    <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase flex items-center gap-1 relative z-10">
+                    <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase relative z-10">
                       Questions
-                      <Star className="w-3 h-3 text-purple-400" />
                     </p>
                   </motion.div>
 
@@ -563,20 +562,16 @@ function UserDashboard() {
                     >
                       {totalAttempts}
                     </motion.p>
-                    <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase flex items-center gap-1 relative z-10">
+                    <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase relative z-10">
                       Attempts
-                      <Zap className="w-3 h-3 text-cyan-400" />
                     </p>
                   </motion.div>
                 </div>
 
                 {/* KEY STATS */}
                 <div className="mt-auto">
-                  <h4 className="text-xs font-bold text-slate-300 mb-4 uppercase tracking-widest font-mono flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-slate-300 mb-4 uppercase tracking-widest font-mono">
                     Key Stats
-                    <motion.span animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
-                      <Sparkles className="w-3 h-3 text-cyan-400" />
-                    </motion.span>
                   </h4>
 
                   <div className="space-y-3">
@@ -617,9 +612,8 @@ function UserDashboard() {
                           transition={{ type: "spring", stiffness: 300, damping: 18 }}
                           className={`p-3 bg-gradient-to-br from-${stat.color}-500/15 to-transparent rounded-lg border border-${stat.color}-400/20 hover:border-${stat.color}-400/60 hover:bg-${stat.color}-500/20 backdrop-blur-sm transition-colors cursor-pointer`}
                         >
-                          <p className="text-[10px] text-slate-400 font-mono uppercase mb-1 flex items-center gap-1">
+                          <p className="text-[10px] text-slate-400 font-mono uppercase mb-1">
                             {stat.label}
-                            <stat.icon className={`w-3 h-3 text-${stat.color}-400`} />
                           </p>
                           <p
                             className={`${stat.isText ? "text-sm" : "text-2xl"} font-bold text-${stat.color}-400 tracking-tighter font-mono`}
@@ -865,30 +859,6 @@ function UserDashboard() {
               >
                 <div className="flex flex-col gap-4 flex-1 justify-between">
                   <div>
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      className={`inline-flex items-center gap-3 px-4 py-2 rounded-full cursor-pointer mb-4 ${
-                        isMasteryMode
-                          ? "bg-emerald-500/10 border border-emerald-400/30"
-                          : "bg-orange-500/10 border border-orange-400/30"
-                      }`}
-                    >
-                      <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
-                        {isMasteryMode ? (
-                          <Trophy className="w-4 h-4 text-emerald-400" />
-                        ) : (
-                          <Brain className="w-4 h-4 text-orange-400" />
-                        )}
-                      </motion.div>
-                      <span
-                        className={`text-xs font-bold uppercase tracking-[0.2em] font-mono ${
-                          isMasteryMode ? "text-emerald-400" : "text-orange-400"
-                        }`}
-                      >
-                        {isMasteryMode ? "Move Towards Mastery" : "Recommended Focus"}
-                      </span>
-                    </motion.div>
-
                     <motion.h1
                       whileHover={{ scale: 1.02 }}
                       className="text-3xl font-black text-white tracking-tighter leading-tight uppercase cursor-default"
@@ -931,13 +901,8 @@ function UserDashboard() {
                           isMasteryMode ? "hover:border-emerald-400/50" : "hover:border-orange-400/50"
                         }`}
                       >
-                        <stat.icon
-                          className={`w-4 h-4 mx-auto mb-2 group-hover/stat:scale-110 transition-transform ${
-                            isMasteryMode ? "text-emerald-400" : "text-orange-400"
-                          }`}
-                        />
-                        <p className="text-xs font-bold text-white font-mono">{stat.value}</p>
-                        <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">{stat.label}</p>
+                        <p className="text-base font-bold text-white font-mono">{stat.value}</p>
+                        <p className="text-xs text-slate-400 uppercase tracking-wider font-mono mt-1">{stat.label}</p>
                       </motion.div>
                     ))}
                   </div>
@@ -1163,7 +1128,10 @@ function UserDashboard() {
                         typeof attempt.subject === "string" ? "Subject" : attempt.subject?.name || "Subject";
                       const minutesAgo = Math.floor((new Date() - new Date(attempt.createdAt)) / 60000);
                       const timeStr =
-                        minutesAgo < 1 ? "now" : minutesAgo < 60 ? `${minutesAgo}m` : `${Math.floor(minutesAgo / 60)}h`;
+                        minutesAgo < 1 ? "now"
+                        : minutesAgo < 60 ? `${minutesAgo}m`
+                        : minutesAgo < 1440 ? `${Math.floor(minutesAgo / 60)}h`
+                        : `${Math.floor(minutesAgo / 1440)}d`;
                       const correctCount = attempt.correctCount || 0;
                       const attemptAccuracy = Math.round((correctCount / 50) * 100);
                       const scoreColor =
@@ -1306,21 +1274,6 @@ function UserDashboard() {
               <div className="space-y-6">
                 {/* TOP: BADGE + ICON + TITLE */}
                 <div>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-400/30 cursor-pointer mb-5"
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Code2 className="w-5 h-5 text-cyan-400" />
-                    </motion.div>
-                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-400 font-mono">
-                      Coding Arena
-                    </span>
-                  </motion.div>
-
                   <motion.h1
                     whileHover={{ scale: 1.02 }}
                     className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-tight uppercase cursor-default"
@@ -1356,7 +1309,6 @@ function UserDashboard() {
                       whileHover={{ scale: 1.1, y: -5, rotate: [0, -2, 2, 0] }}
                       className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-cyan-400/50 transition-all group/stat cursor-pointer text-center"
                     >
-                      <stat.icon className="w-5 h-5 text-cyan-400 mx-auto mb-2 group-hover/stat:scale-110 transition-transform" />
                       <p className="text-xs font-bold text-white font-mono">{stat.value}</p>
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">{stat.label}</p>
                     </motion.div>
@@ -1494,21 +1446,6 @@ function UserDashboard() {
               <div className="space-y-6">
                 {/* TOP: BADGE + ICON + TITLE */}
                 <div>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-400/30 cursor-pointer mb-5"
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Award className="w-5 h-5 text-purple-400" />
-                    </motion.div>
-                    <span className="text-xs font-bold uppercase tracking-[0.2em] text-purple-400 font-mono">
-                      Interview Prep
-                    </span>
-                  </motion.div>
-
                   <motion.h1
                     whileHover={{ scale: 1.02 }}
                     className="text-5xl md:text-6xl font-black text-white tracking-tighter leading-tight uppercase cursor-default"
@@ -1544,7 +1481,6 @@ function UserDashboard() {
                       whileHover={{ scale: 1.1, y: -5, rotate: [0, 2, -2, 0] }}
                       className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm hover:border-purple-400/50 transition-all group/stat cursor-pointer text-center"
                     >
-                      <stat.icon className="w-5 h-5 text-purple-400 mx-auto mb-2 group-hover/stat:scale-110 transition-transform" />
                       <p className="text-xs font-bold text-white font-mono">{stat.value}</p>
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">{stat.label}</p>
                     </motion.div>

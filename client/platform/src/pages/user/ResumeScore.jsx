@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload, FileText, Clipboard, CheckCircle2, XCircle,
   AlertCircle, Loader2, ChevronDown, ChevronUp,
-  Target, Zap, Sparkles, RefreshCw, Brain, ArrowLeft
+  Target, Zap, Sparkles, RefreshCw, ArrowLeft
 } from "lucide-react";
 import api from "../../api/axios";
 import usePageTitle from "../../hooks/usePageTitle";
@@ -207,9 +207,6 @@ export default function ResumeScore() {
 
         {/* ── Header ── */}
         <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/20 text-[10px] font-black tracking-widest text-cyan-400 uppercase font-mono">
-            <Brain className="w-3.5 h-3.5" /> AI-Powered ATS Analyzer
-          </div>
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-white uppercase leading-none">
