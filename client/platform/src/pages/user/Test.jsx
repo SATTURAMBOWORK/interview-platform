@@ -27,6 +27,7 @@ function Test() {
   const timeLeftRef   = useRef(0);
 
   // Keep refs in sync with state
+  //Every time the state changes, the matching ref is updated. Simple mirror. This is the standard pattern for solving stale closures.
   useEffect(() => { attemptIdRef.current = attemptId; },  [attemptId]);
   useEffect(() => { answersRef.current   = answers;    },  [answers]);
   useEffect(() => { mcqsRef.current      = mcqs;       },  [mcqs]);
