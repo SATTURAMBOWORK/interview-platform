@@ -29,6 +29,8 @@ import DsaDashboard from "./pages/user/DsaDashboard";
 import StarInterview from "./pages/user/StarInterview";
 import Leaderboard from "./pages/user/Leaderboard";
 import ResumeScore from "./pages/user/ResumeScore";
+import InterviewLobby from "./pages/user/InterviewLobby";
+import InterviewRoom from "./pages/user/InterviewRoom";
 
 function App() {
   return (
@@ -216,6 +218,25 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["user"]}>
               <ResumeScore />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ✅ INTERVIEW MODE ROUTES */}
+        <Route
+          path="/interview"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <InterviewLobby />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/interview/:id"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <InterviewRoom />
             </ProtectedRoute>
           }
         />

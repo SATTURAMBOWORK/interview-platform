@@ -17,6 +17,7 @@ const dsaStatsRoutes = require("./routes/dsaStatsRoutes");
 const behavioralRoutes = require("./routes/behavioralRoutes");
 const leaderboardRoutes = require("./routes/leaderboardRoutes");
 const resumeRoutes = require("./routes/resumeRoutes");
+const interviewRoutes = require("./routes/interviewRoutes");
 
 // ✅ middleware FIRST
 const parseAllowedOrigins = () => {
@@ -60,6 +61,7 @@ app.use("/api/dsa", dsaStatsRoutes);
 app.use("/api/behavioral", behavioralRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/interview", interviewRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });

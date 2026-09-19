@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Layers, Code2, Award, LogOut, Menu, X, Flame, Trophy, FileSearch, Camera, Trash2,
+  Layers, Code2, Award, LogOut, Menu, X, Flame, Trophy, FileSearch, Camera, Trash2, MessagesSquare,
 } from "lucide-react";
 import api from "../../api/axios";
 import { AuthContext } from "../../context/AuthContextValue";
@@ -203,11 +203,12 @@ const UserNavbar = () => {
           </motion.button>
 
           {/* CENTER NAV - High Polish Hover */}
-          <nav className="hidden lg:flex items-center gap-10">
+          <nav className="hidden lg:flex items-center gap-8">
             {[
               { path: "/dashboard", icon: Layers, label: "Dashboard" },
               { path: "/dsa", icon: Code2, label: "Arena" },
               { path: "/star-interview", icon: Award, label: "Behavioral" },
+              { path: "/interview", icon: MessagesSquare, label: "Interview" },
               { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
               { path: "/resume-score", icon: FileSearch, label: "Resume" },
             ].map(({ path, icon: Icon, label }) => {
@@ -311,6 +312,7 @@ const UserNavbar = () => {
                   { path: "/dashboard", icon: Layers, label: "Dashboard" },
                   { path: "/dsa", icon: Code2, label: "Arena" },
                   { path: "/star-interview", icon: Award, label: "Behavioral" },
+                  { path: "/interview", icon: MessagesSquare, label: "Interview" },
                   { path: "/leaderboard", icon: Trophy, label: "Leaderboard" },
                   { path: "/resume-score", icon: FileSearch, label: "Resume" },
                 ].map(({ path, icon: Icon, label }) => (
