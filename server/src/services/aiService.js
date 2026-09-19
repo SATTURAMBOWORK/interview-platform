@@ -53,22 +53,35 @@ Provide JSON (no markdown):
   }
 };
 
+// Tried in order. Groq rate-limits per model, so STAR/resume use gpt-oss-20b
+// and leave qwen's quota for the interview feature; each is the other's fallback.
+const GROQ_MODELS = [
+  { model: 'openai/gpt-oss-20b', reasoning_effort: 'low' },
+  { model: 'qwen/qwen3.8-27b', reasoning_effort: 'none' },
+];
+
 /**
  * Call Groq API
  */
 const callGroq = async (prompt) => {
-  try {
-    console.log('🔄 Calling Groq...');
-    const completion = await getGroq().chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-    });
-    console.log('✅ Groq response received');
-    return completion.choices[0].message.content;
-  } catch (error) {
-    throw new Error(`Groq error: ${error.message}`);
+  let lastError;
+  for (const { model, reasoning_effort } of GROQ_MODELS) {
+    try {
+      console.log(`🔄 Calling Groq (${model})...`);
+      const completion = await getGroq().chat.completions.create({
+        model,
+        reasoning_effort,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+      });
+      console.log('✅ Groq response received');
+      return completion.choices[0].message.content;
+    } catch (error) {
+      console.warn(`⚠️  Groq ${model} failed: ${error.message}`);
+      lastError = error;
+    }
   }
+  throw new Error(`Groq error: ${lastError.message}`);
 };
 
 /**
