@@ -1,0 +1,1377 @@
+{
+  "subject": "Computer Networks",
+  "entries": [
+    {
+      "id": "cn-osi-model",
+      "topic": "Network Models",
+      "concept": "OSI model",
+      "difficulty": "easy",
+      "questions": [
+        "Explain the seven layers of the OSI model.",
+        "At which OSI layer do a switch and a router operate?"
+      ],
+      "keyPoints": [
+        "Physical (L1): raw bits over the medium; hubs, cables",
+        "Data Link (L2): framing, MAC addressing, error detection on a link; switches",
+        "Network (L3): logical (IP) addressing and routing between networks; routers",
+        "Transport (L4): end-to-end delivery between processes, ports, reliability (TCP/UDP)",
+        "Session (L5): establishing/managing sessions; Presentation (L6): encoding, encryption, compression; Application (L7): protocols users interact with (HTTP, DNS)",
+        "PDUs: bits, frames, packets, segments/datagrams, data",
+        "Each layer serves the layer above and uses the layer below; encapsulation adds a header per layer"
+      ],
+      "referenceAnswer": "The OSI model splits networking into seven layers, each serving the one above. Physical sends raw bits over the wire or radio. Data Link frames those bits and delivers them across one link using MAC addresses, which is where switches work. Network handles IP addressing and routing between networks, which is where routers work. Transport provides end-to-end communication between processes using ports, with TCP adding reliability. Session manages conversations, Presentation handles formats, encryption and compression, and Application is where protocols like HTTP and DNS live. Going down the stack, each layer wraps the data with its own header: that's encapsulation.",
+      "commonMistakes": [
+        "Putting routers at layer 2 or switches at layer 3 (basic switches are L2)",
+        "Mixing up the order of the layers"
+      ],
+      "followUps": ["cn-tcp-ip-model", "cn-network-devices"]
+    },
+    {
+      "id": "cn-tcp-ip-model",
+      "topic": "Network Models",
+      "concept": "TCP/IP model vs OSI",
+      "difficulty": "easy",
+      "questions": [
+        "What are the layers of the TCP/IP model and how do they map to OSI?",
+        "Why is the TCP/IP model used in practice rather than OSI?"
+      ],
+      "keyPoints": [
+        "TCP/IP layers: Link (Network Access), Internet, Transport, Application (some texts use 5 layers, splitting Link into Physical and Data Link)",
+        "The Application layer merges OSI's Application, Presentation and Session",
+        "Internet corresponds to OSI Network (IP); Link to Physical + Data Link",
+        "OSI is a conceptual reference model; TCP/IP was built around protocols that were already in use",
+        "The Internet runs on the TCP/IP suite"
+      ],
+      "referenceAnswer": "The TCP/IP model has four layers: Link, Internet, Transport and Application. Its Application layer covers OSI's top three layers, Internet corresponds to the Network layer where IP lives, Transport matches directly, and Link covers the physical and data link layers. OSI is a clean theoretical reference that's great for teaching, while TCP/IP grew out of protocols that already worked and were deployed on the early Internet. That's why TCP/IP is what's actually used, even though we still describe things with OSI layer numbers, like 'an L7 load balancer'.",
+      "commonMistakes": [
+        "Saying TCP/IP has seven layers",
+        "Saying OSI is what runs the Internet"
+      ],
+      "followUps": ["cn-osi-model", "cn-tcp-vs-udp"]
+    },
+    {
+      "id": "cn-network-devices",
+      "topic": "Network Devices",
+      "concept": "Hub vs switch vs router",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between a hub, a switch and a router?",
+        "Why did switches replace hubs?"
+      ],
+      "keyPoints": [
+        "Hub (L1): repeats incoming bits to all ports; one shared collision domain; no intelligence",
+        "Switch (L2): learns MAC addresses (MAC table) and forwards frames only to the right port; each port is its own collision domain; full duplex",
+        "Router (L3): forwards packets between different networks using IP addresses and routing tables; separates broadcast domains",
+        "Bridge: an older L2 device connecting two LAN segments; gateway: connects different protocols/networks",
+        "Switches reduce collisions and wasted bandwidth compared with hubs"
+      ],
+      "referenceAnswer": "A hub is a layer 1 device that blindly repeats every signal out of every port, so all devices share one collision domain and the bandwidth. A switch is layer 2: it learns which MAC address is on which port and forwards each frame only where it needs to go, so every port is its own collision domain and can run full duplex. That efficiency is why switches replaced hubs. A router is layer 3: it connects different networks, like your LAN and the Internet, and forwards packets by IP address using a routing table. It also stops broadcasts from crossing between networks.",
+      "commonMistakes": [
+        "Saying a switch forwards based on IP address (for a basic L2 switch)",
+        "Saying routers operate on MAC addresses only"
+      ],
+      "followUps": ["cn-collision-broadcast-domain", "cn-mac-vs-ip"]
+    },
+    {
+      "id": "cn-collision-broadcast-domain",
+      "topic": "Network Devices",
+      "concept": "Collision domain vs broadcast domain",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between a collision domain and a broadcast domain?",
+        "Which devices break up collision domains, and which break up broadcast domains?"
+      ],
+      "keyPoints": [
+        "Collision domain: the part of a network where simultaneous transmissions can collide",
+        "Broadcast domain: the set of devices that receive a broadcast frame from any of them",
+        "A hub: all ports share one collision domain and one broadcast domain",
+        "A switch: each port is a separate collision domain, but all ports are one broadcast domain (unless VLANs are used)",
+        "A router: each interface is a separate broadcast domain",
+        "VLANs split one switch into multiple broadcast domains"
+      ],
+      "referenceAnswer": "A collision domain is the area where two devices transmitting at the same time interfere with each other. A broadcast domain is everyone who receives a broadcast, like an ARP request. Hubs don't split either: everything connected is one collision domain and one broadcast domain. Switches split collision domains, so each port is its own, but by default the whole switch is still one broadcast domain. Routers split broadcast domains, since broadcasts don't cross them. VLANs let a switch divide itself into several broadcast domains too.",
+      "commonMistakes": [
+        "Saying a switch separates broadcast domains by default",
+        "Swapping the two definitions"
+      ],
+      "followUps": ["cn-vlan", "cn-network-devices"]
+    },
+    {
+      "id": "cn-topologies",
+      "topic": "Network Basics",
+      "concept": "Network topologies",
+      "difficulty": "easy",
+      "questions": [
+        "What are the common network topologies and their pros and cons?"
+      ],
+      "keyPoints": [
+        "Bus: single shared cable; cheap, but one cable fault breaks everything and collisions are frequent",
+        "Star: all nodes connect to a central switch; easy to manage, but the centre is a single point of failure; most common LAN topology",
+        "Ring: each node connects to two neighbours; a break can disrupt the ring (dual ring adds redundancy)",
+        "Mesh: nodes interconnected; a full mesh needs n(n-1)/2 links; highly reliable but expensive",
+        "Tree/hybrid combine these"
+      ],
+      "referenceAnswer": "In a bus topology every device shares one cable. It's cheap, but a single break takes the whole network down and collisions are common. In a star topology everything connects to a central switch, which makes adding devices and finding faults easy. The centre is a single point of failure, but this is what almost every modern LAN uses. A ring passes data around a loop, and a single break can disrupt it unless it's a dual ring. A mesh connects devices to many others. A full mesh needs n(n-1)/2 links, which makes it very resilient but expensive, so it's mostly used in backbones.",
+      "commonMistakes": [
+        "Getting the full-mesh link count wrong",
+        "Not naming star as the dominant LAN topology"
+      ],
+      "followUps": ["cn-network-devices"]
+    },
+    {
+      "id": "cn-circuit-vs-packet-switching",
+      "topic": "Network Basics",
+      "concept": "Circuit switching vs packet switching",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between circuit switching and packet switching?",
+        "Why is the Internet packet switched?"
+      ],
+      "keyPoints": [
+        "Circuit switching: a dedicated path is reserved for the whole session (traditional telephone network)",
+        "Circuit switching gives guaranteed bandwidth and constant delay but wastes capacity when idle and needs setup",
+        "Packet switching: data is split into packets that share links and are routed independently",
+        "Packet switching uses links efficiently for bursty traffic and is robust to failures (reroute around them)",
+        "Packet switching has variable delay, queuing and possible loss",
+        "Virtual circuits are packet switching with a pre-established path"
+      ],
+      "referenceAnswer": "Circuit switching reserves a dedicated path for the entire conversation, like the old telephone network. You get guaranteed bandwidth and steady delay, but the capacity is wasted whenever nobody's talking, and there's a setup cost. Packet switching breaks data into packets that share the network with everyone else and can take different routes. That's far more efficient for bursty computer traffic and survives link failures by rerouting, at the cost of variable delay, queuing and occasional loss. The Internet chose packet switching because data traffic is bursty and resilience mattered.",
+      "commonMistakes": [
+        "Saying packet switching guarantees bandwidth",
+        "Not being able to explain why packet switching suits data traffic"
+      ],
+      "followUps": ["cn-tcp-vs-udp", "cn-bandwidth-latency"]
+    },
+    {
+      "id": "cn-mac-vs-ip",
+      "topic": "Addressing",
+      "concept": "MAC address vs IP address",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between a MAC address and an IP address?",
+        "Why do we need both?"
+      ],
+      "keyPoints": [
+        "MAC: 48-bit hardware address, burned into the NIC (can be changed in software); flat; used at layer 2 on the local link",
+        "IP: 32-bit (IPv4) / 128-bit (IPv6) logical address, assigned by configuration/DHCP; hierarchical; used at layer 3 for routing across networks",
+        "IP addresses are routable because they are hierarchical (network + host); MAC addresses aren't",
+        "As a packet travels, the source/destination IP stay the same (ignoring NAT) while the MAC addresses change at every hop",
+        "ARP maps IP to MAC on the local network"
+      ],
+      "referenceAnswer": "A MAC address is a 48-bit hardware identifier assigned to a network card and used for delivery within the local network at layer 2. An IP address is a logical address used at layer 3 to route across networks. We need both because they solve different problems. MAC addresses are flat, with no structure, so routers couldn't route on them globally. IP addresses are hierarchical, network part plus host part, which makes routing scalable. On each hop a packet keeps the same source and destination IP, ignoring NAT, but the frame gets new MAC addresses for the next link. ARP translates an IP address into the MAC address on the local network.",
+      "commonMistakes": [
+        "Saying the MAC address stays the same end to end",
+        "Saying MAC addresses are used for routing on the Internet"
+      ],
+      "followUps": ["cn-arp", "cn-ipv4-classes"]
+    },
+    {
+      "id": "cn-arp",
+      "topic": "Addressing",
+      "concept": "ARP",
+      "difficulty": "medium",
+      "questions": [
+        "How does ARP work?",
+        "When you send a packet to a server on the Internet, whose MAC address does your computer use?"
+      ],
+      "keyPoints": [
+        "ARP resolves an IPv4 address to a MAC address on the local network",
+        "The host broadcasts an ARP request asking who has a given IP; the owner replies with a unicast ARP reply",
+        "Results are stored in an ARP cache with a timeout",
+        "For destinations outside the subnet, the host ARPs for the default gateway's MAC, not the remote server's",
+        "ARP spoofing: fake replies redirect traffic (man-in-the-middle)",
+        "IPv6 uses Neighbor Discovery instead of ARP"
+      ],
+      "referenceAnswer": "ARP finds the MAC address for an IP address on the local network. The host first checks its ARP cache. If there's no entry, it broadcasts 'who has 192.168.1.5?', and the machine with that IP replies directly with its MAC address, which gets cached for a while. For a server on the Internet, your computer sees the IP isn't in its subnet, so it sends the frame to the default gateway, and ARPs for the router's MAC, not the server's. Because ARP has no authentication, an attacker can send fake replies and position themselves in the middle. That's ARP spoofing.",
+      "commonMistakes": [
+        "Saying the host ARPs for the remote server's MAC address",
+        "Saying the ARP reply is broadcast"
+      ],
+      "followUps": ["cn-mac-vs-ip", "cn-network-attacks"]
+    },
+    {
+      "id": "cn-ipv4-classes",
+      "topic": "Addressing",
+      "concept": "IPv4 addressing and classes",
+      "difficulty": "easy",
+      "questions": [
+        "What are the IPv4 address classes?",
+        "Why was classful addressing replaced?"
+      ],
+      "keyPoints": [
+        "IPv4: 32 bits, written as four octets in dotted decimal",
+        "Class A: 1-126, default /8; Class B: 128-191, /16; Class C: 192-223, /24",
+        "Class D (224-239): multicast; Class E (240-255): reserved",
+        "127.0.0.0/8 is loopback",
+        "Classful addressing wasted addresses (e.g. a class B gives 65,534 hosts to an organization that needs 2,000)",
+        "Replaced by CIDR (classless, variable-length prefixes)"
+      ],
+      "referenceAnswer": "An IPv4 address is 32 bits, written as four decimal octets. Classful addressing divided the space by the first octet: Class A from 1 to 126 with an 8-bit network part, Class B from 128 to 191 with 16 bits, Class C from 192 to 223 with 24 bits, Class D for multicast and Class E reserved. 127.x is loopback. The problem was waste: an organization needing 2,000 addresses was too big for a Class C, so it got a Class B with 65,000 addresses and left most unused. CIDR replaced classes with prefixes of any length, like /21, which allocate space much more efficiently.",
+      "commonMistakes": [
+        "Including 127 in class A's usable range",
+        "Not knowing that classful addressing is obsolete"
+      ],
+      "followUps": ["cn-subnetting", "cn-private-ip-nat"]
+    },
+    {
+      "id": "cn-subnetting",
+      "topic": "Addressing",
+      "concept": "Subnetting and CIDR",
+      "difficulty": "medium",
+      "questions": [
+        "What is subnetting and why is it used?",
+        "How many usable hosts are in a /26 network? What are its network and broadcast addresses for 192.168.1.0/26?"
+      ],
+      "keyPoints": [
+        "The subnet mask separates the network part from the host part",
+        "CIDR notation /n means n network bits",
+        "Addresses per subnet = 2^(32-n); usable hosts = 2^(32-n) - 2 (network and broadcast addresses reserved)",
+        "/26: 64 addresses, 62 usable hosts; 192.168.1.0/26 has network .0, broadcast .63, hosts .1 to .62",
+        "Subnetting improves address utilization, limits broadcast domains, and helps security/organization",
+        "Supernetting / route aggregation combines prefixes to shrink routing tables"
+      ],
+      "referenceAnswer": "Subnetting divides a network into smaller networks by borrowing host bits for the network part, which uses addresses efficiently, contains broadcasts and lets you separate departments. With CIDR, /n means the first n bits are the network. A /26 leaves 6 host bits, so 2^6 = 64 addresses. Two are reserved, the all-zeros network address and the all-ones broadcast address, which leaves 62 usable hosts. For 192.168.1.0/26 the network address is 192.168.1.0, the broadcast is 192.168.1.63, and hosts go from .1 to .62. The next subnet starts at .64.",
+      "commonMistakes": [
+        "Forgetting to subtract 2 for network and broadcast addresses",
+        "Mixing up subnet mask bits and host bits"
+      ],
+      "followUps": ["cn-ipv4-classes", "cn-private-ip-nat"]
+    },
+    {
+      "id": "cn-ipv4-vs-ipv6",
+      "topic": "Addressing",
+      "concept": "IPv4 vs IPv6",
+      "difficulty": "medium",
+      "questions": [
+        "What are the main differences between IPv4 and IPv6?",
+        "Why was IPv6 needed?"
+      ],
+      "keyPoints": [
+        "IPv4: 32-bit (~4.3 billion addresses); IPv6: 128-bit, written in hexadecimal",
+        "Main motivation: IPv4 address exhaustion",
+        "IPv6 has no broadcast (uses multicast and anycast)",
+        "Simplified fixed-size base header, no header checksum, fragmentation only by the source host",
+        "Stateless address autoconfiguration (SLAAC); NAT is not needed in principle",
+        "Transition mechanisms: dual stack, tunnelling"
+      ],
+      "referenceAnswer": "IPv6 was created mainly because IPv4's 32-bit space, about 4.3 billion addresses, ran out. IPv6 uses 128-bit addresses written in hex, which is enough to give every device a public address, so NAT isn't needed. It also cleaned up the protocol. The base header is simpler and fixed-size, the header checksum is gone because other layers already check errors, routers no longer fragment packets (only the source does), and broadcast is replaced by multicast and anycast. Devices can configure their own addresses with SLAAC. Since both will coexist for a long time, networks use dual-stack or tunnelling during the transition.",
+      "commonMistakes": [
+        "Saying IPv6 addresses are 64 bits",
+        "Saying IPv6 still uses broadcast"
+      ],
+      "followUps": ["cn-private-ip-nat", "cn-ipv4-classes"]
+    },
+    {
+      "id": "cn-private-ip-nat",
+      "topic": "Addressing",
+      "concept": "Private IP addresses and NAT",
+      "difficulty": "medium",
+      "questions": [
+        "What are private IP addresses?",
+        "How does NAT allow many devices to share one public IP?"
+      ],
+      "keyPoints": [
+        "Private ranges: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16; not routable on the public Internet",
+        "NAT rewrites the private source IP to the router's public IP on outgoing packets",
+        "PAT / NAT overload also rewrites source ports, so many hosts share one public IP; the translation table maps them back",
+        "Slowed IPv4 exhaustion",
+        "Side effects: breaks end-to-end connectivity; hosts behind NAT can't easily accept inbound connections (needs port forwarding)"
+      ],
+      "referenceAnswer": "Private IP ranges, 10.x, 172.16 to 172.31, and 192.168.x, can be reused inside any organization but aren't routed on the Internet. NAT on the router lets them get out. When a device sends a packet, the router replaces the private source IP and port with its own public IP and a unique port, and records that mapping in a translation table. When the reply comes back to that port, it looks up the table and forwards it to the right device. This port-based NAT, called PAT, is how a whole home network shares one public IP, and it's a big reason IPv4 hasn't fully run out. The downside is that devices behind NAT can't easily accept incoming connections without port forwarding.",
+      "commonMistakes": [
+        "Thinking NAT translates only IP addresses and not ports in the common case",
+        "Calling NAT a security feature by design"
+      ],
+      "followUps": ["cn-dhcp", "cn-ipv4-vs-ipv6"]
+    },
+    {
+      "id": "cn-dhcp",
+      "topic": "Application Protocols",
+      "concept": "DHCP",
+      "difficulty": "easy",
+      "questions": [
+        "What is DHCP and how does a device get an IP address using it?"
+      ],
+      "keyPoints": [
+        "DHCP automatically assigns IP configuration: IP address, subnet mask, default gateway, DNS servers",
+        "DORA: Discover (client broadcast), Offer (server), Request (client), Acknowledge (server)",
+        "Addresses are leased for a period and renewed",
+        "Uses UDP (server port 67, client port 68)",
+        "Discover is broadcast because the client has no IP yet; relay agents forward it across subnets"
+      ],
+      "referenceAnswer": "DHCP automatically gives a device its network configuration: IP address, subnet mask, default gateway and DNS servers. It uses a four-step exchange called DORA. The client, which has no IP yet, broadcasts a Discover. A DHCP server responds with an Offer. The client broadcasts a Request for that offer, and the server confirms with an Acknowledge. The address is leased for a period, and the client renews it before it expires. It runs over UDP ports 67 and 68, and relay agents let one server cover multiple subnets.",
+      "commonMistakes": [
+        "Saying DHCP uses TCP",
+        "Not knowing why Discover is a broadcast"
+      ],
+      "followUps": ["cn-dns", "cn-private-ip-nat"]
+    },
+    {
+      "id": "cn-dns",
+      "topic": "Application Protocols",
+      "concept": "DNS",
+      "difficulty": "medium",
+      "questions": [
+        "How does DNS resolve a domain name to an IP address?",
+        "What is the difference between recursive and iterative DNS queries?",
+        "Name some common DNS record types."
+      ],
+      "keyPoints": [
+        "DNS maps human-readable names to IP addresses; a distributed, hierarchical database",
+        "Caching at every level: browser, OS, resolver (TTL-based)",
+        "Resolution: client to recursive resolver; the resolver asks a root server, then the TLD server (.com), then the authoritative server",
+        "Recursive query: the resolver does all the work and returns the final answer; iterative: each server returns a referral to the next",
+        "Records: A (IPv4), AAAA (IPv6), CNAME (alias), MX (mail), NS (name server), TXT",
+        "Mainly UDP port 53; TCP for large responses and zone transfers"
+      ],
+      "referenceAnswer": "DNS translates names like google.com into IP addresses using a distributed hierarchy. Your machine first checks its caches: browser, then OS. If there's no hit, it asks a recursive resolver, usually your ISP's or something like 8.8.8.8. The resolver asks a root server, which points it to the .com TLD servers, which point it to google.com's authoritative name server, which finally returns the IP. The resolver caches the answer for its TTL and returns it. The client-to-resolver query is recursive: 'give me the final answer'. The resolver's queries to root and TLD servers are iterative: each one just refers it onward. Common record types are A, AAAA, CNAME, MX and NS. DNS mostly runs over UDP port 53.",
+      "commonMistakes": [
+        "Saying root servers know every domain's IP address",
+        "Saying DNS only uses TCP"
+      ],
+      "followUps": ["cn-what-happens-url", "cn-cdn"]
+    },
+    {
+      "id": "cn-tcp-vs-udp",
+      "topic": "Transport Layer",
+      "concept": "TCP vs UDP",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between TCP and UDP?",
+        "Why would an application like video calling or online gaming use UDP?"
+      ],
+      "keyPoints": [
+        "TCP: connection-oriented (handshake), reliable (ACKs, retransmission), ordered, flow control and congestion control; byte stream",
+        "UDP: connectionless, no delivery or ordering guarantees, no congestion control; message-oriented",
+        "TCP header 20+ bytes vs UDP 8 bytes",
+        "TCP uses: web (HTTP/1.1, HTTP/2), email, file transfer, SSH",
+        "UDP uses: DNS, video/voice calls, gaming, streaming, DHCP; QUIC/HTTP/3 builds reliability on top of UDP",
+        "Real-time apps prefer a late packet dropped over waiting for a retransmission"
+      ],
+      "referenceAnswer": "TCP is connection-oriented and reliable: it sets up a connection with a handshake, numbers bytes, acknowledges and retransmits lost data, delivers everything in order, and adjusts its sending rate with flow and congestion control. UDP just sends individual datagrams with an 8-byte header: no handshake, no guarantees, no ordering. That makes it lightweight and low-latency. Video calls and games use UDP because for them old data is useless. It's better to skip a lost packet and show the next frame than to stall everything waiting for a retransmission, which TCP would force. They handle any loss recovery they want themselves. DNS uses UDP because a single small request-response doesn't justify a handshake.",
+      "commonMistakes": [
+        "Saying UDP is unreliable so it's never used for anything important",
+        "Saying TCP preserves message boundaries"
+      ],
+      "followUps": ["cn-three-way-handshake", "cn-flow-control", "cn-http-versions"]
+    },
+    {
+      "id": "cn-three-way-handshake",
+      "topic": "Transport Layer",
+      "concept": "TCP three-way handshake",
+      "difficulty": "medium",
+      "questions": [
+        "Explain the TCP three-way handshake.",
+        "Why does TCP need three steps? Why not two?"
+      ],
+      "keyPoints": [
+        "Client sends SYN with its initial sequence number x",
+        "Server replies SYN-ACK: its own sequence number y, and ack = x+1",
+        "Client sends ACK with ack = y+1; the connection is established",
+        "Both sides must learn and confirm each other's initial sequence numbers: two SYNs and two ACKs, with the middle ones combined",
+        "Three steps also protect against old duplicate SYNs creating bogus connections",
+        "SYN flood attack: many half-open connections; mitigated with SYN cookies"
+      ],
+      "referenceAnswer": "The client sends a SYN carrying its initial sequence number x. The server replies with a SYN-ACK: its own initial sequence number y, plus an acknowledgment of x+1. The client then sends an ACK of y+1, and data can flow. It takes three steps because both directions need to be set up: each side has to send its starting sequence number and hear that the other side received it. That's two SYNs and two ACKs, and the server's SYN and ACK get combined into one packet. With only two steps, the server couldn't know its sequence number arrived, and a delayed old SYN could trick it into opening a connection nobody wanted. Attackers abuse the half-open state with SYN floods, which SYN cookies defend against.",
+      "commonMistakes": [
+        "Saying the ACK number equals the sequence number instead of seq + 1",
+        "Not being able to explain why two steps aren't enough"
+      ],
+      "followUps": ["cn-connection-termination", "cn-network-attacks"]
+    },
+    {
+      "id": "cn-connection-termination",
+      "topic": "Transport Layer",
+      "concept": "TCP connection termination and TIME_WAIT",
+      "difficulty": "hard",
+      "questions": [
+        "How is a TCP connection closed?",
+        "What is the TIME_WAIT state and why does it exist?"
+      ],
+      "keyPoints": [
+        "Four-way close: FIN, ACK, FIN, ACK, because each direction is closed independently (half-close)",
+        "The side that closes first enters TIME_WAIT after sending the final ACK",
+        "TIME_WAIT lasts 2 x MSL (maximum segment lifetime)",
+        "Reason 1: if the final ACK is lost, the other side resends its FIN and it can be re-acknowledged",
+        "Reason 2: lets old delayed segments from this connection expire so they aren't mistaken for a new connection with the same 4-tuple",
+        "Busy servers can accumulate many TIME_WAIT sockets"
+      ],
+      "referenceAnswer": "TCP closes each direction separately. One side sends a FIN, the other acknowledges it, and later, when it's done sending too, sends its own FIN, which gets acknowledged. That's four segments, because the middle ACK and FIN often can't be combined: the second side may still have data to send, which is called a half-close. The side that closed first then sits in TIME_WAIT for twice the maximum segment lifetime. That's so it can re-acknowledge if its last ACK was lost and the peer resends its FIN, and so any delayed packets from this connection die out before a new connection reuses the same addresses and ports.",
+      "commonMistakes": [
+        "Saying the server always enters TIME_WAIT",
+        "Not knowing why TIME_WAIT exists"
+      ],
+      "followUps": ["cn-three-way-handshake", "cn-ports-sockets"]
+    },
+    {
+      "id": "cn-flow-control",
+      "topic": "Transport Layer",
+      "concept": "Flow control and sliding window",
+      "difficulty": "medium",
+      "questions": [
+        "How does TCP flow control work?",
+        "What is the difference between flow control and congestion control?"
+      ],
+      "keyPoints": [
+        "Flow control prevents the sender from overwhelming the receiver's buffer",
+        "The receiver advertises its available buffer space as the receive window (rwnd) in every ACK",
+        "Sliding window: the sender can have up to the window's worth of unacknowledged data in flight",
+        "A zero window stops the sender; it sends window probes until space frees up",
+        "Congestion control protects the network, not the receiver; the sender's limit is min(rwnd, cwnd)"
+      ],
+      "referenceAnswer": "Flow control stops a fast sender from overflowing a slow receiver. In every ACK the receiver advertises how much free buffer space it has, the receive window, and the sender keeps at most that much unacknowledged data in flight. As ACKs arrive the window slides forward. If the receiver's buffer fills, it advertises zero, and the sender pauses and periodically probes until space opens up. Congestion control is a different concern: it's about not overwhelming the network in between. The sender keeps a separate congestion window, and its actual limit is the smaller of the two.",
+      "commonMistakes": [
+        "Using flow control and congestion control interchangeably",
+        "Saying the sender decides the receive window"
+      ],
+      "followUps": ["cn-congestion-control", "cn-arq-protocols"]
+    },
+    {
+      "id": "cn-congestion-control",
+      "topic": "Transport Layer",
+      "concept": "TCP congestion control",
+      "difficulty": "hard",
+      "questions": [
+        "Explain TCP congestion control: slow start, congestion avoidance and fast retransmit.",
+        "How does TCP detect congestion, and how does it react?"
+      ],
+      "keyPoints": [
+        "The sender maintains a congestion window (cwnd)",
+        "Slow start: cwnd starts small (1 to a few MSS) and roughly doubles every RTT until it reaches ssthresh",
+        "Congestion avoidance: above ssthresh, cwnd grows linearly (about +1 MSS per RTT): additive increase",
+        "Congestion is signalled by a timeout (severe) or 3 duplicate ACKs (mild)",
+        "Timeout: ssthresh = cwnd/2 and cwnd drops back to 1 MSS (slow start again)",
+        "3 duplicate ACKs: fast retransmit the missing segment; fast recovery halves cwnd instead of resetting (TCP Reno): multiplicative decrease",
+        "AIMD gives fairness between flows; modern variants include CUBIC and BBR"
+      ],
+      "referenceAnswer": "TCP infers congestion from loss and adjusts a congestion window. It begins in slow start with a tiny window that doubles every round trip, which is actually fast, exponential growth, until it reaches the slow-start threshold. Then it switches to congestion avoidance, adding about one segment per round trip. If a timeout happens, that signals serious congestion: the threshold is set to half the current window and the window drops back to one segment. If three duplicate ACKs arrive, only one segment was probably lost and data is still flowing, so it retransmits that segment immediately (fast retransmit) and just halves the window (fast recovery). This additive-increase, multiplicative-decrease pattern is what lets many flows share a link fairly.",
+      "commonMistakes": [
+        "Saying slow start grows linearly",
+        "Treating a timeout and duplicate ACKs identically"
+      ],
+      "followUps": ["cn-flow-control", "cn-bandwidth-latency"]
+    },
+    {
+      "id": "cn-arq-protocols",
+      "topic": "Data Link Layer",
+      "concept": "Stop-and-wait, Go-Back-N and Selective Repeat",
+      "difficulty": "hard",
+      "questions": [
+        "Compare Stop-and-Wait, Go-Back-N and Selective Repeat ARQ.",
+        "Why must the window size in Selective Repeat be at most half the sequence number space?"
+      ],
+      "keyPoints": [
+        "Stop-and-wait: send one frame, wait for its ACK; simple but poor utilization on long or fast links",
+        "Go-Back-N: sender window of N frames, receiver window 1; on loss, the sender retransmits the lost frame and all after it; receiver discards out-of-order frames",
+        "Go-Back-N window must be at most 2^m - 1 for m-bit sequence numbers",
+        "Selective Repeat: receiver buffers out-of-order frames; only the lost frames are retransmitted; more complex",
+        "Selective Repeat window must be at most 2^(m-1), otherwise the receiver can't tell a retransmitted old frame from a new one with the same number",
+        "Efficiency depends on the bandwidth-delay product"
+      ],
+      "referenceAnswer": "Stop-and-wait sends one frame and waits for its ACK before the next, which wastes most of the link when round-trip time is large. Go-Back-N pipelines up to N frames. The receiver only accepts frames in order, so when one is lost it discards everything after it, and the sender goes back and resends from the lost frame onward. That's simple but wasteful on lossy links. Selective Repeat lets the receiver buffer out-of-order frames and the sender resend only the missing ones, which is efficient but needs more buffering and logic. Its window must be at most half the sequence space, because otherwise, after the receiver's window slides, a retransmitted old frame and a new frame could have the same sequence number, and the receiver would wrongly accept the duplicate as new data.",
+      "commonMistakes": [
+        "Saying Go-Back-N retransmits only the lost frame",
+        "Getting the window-size limits wrong"
+      ],
+      "followUps": ["cn-flow-control", "cn-error-detection"]
+    },
+    {
+      "id": "cn-error-detection",
+      "topic": "Data Link Layer",
+      "concept": "Error detection: parity, checksum and CRC",
+      "difficulty": "medium",
+      "questions": [
+        "What error detection techniques are used in networks?",
+        "Why does Ethernet use CRC instead of a simple checksum?"
+      ],
+      "keyPoints": [
+        "Parity bit: detects single-bit (odd numbers of) errors only",
+        "2D parity can detect more and correct single-bit errors",
+        "Checksum: sum of data words (one's complement); used by IP, TCP and UDP; cheap to compute in software but weaker",
+        "CRC: treats data as a polynomial, divides by a generator polynomial, sends the remainder; detects all burst errors up to the CRC length and is very strong; easy in hardware",
+        "Detection vs correction: Hamming codes / FEC can correct errors, at a higher overhead"
+      ],
+      "referenceAnswer": "The simplest scheme is a parity bit, which catches any odd number of flipped bits but misses even numbers. A checksum adds up the data words, and IP, TCP and UDP use it because it's cheap in software, but it's relatively weak, since some errors cancel out. CRC treats the frame as a polynomial, divides it by a fixed generator polynomial, and appends the remainder. It catches all burst errors up to the CRC's length and almost everything else, and it's very cheap to compute in hardware, which is why Ethernet uses it at the link layer, where burst errors are common. All of these only detect errors. Correcting them requires codes like Hamming codes or forward error correction.",
+      "commonMistakes": [
+        "Saying parity detects all errors",
+        "Confusing error detection with error correction"
+      ],
+      "followUps": ["cn-arq-protocols", "cn-csma"]
+    },
+    {
+      "id": "cn-csma",
+      "topic": "Data Link Layer",
+      "concept": "CSMA/CD vs CSMA/CA",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between CSMA/CD and CSMA/CA?",
+        "Why can't Wi-Fi use collision detection?"
+      ],
+      "keyPoints": [
+        "CSMA: listen before transmitting",
+        "CSMA/CD (classic wired Ethernet): transmit, and if a collision is detected, stop, send a jam signal, and retry after random exponential backoff",
+        "CSMA/CD needs a minimum frame size so a collision is detected while the frame is still being sent",
+        "CSMA/CD is largely obsolete with full-duplex switched Ethernet",
+        "CSMA/CA (Wi-Fi): tries to avoid collisions: random backoff before sending, ACK for each frame, optional RTS/CTS",
+        "Wireless can't detect collisions reliably: a radio can't hear others while transmitting, and hidden terminals exist"
+      ],
+      "referenceAnswer": "Both listen before sending. CSMA/CD, used by classic shared Ethernet, transmits and keeps listening. If it detects a collision, it stops, sends a jam signal, and retries after a random exponential backoff. Modern full-duplex switched Ethernet doesn't have collisions, so it's mostly historical now. Wi-Fi uses CSMA/CA, which tries to avoid collisions instead: it waits a random backoff before sending, requires an ACK for every frame, and can reserve the channel with RTS/CTS. Wi-Fi can't use detection because a radio can't hear other transmissions while it's sending, and because of the hidden terminal problem: two stations that can't hear each other can both reach the access point and collide there.",
+      "commonMistakes": [
+        "Saying Wi-Fi uses CSMA/CD",
+        "Not knowing the hidden terminal problem"
+      ],
+      "followUps": ["cn-error-detection", "cn-collision-broadcast-domain"]
+    },
+    {
+      "id": "cn-routing-algorithms",
+      "topic": "Network Layer",
+      "concept": "Distance vector vs link state routing",
+      "difficulty": "hard",
+      "questions": [
+        "What is the difference between distance vector and link state routing?",
+        "What is the count-to-infinity problem?"
+      ],
+      "keyPoints": [
+        "Distance vector: each router shares its distance table with its neighbours only; uses Bellman-Ford; knows only the next hop and the cost",
+        "Link state: each router floods its link information to all routers; every router builds the full topology and runs Dijkstra",
+        "Distance vector: simpler, less memory, slow convergence, prone to routing loops",
+        "Count-to-infinity: after a link fails, routers keep increasing their cost via each other slowly",
+        "Fixes: split horizon, poison reverse, maximum hop count",
+        "Link state: faster convergence and no count-to-infinity, but more memory, CPU and flooding"
+      ],
+      "referenceAnswer": "In distance vector routing, each router only knows its neighbours and periodically tells them its distance to every destination. Each one updates its table with Bellman-Ford, 'my cost is the neighbour's cost plus the link'. It's simple but converges slowly, and it suffers from count-to-infinity: when a link goes down, two routers can keep believing they can reach the destination through each other and slowly increment the cost towards infinity. Split horizon, poison reverse and a hop limit mitigate it. In link state routing, every router floods information about its own links to the whole network, so everyone builds the complete map and runs Dijkstra. It converges quickly and avoids those loops, but uses more memory and CPU. RIP is distance vector, OSPF is link state.",
+      "commonMistakes": [
+        "Saying distance vector routers know the full topology",
+        "Mixing up which algorithm each uses"
+      ],
+      "followUps": ["cn-routing-protocols"]
+    },
+    {
+      "id": "cn-routing-protocols",
+      "topic": "Network Layer",
+      "concept": "RIP, OSPF and BGP",
+      "difficulty": "hard",
+      "questions": [
+        "Compare RIP, OSPF and BGP.",
+        "What is the difference between intra-domain and inter-domain routing?"
+      ],
+      "keyPoints": [
+        "Autonomous system (AS): a network under one administrative control (e.g. an ISP)",
+        "Interior (intra-AS) protocols: RIP and OSPF; exterior (inter-AS): BGP",
+        "RIP: distance vector, metric = hop count, max 15 hops; simple; for small networks",
+        "OSPF: link state (Dijkstra), cost-based metric, supports areas for scalability, fast convergence",
+        "BGP: path vector; routes between ASes based on policies and AS paths, not just shortest path; the protocol that glues the Internet together",
+        "Inter-domain routing is policy-driven (business relationships); intra-domain optimizes performance"
+      ],
+      "referenceAnswer": "The Internet is made of autonomous systems, networks run by one organization such as an ISP. Inside an AS, interior protocols optimize paths. RIP is a simple distance-vector protocol using hop count, capped at 15 hops, so it's only for small networks. OSPF is link state: it computes shortest paths with Dijkstra using link costs, converges quickly, and scales using areas. Between ASes, BGP is used. It's a path-vector protocol that advertises full AS paths and chooses routes based on policies and business agreements, not just shortest distance. That's the key difference: intra-domain routing is about efficiency, inter-domain routing is about policy.",
+      "commonMistakes": [
+        "Calling BGP a shortest-path protocol",
+        "Not knowing RIP's hop limit"
+      ],
+      "followUps": ["cn-routing-algorithms"]
+    },
+    {
+      "id": "cn-ports-sockets",
+      "topic": "Transport Layer",
+      "concept": "Ports and sockets",
+      "difficulty": "easy",
+      "questions": [
+        "What is a port number and what is a socket?",
+        "How can a web server handle thousands of clients on the same port 443?",
+        "Name the default ports for common protocols."
+      ],
+      "keyPoints": [
+        "A port is a 16-bit number identifying a process/service on a host (0 to 65535)",
+        "Well-known ports 0-1023; clients use temporary ephemeral ports",
+        "A socket is an endpoint: IP address + port (+ protocol)",
+        "A TCP connection is identified by the 4-tuple (source IP, source port, destination IP, destination port)",
+        "One listening port serves many clients because each connection has a different 4-tuple",
+        "Common ports: 20/21 FTP, 22 SSH, 23 Telnet, 25 SMTP, 53 DNS, 80 HTTP, 110 POP3, 143 IMAP, 443 HTTPS"
+      ],
+      "referenceAnswer": "An IP address gets data to a machine, and a port number, a 16-bit value, gets it to the right application on that machine. A socket is the endpoint combining an IP address and a port. A single server port like 443 can serve thousands of clients because a TCP connection isn't identified by the port alone. It's the full 4-tuple of source IP, source port, destination IP and destination port. Each client connects from its own IP and ephemeral port, so every connection is unique. Common well-known ports are 22 for SSH, 25 for SMTP, 53 for DNS, 80 for HTTP and 443 for HTTPS.",
+      "commonMistakes": [
+        "Thinking one port can only handle one connection",
+        "Mixing up common port numbers"
+      ],
+      "followUps": ["cn-tcp-vs-udp", "cn-connection-termination"]
+    },
+    {
+      "id": "cn-http-methods",
+      "topic": "HTTP",
+      "concept": "HTTP methods, safety and idempotency",
+      "difficulty": "easy",
+      "questions": [
+        "What are the common HTTP methods?",
+        "What is the difference between PUT and PATCH? Between PUT and POST?",
+        "What does idempotent mean? Which HTTP methods are idempotent?"
+      ],
+      "keyPoints": [
+        "GET: retrieve; POST: create/submit; PUT: replace a resource entirely; PATCH: partial update; DELETE: remove; HEAD: headers only; OPTIONS: capabilities (CORS preflight)",
+        "Safe methods don't modify state: GET, HEAD, OPTIONS",
+        "Idempotent: repeating the request has the same effect as doing it once: GET, HEAD, OPTIONS, PUT, DELETE",
+        "POST is neither safe nor idempotent (repeating it can create duplicates); PATCH isn't guaranteed idempotent",
+        "PUT replaces the whole resource at a known URI; POST creates a subordinate resource (the server chooses the URI)"
+      ],
+      "referenceAnswer": "GET reads a resource, POST creates something or submits data, PUT replaces a resource entirely, PATCH updates part of it, and DELETE removes it. HEAD and OPTIONS fetch headers and capabilities. A method is safe if it doesn't change server state, which covers GET, HEAD and OPTIONS. It's idempotent if sending it twice has the same effect as once: that includes the safe methods plus PUT and DELETE. Putting the same full resource twice leaves the same state. POST isn't idempotent, since submitting an order twice can create two orders, which is why payment APIs use idempotency keys. PUT sends the complete new representation to a known URI, while POST usually lets the server create the resource and choose its URI.",
+      "commonMistakes": [
+        "Saying POST is idempotent",
+        "Using PUT and PATCH interchangeably"
+      ],
+      "followUps": ["cn-http-status-codes", "cn-rest-websockets"]
+    },
+    {
+      "id": "cn-http-status-codes",
+      "topic": "HTTP",
+      "concept": "HTTP status codes",
+      "difficulty": "easy",
+      "questions": [
+        "What do the different HTTP status code classes mean? Give some examples.",
+        "What is the difference between 401 and 403?"
+      ],
+      "keyPoints": [
+        "1xx informational; 2xx success; 3xx redirection; 4xx client error; 5xx server error",
+        "200 OK, 201 Created, 204 No Content",
+        "301 Moved Permanently, 302 Found (temporary redirect), 304 Not Modified (caching)",
+        "400 Bad Request, 401 Unauthorized (not authenticated), 403 Forbidden (authenticated but not allowed), 404 Not Found, 429 Too Many Requests",
+        "500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout"
+      ],
+      "referenceAnswer": "Status codes are grouped by first digit: 1xx informational, 2xx success, 3xx redirection, 4xx the client did something wrong, 5xx the server failed. Common ones are 200 OK, 201 Created and 204 No Content. 301 is a permanent redirect, 302 temporary, and 304 means your cached copy is still valid. 400 is a malformed request, 404 not found, 429 rate limited, 500 a generic server error, 502 and 504 a bad or timed-out upstream behind a proxy, and 503 temporarily unavailable. 401 means you're not authenticated, so log in. 403 means the server knows who you are and you still aren't allowed.",
+      "commonMistakes": [
+        "Swapping 401 and 403",
+        "Saying 5xx errors mean the client made a mistake"
+      ],
+      "followUps": ["cn-http-methods", "cn-proxy"]
+    },
+    {
+      "id": "cn-http-versions",
+      "topic": "HTTP",
+      "concept": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
+      "difficulty": "hard",
+      "questions": [
+        "What are the main differences between HTTP/1.1, HTTP/2 and HTTP/3?",
+        "What is head-of-line blocking, and how do HTTP/2 and HTTP/3 deal with it?"
+      ],
+      "keyPoints": [
+        "HTTP/1.0: a new TCP connection per request",
+        "HTTP/1.1: persistent (keep-alive) connections, Host header, pipelining (rarely used due to head-of-line blocking); browsers open ~6 parallel connections",
+        "HTTP/2: binary framing, multiplexes many streams over one TCP connection, HPACK header compression, stream prioritization",
+        "HTTP/2 removes HTTP-level head-of-line blocking, but a lost TCP packet still stalls all streams (TCP-level HOL blocking)",
+        "HTTP/3: runs over QUIC on UDP; streams are independent at the transport level, so one loss doesn't block others; faster setup with built-in TLS 1.3; connection migration"
+      ],
+      "referenceAnswer": "HTTP/1.1 introduced persistent connections, but each connection still handles one request at a time, so a slow response blocks the ones behind it. That's head-of-line blocking, which is why browsers open several connections per site. HTTP/2 switched to a binary protocol that multiplexes many requests as independent streams over a single TCP connection, with header compression. That fixes blocking at the HTTP level, but everything still runs over one TCP connection, so a single lost packet stalls all streams until it's retransmitted. HTTP/3 fixes that by running over QUIC on UDP: QUIC handles reliability per stream, so one loss only delays its own stream. It also combines the transport and TLS handshakes for faster connection setup, and connections survive network changes, like switching from Wi-Fi to mobile data.",
+      "commonMistakes": [
+        "Saying HTTP/2 eliminated all head-of-line blocking",
+        "Saying HTTP/3 is unreliable because it uses UDP"
+      ],
+      "followUps": ["cn-https-tls", "cn-tcp-vs-udp"]
+    },
+    {
+      "id": "cn-https-tls",
+      "topic": "Security",
+      "concept": "HTTPS and the TLS handshake",
+      "difficulty": "hard",
+      "questions": [
+        "How does HTTPS work? Walk me through the TLS handshake.",
+        "How does the browser know it's talking to the real server and not an attacker?"
+      ],
+      "keyPoints": [
+        "HTTPS = HTTP over TLS: provides confidentiality, integrity and server authentication",
+        "Client Hello: supported versions and cipher suites, random value, key share",
+        "Server Hello + certificate (plus a signature proving it holds the private key)",
+        "Key exchange (typically ephemeral Diffie-Hellman, ECDHE) derives a shared session key; gives forward secrecy",
+        "Asymmetric crypto for authentication and key exchange; fast symmetric encryption (e.g. AES) for the actual data",
+        "Certificate verification: signed by a trusted CA (chain of trust up to a root CA in the browser/OS), domain name matches, not expired or revoked",
+        "TLS 1.3 completes the handshake in 1 RTT"
+      ],
+      "referenceAnswer": "HTTPS is HTTP inside a TLS tunnel. In the handshake, the client sends a hello with the TLS versions and cipher suites it supports and its key-exchange share. The server replies with its choice, its own key share, and its certificate, and signs the handshake with its private key to prove it owns that certificate. Both sides combine the key shares, typically with ephemeral elliptic-curve Diffie-Hellman, to derive the same session key without it ever crossing the wire. From then on, all traffic is encrypted with fast symmetric encryption like AES. The browser trusts the server because the certificate is signed by a certificate authority that chains up to a root CA already trusted by the OS or browser, the domain matches, and it hasn't expired. An attacker can't produce a valid certificate for someone else's domain.",
+      "commonMistakes": [
+        "Saying all traffic is encrypted with the server's public key",
+        "Not explaining how the certificate is verified"
+      ],
+      "followUps": ["cn-symmetric-asymmetric", "cn-network-attacks"]
+    },
+    {
+      "id": "cn-symmetric-asymmetric",
+      "topic": "Security",
+      "concept": "Symmetric vs asymmetric encryption",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between symmetric and asymmetric encryption?",
+        "How do digital signatures work? How is hashing different from encryption?"
+      ],
+      "keyPoints": [
+        "Symmetric: the same key encrypts and decrypts (AES); fast, but the key must be shared securely",
+        "Asymmetric: a public/private key pair (RSA, ECC); slow, but solves key distribution",
+        "Encrypt with the recipient's public key: only their private key can decrypt",
+        "Digital signature: sign (a hash of the message) with the private key, verify with the public key; proves authenticity and integrity",
+        "Real systems are hybrid: asymmetric to exchange a symmetric session key (TLS)",
+        "Hashing (SHA-256) is one-way, not encryption; used for integrity and password storage (with salt, using a slow hash like bcrypt)"
+      ],
+      "referenceAnswer": "Symmetric encryption, like AES, uses one shared key for both encrypting and decrypting. It's very fast, but the hard part is getting that key to the other side securely. Asymmetric encryption, like RSA or elliptic curves, uses a key pair: anything encrypted with someone's public key can only be decrypted with their private key, which solves key distribution but is much slower. In practice they're combined: asymmetric crypto sets up a shared symmetric key, which then encrypts the data, and that's exactly what TLS does. A digital signature reverses the roles: you sign a hash of the message with your private key, and anyone can verify it with your public key, which proves who sent it and that it wasn't altered. Hashing isn't encryption at all: it's one-way, used for integrity checks and for storing passwords with a salt and a slow hash like bcrypt.",
+      "commonMistakes": [
+        "Saying you sign with the public key",
+        "Calling hashing a form of encryption"
+      ],
+      "followUps": ["cn-https-tls", "cn-cookies-sessions"]
+    },
+    {
+      "id": "cn-cookies-sessions",
+      "topic": "HTTP",
+      "concept": "Cookies, sessions and tokens",
+      "difficulty": "medium",
+      "questions": [
+        "HTTP is stateless. How does a website remember that you are logged in?",
+        "What is the difference between session-based and token-based (JWT) authentication?"
+      ],
+      "keyPoints": [
+        "HTTP is stateless: each request is independent",
+        "Cookie: small data stored by the browser and sent automatically with requests to the same domain",
+        "Session-based: the server stores session state and gives the browser a session ID cookie; easy to revoke; needs shared storage when scaling",
+        "Token-based (JWT): the server issues a signed token containing claims; stateless verification; hard to revoke before expiry",
+        "A JWT is signed, not encrypted: anyone can read its payload",
+        "Cookie flags: HttpOnly (no JS access, mitigates XSS token theft), Secure (HTTPS only), SameSite (mitigates CSRF)"
+      ],
+      "referenceAnswer": "Since HTTP is stateless, the server has to give the browser something to send back on every request. With sessions, the server stores your login state in memory, a database or Redis, and gives the browser a random session ID in a cookie, which the browser sends automatically. It's easy to log someone out server-side, but with multiple servers you need shared session storage. With tokens like JWT, the server signs a token containing your user ID and expiry, and verifies the signature on each request without storing anything, which scales easily. But a token can't easily be revoked before it expires, and the payload is only signed, not encrypted, so it shouldn't hold secrets. Wherever it's stored, cookies should be HttpOnly, Secure and SameSite, to protect against XSS and CSRF.",
+      "commonMistakes": [
+        "Saying JWT payloads are encrypted",
+        "Not knowing the HttpOnly/SameSite flags"
+      ],
+      "followUps": ["cn-symmetric-asymmetric", "cn-network-attacks"]
+    },
+    {
+      "id": "cn-what-happens-url",
+      "topic": "End-to-End",
+      "concept": "What happens when you type a URL into the browser",
+      "difficulty": "hard",
+      "questions": [
+        "What happens, step by step, when you type www.google.com in a browser and press Enter?"
+      ],
+      "keyPoints": [
+        "URL parsing; HSTS may force HTTPS",
+        "DNS resolution: browser cache, OS cache/hosts file, resolver; the resolver may query root, TLD and authoritative servers",
+        "ARP for the default gateway's MAC (if not cached) to send packets off the local network",
+        "TCP three-way handshake with the server IP on port 443 (or QUIC for HTTP/3)",
+        "TLS handshake: certificate verification, session keys",
+        "HTTP GET request; possibly through CDNs/load balancers/reverse proxies; server processes it and responds",
+        "Browser renders: parse HTML into the DOM, CSS into the CSSOM, fetch sub-resources, run JS, layout and paint"
+      ],
+      "referenceAnswer": "First the browser parses the URL, and if the site is known to be HTTPS-only it goes straight to HTTPS. It then needs the IP: it checks the browser cache, the OS cache and hosts file, and otherwise asks the configured DNS resolver, which may go to the root, .com and Google's authoritative servers. To send packets out, my machine needs the router's MAC address, so it uses ARP if that isn't cached. The browser opens a TCP connection to port 443 with the three-way handshake, then does a TLS handshake to verify Google's certificate and agree on session keys. It sends an HTTP GET, which likely hits a CDN or load balancer before reaching an application server, and gets back HTML. Finally the browser parses the HTML into the DOM and the CSS into the CSSOM, fetches images, scripts and styles, often reusing the connection, runs JavaScript, and lays out and paints the page.",
+      "commonMistakes": [
+        "Skipping DNS caching or the TLS handshake",
+        "Stopping at 'the server sends back the page' without rendering"
+      ],
+      "followUps": ["cn-dns", "cn-three-way-handshake", "cn-https-tls", "cn-cdn"]
+    },
+    {
+      "id": "cn-email-protocols",
+      "topic": "Application Protocols",
+      "concept": "SMTP, POP3 and IMAP",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between SMTP, POP3 and IMAP?"
+      ],
+      "keyPoints": [
+        "SMTP: sending mail and transferring it between mail servers (port 25; 587 for client submission)",
+        "POP3: downloads mail to the client, typically removing it from the server; single-device oriented (port 110)",
+        "IMAP: mail stays on the server and is synced across devices; folders and read status are shared (port 143)",
+        "SMTP is a push protocol; POP3 and IMAP are pull/retrieval protocols",
+        "Secure variants use TLS (e.g. 465/587, 993, 995)"
+      ],
+      "referenceAnswer": "SMTP is for sending: your mail client submits the message to its server using SMTP, and servers use SMTP to pass it along to the recipient's mail server. POP3 and IMAP are for reading. POP3 downloads messages to one device and usually deletes them from the server, so it doesn't sync across devices. IMAP keeps the mail on the server and syncs state such as read flags and folders across all your devices, which is why it's what's normally used now. SMTP pushes mail, and POP3 and IMAP pull it.",
+      "commonMistakes": [
+        "Saying IMAP or POP3 is used to send mail",
+        "Mixing up which one syncs across devices"
+      ],
+      "followUps": ["cn-ports-sockets", "cn-dns"]
+    },
+    {
+      "id": "cn-icmp",
+      "topic": "Network Layer",
+      "concept": "ICMP, ping and traceroute",
+      "difficulty": "medium",
+      "questions": [
+        "What is ICMP used for?",
+        "How does traceroute work?"
+      ],
+      "keyPoints": [
+        "ICMP is used by IP for error reporting and diagnostics; carried inside IP packets",
+        "Messages: echo request/reply (ping), destination unreachable, time exceeded, redirect",
+        "ping sends echo requests and measures round-trip time and loss",
+        "traceroute sends probes with TTL = 1, 2, 3...; each router that decrements TTL to 0 returns ICMP Time Exceeded, revealing itself",
+        "Linux traceroute uses UDP probes by default; Windows tracert uses ICMP echo",
+        "Firewalls often block ICMP, so some hops show * * *"
+      ],
+      "referenceAnswer": "ICMP is IP's companion protocol for errors and diagnostics, with messages like destination unreachable and time exceeded. Ping uses ICMP echo request and echo reply to check that a host is reachable and to measure round-trip time. Traceroute exploits the TTL field. It sends a probe with TTL 1, so the first router decrements it to zero, drops it and sends back an ICMP Time Exceeded, which reveals that router's address. Then it sends TTL 2, then 3, and so on, until it reaches the destination, mapping every hop along the way. Hops showing asterisks usually just mean that router doesn't respond to or rate-limits ICMP.",
+      "commonMistakes": [
+        "Saying ICMP runs over TCP",
+        "Not knowing traceroute relies on TTL expiry"
+      ],
+      "followUps": ["cn-routing-algorithms", "cn-firewall"]
+    },
+    {
+      "id": "cn-vlan",
+      "topic": "Network Devices",
+      "concept": "VLAN",
+      "difficulty": "medium",
+      "questions": [
+        "What is a VLAN and why would you use one?",
+        "How do devices in two different VLANs communicate?"
+      ],
+      "keyPoints": [
+        "A VLAN logically divides one physical switch/network into multiple separate broadcast domains",
+        "Groups devices by function (e.g. HR, Engineering, guests) regardless of physical location",
+        "Benefits: less broadcast traffic, security isolation, flexible management",
+        "802.1Q tagging adds a VLAN ID to frames on trunk links between switches",
+        "Inter-VLAN communication requires routing: a router (router-on-a-stick) or a layer 3 switch"
+      ],
+      "referenceAnswer": "A VLAN splits one physical switch, or a set of switches, into several logical networks, each its own broadcast domain. You might put HR, engineering and guest Wi-Fi on separate VLANs even though they share the same hardware, which reduces broadcast traffic and isolates them for security. When VLANs span multiple switches, the links between them are trunks that carry 802.1Q-tagged frames, so each frame is labelled with its VLAN ID. Since VLANs are separate networks, devices in different VLANs can't talk directly: traffic has to be routed, either by a router or by a layer 3 switch.",
+      "commonMistakes": [
+        "Saying devices in different VLANs can talk directly through the switch",
+        "Confusing a VLAN with a VPN"
+      ],
+      "followUps": ["cn-collision-broadcast-domain", "cn-firewall"]
+    },
+    {
+      "id": "cn-firewall",
+      "topic": "Security",
+      "concept": "Firewalls",
+      "difficulty": "medium",
+      "questions": [
+        "What is a firewall and what are the different types?",
+        "What is the difference between a stateless and a stateful firewall?"
+      ],
+      "keyPoints": [
+        "A firewall filters traffic between networks based on rules (allow/deny)",
+        "Stateless packet filter: checks each packet independently (IP, port, protocol); fast but limited",
+        "Stateful firewall: tracks connections, so reply traffic for established connections is allowed automatically",
+        "Application-layer firewall / proxy / WAF: inspects content (e.g. HTTP requests, SQL injection patterns)",
+        "Network firewalls protect a whole network; host-based firewalls protect one machine",
+        "Default-deny policy is best practice"
+      ],
+      "referenceAnswer": "A firewall enforces rules about what traffic is allowed in and out of a network or host. A stateless packet filter looks at each packet on its own, matching IPs, ports and protocol. It's fast but crude, because it has to explicitly allow return traffic too. A stateful firewall tracks connections, so once an internal machine opens a connection, the replies are allowed automatically, while unsolicited inbound traffic is blocked. Application-layer firewalls and WAFs go further and inspect the content, like blocking HTTP requests that look like SQL injection. The recommended approach is default deny: block everything and allow only what's needed.",
+      "commonMistakes": [
+        "Saying a firewall inspects the content of encrypted traffic without decrypting it",
+        "Mixing up stateless and stateful"
+      ],
+      "followUps": ["cn-proxy", "cn-network-attacks"]
+    },
+    {
+      "id": "cn-proxy",
+      "topic": "Infrastructure",
+      "concept": "Forward proxy vs reverse proxy",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between a forward proxy and a reverse proxy?",
+        "Why would you put Nginx in front of your Node.js application?"
+      ],
+      "keyPoints": [
+        "Forward proxy: sits in front of clients and makes requests on their behalf; the server sees the proxy, not the client",
+        "Forward proxy uses: content filtering, anonymity, caching, bypassing restrictions",
+        "Reverse proxy: sits in front of servers and receives client requests on their behalf; the client sees the proxy, not the backend",
+        "Reverse proxy uses: load balancing, TLS termination, caching and compression of static files, hiding backends, rate limiting",
+        "Nginx, HAProxy and Cloudflare act as reverse proxies"
+      ],
+      "referenceAnswer": "A forward proxy works for the clients: a company or school routes all outgoing traffic through it, so it can filter or cache content and hide the clients' addresses. The destination server only sees the proxy. A reverse proxy works for the servers: clients connect to it thinking it's the website, and it forwards requests to the real backend servers, which stay hidden. Putting Nginx in front of a Node app gives you TLS termination, serving static files and caching efficiently, compression, rate limiting, and load balancing across multiple Node processes, so the app itself can focus on business logic.",
+      "commonMistakes": [
+        "Swapping which side each proxy serves",
+        "Thinking a reverse proxy is only for load balancing"
+      ],
+      "followUps": ["cn-load-balancer", "cn-cdn"]
+    },
+    {
+      "id": "cn-load-balancer",
+      "topic": "Infrastructure",
+      "concept": "Load balancing",
+      "difficulty": "medium",
+      "questions": [
+        "What is a load balancer and what algorithms can it use?",
+        "What is the difference between layer 4 and layer 7 load balancing?"
+      ],
+      "keyPoints": [
+        "Distributes incoming traffic across multiple servers for scalability and availability",
+        "Algorithms: round robin, weighted round robin, least connections, IP hash (client affinity)",
+        "Health checks remove failed servers from rotation",
+        "Layer 4: routes on IP/port (TCP/UDP) without looking at content; fast",
+        "Layer 7: routes on HTTP content (URL path, headers, cookies); smarter but more work",
+        "Sticky sessions pin a user to one server; better to keep servers stateless with a shared session store"
+      ],
+      "referenceAnswer": "A load balancer spreads requests across several servers so no single one is overwhelmed, and it runs health checks so a crashed server is taken out of rotation automatically. That gives both scalability and availability. It can use round robin, weighted round robin for servers of different sizes, least connections for uneven request durations, or IP hashing to keep a client on the same server. A layer 4 balancer routes on IP and port without reading the traffic, so it's very fast. A layer 7 balancer understands HTTP, so it can route /api to one pool and /images to another, or route based on cookies. Sticky sessions are possible, but it's cleaner to keep servers stateless and store sessions in something shared like Redis.",
+      "commonMistakes": [
+        "Not mentioning health checks",
+        "Confusing L4 with L7 capabilities"
+      ],
+      "followUps": ["cn-proxy", "cn-cdn"]
+    },
+    {
+      "id": "cn-cdn",
+      "topic": "Infrastructure",
+      "concept": "CDN",
+      "difficulty": "medium",
+      "questions": [
+        "What is a CDN and how does it improve performance?",
+        "How does a user get routed to the nearest CDN server?"
+      ],
+      "keyPoints": [
+        "A Content Delivery Network is a geographically distributed set of edge servers that cache content close to users",
+        "Reduces latency (shorter distance / fewer hops), offloads the origin server, absorbs traffic spikes and DDoS",
+        "Best for static assets (images, JS, CSS, video); can also cache some dynamic content",
+        "Routing to the nearest edge via DNS-based routing or anycast",
+        "Cache control via TTLs and cache headers; invalidation/purging when content changes"
+      ],
+      "referenceAnswer": "A CDN is a network of edge servers spread around the world that cache copies of your content near users. When someone in Mumbai requests an image, it's served from a nearby edge node instead of your origin server in the US. That cuts latency dramatically, reduces load and bandwidth costs on the origin, and helps absorb traffic spikes and DDoS attacks. Users reach the nearest node either through DNS, where the CDN's DNS returns a nearby edge IP, or through anycast, where many servers share one IP and routing delivers packets to the closest. Freshness is controlled with cache headers and TTLs, plus purging when content changes.",
+      "commonMistakes": [
+        "Saying a CDN replaces the origin server",
+        "Ignoring cache invalidation"
+      ],
+      "followUps": ["cn-dns", "cn-load-balancer"]
+    },
+    {
+      "id": "cn-bandwidth-latency",
+      "topic": "Network Basics",
+      "concept": "Bandwidth, throughput and latency",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between bandwidth, throughput and latency?",
+        "What contributes to the total delay of a packet?"
+      ],
+      "keyPoints": [
+        "Bandwidth: the maximum data rate of a link (capacity)",
+        "Throughput: the actual achieved data rate (always at most the bandwidth)",
+        "Latency: the time for data to travel from source to destination; RTT is the round trip",
+        "Delay components: transmission (size / bandwidth), propagation (distance / signal speed), queuing, processing",
+        "Jitter: variation in delay; matters for voice/video",
+        "Bandwidth-delay product: how much data can be in flight on a link"
+      ],
+      "referenceAnswer": "Bandwidth is a link's capacity, the maximum rate it can carry. Throughput is what you actually get, which is lower because of congestion, protocol overhead and losses. Latency is how long a piece of data takes to arrive. Total delay has four parts: transmission delay, which is the time to push the bits onto the link (packet size divided by bandwidth); propagation delay, which is distance divided by signal speed; queuing delay in router buffers; and processing delay. The analogy is a pipe: bandwidth is how wide it is, latency is how long it is. More bandwidth doesn't reduce propagation delay, which is why a satellite link can be fast but still feel laggy.",
+      "commonMistakes": [
+        "Using bandwidth and throughput interchangeably",
+        "Confusing transmission delay with propagation delay"
+      ],
+      "followUps": ["cn-congestion-control", "cn-cdn"]
+    },
+    {
+      "id": "cn-rest-websockets",
+      "topic": "HTTP",
+      "concept": "Polling vs long polling vs WebSockets",
+      "difficulty": "medium",
+      "questions": [
+        "How would you build real-time features like chat? Compare polling, long polling and WebSockets.",
+        "How is a WebSocket connection established?"
+      ],
+      "keyPoints": [
+        "Short polling: the client asks repeatedly at intervals; simple but wasteful and adds delay",
+        "Long polling: the server holds the request until data is available or it times out, then the client immediately reconnects",
+        "Server-Sent Events: a one-way server-to-client stream over HTTP",
+        "WebSocket: a persistent, full-duplex connection over TCP; low overhead per message",
+        "Established by an HTTP Upgrade handshake (101 Switching Protocols), then frames flow both ways",
+        "Trade-offs: WebSockets are stateful connections, which complicates load balancing and scaling"
+      ],
+      "referenceAnswer": "With short polling, the client asks the server every few seconds whether anything is new. That's simple, but most requests return nothing and updates arrive late. Long polling improves on it: the server holds the request open until there's data, responds, and the client immediately reconnects. Server-Sent Events give a one-way stream from server to client. WebSockets are the best fit for chat: the client sends an HTTP request with an Upgrade header, the server answers 101 Switching Protocols, and from then on the same TCP connection is a full-duplex channel where either side can send small messages at any time with minimal overhead. The catch is that each client holds a long-lived connection, so scaling needs sticky routing or a pub/sub layer like Redis between servers.",
+      "commonMistakes": [
+        "Thinking WebSockets run over UDP",
+        "Not knowing about the HTTP Upgrade handshake"
+      ],
+      "followUps": ["cn-http-versions", "cn-load-balancer"]
+    },
+    {
+      "id": "cn-network-attacks",
+      "topic": "Security",
+      "concept": "Common network attacks",
+      "difficulty": "medium",
+      "questions": [
+        "What are DoS and DDoS attacks, and how can they be mitigated?",
+        "What is a man-in-the-middle attack and how does HTTPS prevent it?"
+      ],
+      "keyPoints": [
+        "DoS: overwhelming a service so legitimate users can't use it; DDoS: from many distributed sources (botnets)",
+        "Examples: SYN flood, UDP/DNS amplification, HTTP floods",
+        "Mitigations: rate limiting, SYN cookies, CDNs / scrubbing services, autoscaling, filtering",
+        "MITM: an attacker secretly intercepts and possibly alters communication (e.g. via ARP spoofing, rogue Wi-Fi, DNS spoofing)",
+        "HTTPS prevents MITM through encryption plus certificate authentication; the attacker can't present a valid certificate for the domain",
+        "Other attacks: DNS spoofing/cache poisoning, IP spoofing"
+      ],
+      "referenceAnswer": "A denial-of-service attack floods a service with more traffic or connections than it can handle, so real users are locked out. A DDoS does it from thousands of compromised machines, which makes simple IP blocking useless. Common forms are SYN floods that exhaust half-open connections, amplification attacks that abuse DNS or other UDP services to multiply traffic, and HTTP request floods. Defences include SYN cookies, rate limiting, and putting a CDN or scrubbing service in front to absorb traffic. In a man-in-the-middle attack, the attacker sits between you and the server, for example through ARP spoofing on public Wi-Fi, and reads or modifies traffic. HTTPS stops that because traffic is encrypted and the server must present a certificate for that domain signed by a trusted CA, which the attacker can't forge.",
+      "commonMistakes": [
+        "Confusing DoS with hacking into the server",
+        "Saying HTTPS only encrypts and ignoring authentication"
+      ],
+      "followUps": ["cn-https-tls", "cn-arp", "cn-firewall"]
+    },
+    {
+      "id": "cn-network-types",
+      "topic": "Network Basics",
+      "concept": "PAN, LAN, MAN and WAN",
+      "difficulty": "easy",
+      "questions": [
+        "What are the different types of networks based on their size?"
+      ],
+      "keyPoints": [
+        "PAN (Personal Area Network): a few metres around one person, e.g. Bluetooth devices",
+        "LAN (Local Area Network): a home, office or campus; high speed, low latency, privately owned (Ethernet, Wi-Fi)",
+        "MAN (Metropolitan Area Network): spans a city, e.g. a city-wide cable or fibre network",
+        "WAN (Wide Area Network): spans countries or continents; often uses leased lines or provider networks; the Internet is the largest WAN",
+        "Larger networks usually have higher latency and are shared or leased rather than owned"
+      ],
+      "referenceAnswer": "Networks are commonly classified by how much area they cover. A PAN is a personal network of a few metres, like your phone connected to earbuds over Bluetooth. A LAN covers a home, office or campus, is usually privately owned, and is fast with low latency, typically Ethernet and Wi-Fi. A MAN covers a city, like a municipal fibre network linking several campuses. A WAN spans countries or continents, often built on leased lines or ISP infrastructure, and the Internet is the biggest WAN of all, a network of networks.",
+      "commonMistakes": [
+        "Saying the Internet is a LAN",
+        "Mixing up MAN and WAN scales"
+      ],
+      "followUps": ["cn-topologies", "cn-transmission-media"]
+    },
+    {
+      "id": "cn-transmission-media",
+      "topic": "Physical Layer",
+      "concept": "Transmission media",
+      "difficulty": "easy",
+      "questions": [
+        "What are the different types of transmission media?",
+        "Why is optical fibre preferred for long-distance, high-speed links?"
+      ],
+      "keyPoints": [
+        "Guided (wired): twisted pair (UTP/STP, e.g. Cat5e/Cat6 Ethernet), coaxial cable, optical fibre",
+        "Unguided (wireless): radio waves (Wi-Fi, cellular), microwave, infrared, satellite",
+        "Twisted pair: cheap and common, but limited distance (~100 m for Ethernet) and susceptible to interference",
+        "Optical fibre: transmits light; very high bandwidth, very low attenuation over long distances, immune to electromagnetic interference, harder to tap",
+        "Single-mode fibre for long distances; multimode for shorter distances"
+      ],
+      "referenceAnswer": "Transmission media are either guided, meaning wired, or unguided, meaning wireless. Guided media include twisted pair copper, which is what normal Ethernet cables are, coaxial cable, and optical fibre. Unguided media carry signals through the air: radio for Wi-Fi and mobile networks, microwave links, infrared and satellite. Fibre is preferred for long-distance, high-speed links because it carries light rather than electricity. It supports enormous bandwidth, loses very little signal over tens of kilometres, isn't affected by electromagnetic interference, and is hard to tap. That's why undersea and backbone links are fibre, while copper twisted pair, limited to about 100 metres for Ethernet, stays common inside buildings.",
+      "commonMistakes": [
+        "Saying fibre is used because it's cheaper than copper",
+        "Not knowing the guided/unguided classification"
+      ],
+      "followUps": ["cn-network-types", "cn-bandwidth-latency"]
+    },
+    {
+      "id": "cn-cast-types",
+      "topic": "Addressing",
+      "concept": "Unicast, broadcast, multicast and anycast",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between unicast, broadcast, multicast and anycast?"
+      ],
+      "keyPoints": [
+        "Unicast: one sender to one specific receiver (most traffic, e.g. loading a web page)",
+        "Broadcast: one sender to all hosts on the local network (e.g. ARP requests, DHCP Discover); not forwarded by routers",
+        "Multicast: one sender to a group of interested receivers who have joined the group (e.g. IPTV, stock feeds); IGMP manages membership",
+        "Anycast: one address shared by many servers; packets go to the nearest one by routing (DNS root servers, CDNs)",
+        "IPv6 has no broadcast; it uses multicast instead"
+      ],
+      "referenceAnswer": "Unicast is one-to-one: a packet addressed to a single host, which is most Internet traffic. Broadcast is one-to-all within the local network. ARP requests and DHCP discovery use it, and routers don't forward broadcasts. Multicast is one-to-many, but only to hosts that have joined a group, which is efficient for things like live TV streams or market data feeds, where the network copies packets only where needed. Anycast gives the same IP address to many servers in different places, and routing delivers each packet to whichever is nearest. That's how DNS root servers and CDNs serve users quickly and absorb attacks. IPv6 drops broadcast entirely and uses multicast instead.",
+      "commonMistakes": [
+        "Confusing multicast with broadcast",
+        "Not knowing what anycast is used for"
+      ],
+      "followUps": ["cn-arp", "cn-cdn"]
+    },
+    {
+      "id": "cn-default-gateway",
+      "topic": "Network Layer",
+      "concept": "Default gateway",
+      "difficulty": "easy",
+      "questions": [
+        "What is a default gateway?",
+        "How does a host decide whether to send a packet directly or through the gateway?"
+      ],
+      "keyPoints": [
+        "The default gateway is the router interface on the local subnet that hosts send traffic to when the destination is outside their network",
+        "The host uses its own IP and subnet mask to check whether the destination is on the same subnet",
+        "Same subnet: ARP for the destination's MAC and send directly",
+        "Different subnet: ARP for the gateway's MAC and send the frame to the gateway (the IP destination stays the final host)",
+        "Without a gateway configured, a host can only talk to its local subnet",
+        "Usually assigned automatically by DHCP"
+      ],
+      "referenceAnswer": "The default gateway is the router that connects your local network to other networks. It's where a host sends anything not addressed to its own subnet. For every packet, the host applies its subnet mask to its own IP and to the destination IP. If the network parts match, the destination is local, so it ARPs for that machine's MAC address and sends directly. If they don't match, it sends the frame to the gateway's MAC address instead, while the IP header still carries the final destination, and the router takes it from there. If no gateway is configured, the machine can talk to devices on its subnet but can't reach the Internet. DHCP usually provides the gateway address along with the IP.",
+      "commonMistakes": [
+        "Saying the destination IP is changed to the gateway's IP",
+        "Not knowing the subnet mask comparison"
+      ],
+      "followUps": ["cn-arp", "cn-subnetting"]
+    },
+    {
+      "id": "cn-mtu-fragmentation",
+      "topic": "Network Layer",
+      "concept": "MTU and IP fragmentation",
+      "difficulty": "hard",
+      "questions": [
+        "What is MTU, and what happens when a packet is larger than the MTU of a link?",
+        "What is Path MTU Discovery?"
+      ],
+      "keyPoints": [
+        "MTU (maximum transmission unit): the largest packet a link can carry; 1500 bytes for standard Ethernet",
+        "IPv4 routers can fragment an oversized packet; fields used: Identification, the More Fragments flag, Fragment Offset (in 8-byte units)",
+        "Fragments are reassembled only at the final destination; losing any fragment loses the whole packet",
+        "Fragmentation hurts performance, so it is avoided where possible",
+        "Path MTU Discovery: send with the Don't Fragment bit set; a router that can't forward replies with ICMP 'fragmentation needed', and the sender lowers its packet size",
+        "TCP avoids fragmentation by limiting its maximum segment size (MSS, typically 1460 bytes on Ethernet); IPv6 routers never fragment"
+      ],
+      "referenceAnswer": "The MTU is the largest packet a link can carry, 1500 bytes on standard Ethernet. If an IPv4 packet is too big for the next link, a router can split it into fragments. Each carries the same identification number, an offset saying where it fits, and a flag saying whether more fragments follow, and the destination host reassembles them. Fragmentation is costly, and if any single fragment is lost the whole packet has to be resent, so systems try to avoid it. Path MTU Discovery sends packets with the Don't Fragment bit set. If a router on the path can't forward them, it drops them and returns an ICMP message saying fragmentation was needed, and the sender reduces its packet size. TCP also negotiates a maximum segment size so segments fit in the MTU. IPv6 routers never fragment at all: only the source may.",
+      "commonMistakes": [
+        "Saying routers reassemble fragments",
+        "Not knowing the role of the DF bit and ICMP in PMTUD"
+      ],
+      "followUps": ["cn-icmp", "cn-ipv4-vs-ipv6"]
+    },
+    {
+      "id": "cn-tcp-reliability",
+      "topic": "Transport Layer",
+      "concept": "How TCP achieves reliability",
+      "difficulty": "medium",
+      "questions": [
+        "How does TCP guarantee reliable, in-order delivery over an unreliable network?",
+        "What happens when a TCP segment is lost?"
+      ],
+      "keyPoints": [
+        "Sequence numbers number every byte, so the receiver can reorder segments and detect duplicates",
+        "Cumulative acknowledgements: the ACK number is the next byte expected",
+        "Retransmission timeout (RTO): unacknowledged data is resent after a timeout computed from measured RTT",
+        "Fast retransmit: three duplicate ACKs trigger retransmission before the timeout",
+        "Checksum detects corrupted segments, which are discarded",
+        "Receiver buffers out-of-order data; SACK (selective acknowledgement) tells the sender exactly which blocks arrived"
+      ],
+      "referenceAnswer": "TCP builds reliability out of a few mechanisms. Every byte has a sequence number, so the receiver can put segments back in order and throw away duplicates. The receiver sends cumulative acknowledgements saying which byte it expects next. A checksum on each segment catches corruption, and corrupted segments are dropped as if lost. The sender keeps a timer based on the measured round-trip time, and if data isn't acknowledged in time, it retransmits. It also doesn't always wait for the timer: if it gets three duplicate ACKs for the same byte, meaning later segments arrived but one in the middle is missing, it retransmits immediately. That's fast retransmit. With the SACK option, the receiver can say exactly which blocks it already has, so only the missing ones are resent.",
+      "commonMistakes": [
+        "Saying TCP acknowledges packets rather than bytes",
+        "Forgetting the checksum and retransmission timer"
+      ],
+      "followUps": ["cn-congestion-control", "cn-arq-protocols"]
+    },
+    {
+      "id": "cn-switch-mac-learning",
+      "topic": "Data Link Layer",
+      "concept": "How a switch learns MAC addresses",
+      "difficulty": "medium",
+      "questions": [
+        "How does a switch learn which device is connected to which port?",
+        "What does a switch do with a frame for a MAC address it hasn't learned yet?"
+      ],
+      "keyPoints": [
+        "The switch keeps a MAC address table mapping MAC address to port",
+        "Learning: it records the source MAC address of each incoming frame against the port it arrived on",
+        "Forwarding: if the destination MAC is in the table, the frame is sent only out of that port",
+        "Flooding: unknown unicast destinations and broadcast frames are sent out of all ports except the incoming one",
+        "Entries age out after a period of inactivity",
+        "MAC flooding attack: filling the table with fake MACs makes the switch flood everything like a hub"
+      ],
+      "referenceAnswer": "A switch learns passively by watching traffic. Every time a frame comes in, it notes the frame's source MAC address and the port it came from, and stores that in its MAC address table. To forward a frame, it looks up the destination MAC. If it knows the port, it sends the frame only there. If it doesn't know it yet, or the frame is a broadcast, it floods the frame out of every port except the one it came in on. When the destination replies, the switch learns where that device is too, so the table fills up quickly. Entries expire after some idle time so moved devices get re-learned. An attacker can abuse this by flooding the switch with fake source addresses until the table overflows, making the switch flood all traffic, which lets them sniff it.",
+      "commonMistakes": [
+        "Saying the switch learns from the destination MAC",
+        "Saying unknown frames are dropped"
+      ],
+      "followUps": ["cn-spanning-tree", "cn-network-devices"]
+    },
+    {
+      "id": "cn-spanning-tree",
+      "topic": "Data Link Layer",
+      "concept": "Spanning Tree Protocol",
+      "difficulty": "hard",
+      "questions": [
+        "Why are loops dangerous in a switched network?",
+        "How does the Spanning Tree Protocol prevent loops?"
+      ],
+      "keyPoints": [
+        "Redundant links between switches are needed for fault tolerance but create loops",
+        "Ethernet frames have no TTL, so a looping broadcast circulates forever: a broadcast storm that can bring the network down",
+        "Loops also cause MAC table instability and duplicate frames",
+        "STP (IEEE 802.1D) elects a root bridge (lowest bridge ID), computes the lowest-cost path from each switch to the root, and blocks the redundant ports",
+        "If an active link fails, STP recalculates and unblocks a backup path",
+        "RSTP (802.1w) converges much faster than original STP"
+      ],
+      "referenceAnswer": "You want redundant links between switches so one cable failure doesn't cut the network, but redundancy creates loops. At layer 2 that's disastrous: unlike IP packets, Ethernet frames have no TTL, so a single broadcast gets copied around the loop forever and multiplies. That's a broadcast storm, which can saturate the network within seconds, and switches' MAC tables keep flipping as the same source appears on different ports. Spanning Tree Protocol fixes this by logically turning the physical mesh into a tree. Switches elect a root bridge, the one with the lowest bridge ID. Each switch finds its lowest-cost path to the root, and the remaining redundant ports are put into a blocking state. If an active link fails, STP recalculates and unblocks a backup path. Rapid STP does this in seconds instead of the tens of seconds original STP needed.",
+      "commonMistakes": [
+        "Saying Ethernet frames have a TTL",
+        "Saying STP physically removes links"
+      ],
+      "followUps": ["cn-switch-mac-learning", "cn-collision-broadcast-domain"]
+    },
+    {
+      "id": "cn-http-vs-https",
+      "topic": "HTTP",
+      "concept": "HTTP vs HTTPS",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between HTTP and HTTPS?",
+        "What does HTTPS protect against, and what does it not protect against?"
+      ],
+      "keyPoints": [
+        "HTTP sends data in plain text (default port 80); anyone on the path can read or modify it",
+        "HTTPS is HTTP over TLS (default port 443)",
+        "HTTPS gives confidentiality (encryption), integrity (tamper detection) and server authentication (certificates)",
+        "Needs a certificate from a trusted CA (free options like Let's Encrypt exist)",
+        "Overhead is mostly the initial handshake; modern TLS is fast",
+        "It doesn't protect against a malicious or compromised server, phishing sites with valid certificates, or vulnerabilities like XSS in the application"
+      ],
+      "referenceAnswer": "HTTP sends everything in plain text on port 80, so anyone between you and the server, like someone on the same café Wi-Fi or your ISP, can read passwords and cookies or even alter the page. HTTPS is the same HTTP carried inside a TLS connection, usually on port 443. It encrypts the traffic so it can't be read, detects any tampering, and proves via a certificate signed by a trusted authority that you're talking to the real domain. The cost is mainly the initial handshake, which is small with modern TLS. What HTTPS doesn't do is make the website itself trustworthy: a phishing site can have a perfectly valid certificate for its own domain, and HTTPS won't stop bugs like XSS or SQL injection in the application.",
+      "commonMistakes": [
+        "Saying HTTPS means the website is safe or legitimate",
+        "Saying HTTPS encrypts data only with the server's public key"
+      ],
+      "followUps": ["cn-https-tls", "cn-xss-csrf"]
+    },
+    {
+      "id": "cn-cors",
+      "topic": "HTTP",
+      "concept": "Same-origin policy and CORS",
+      "difficulty": "medium",
+      "questions": [
+        "What is CORS, and why do you get CORS errors when your React app calls your backend?",
+        "What is a preflight request?"
+      ],
+      "keyPoints": [
+        "Same-origin policy: browsers block scripts from reading responses from a different origin (scheme + host + port)",
+        "CORS lets a server explicitly allow other origins using response headers such as Access-Control-Allow-Origin",
+        "localhost:5173 (frontend) and localhost:5000 (backend) are different origins because the ports differ",
+        "Preflight: for non-simple requests (e.g. PUT/DELETE, JSON content-type, an Authorization header) the browser first sends an OPTIONS request to ask permission",
+        "With credentials (cookies), the server must return a specific origin (not *) and Access-Control-Allow-Credentials: true",
+        "CORS is enforced by the browser; it is not server-side security (curl or Postman ignore it)"
+      ],
+      "referenceAnswer": "Browsers enforce the same-origin policy: JavaScript from one origin, meaning scheme, host and port, can't read responses from another origin unless that server allows it. A React dev server on localhost:5173 calling an API on localhost:5000 is cross-origin, because the ports differ, so the browser blocks the response unless the API sends CORS headers like Access-Control-Allow-Origin naming the frontend's origin. For requests that aren't simple, such as PUT or DELETE, a JSON content type, or an Authorization header, the browser first sends a preflight OPTIONS request asking which methods and headers are allowed, and only sends the real request if the answer permits it. If cookies are involved, the server must name the exact origin, not a wildcard, and allow credentials. CORS is a browser rule, not server protection: tools like curl ignore it, so the API still needs real authentication.",
+      "commonMistakes": [
+        "Thinking CORS protects the server from all unauthorized requests",
+        "Fixing it on the frontend instead of configuring the server"
+      ],
+      "followUps": ["cn-xss-csrf", "cn-http-methods"]
+    },
+    {
+      "id": "cn-xss-csrf",
+      "topic": "Security",
+      "concept": "XSS and CSRF",
+      "difficulty": "medium",
+      "questions": [
+        "What is cross-site scripting (XSS), and how do you prevent it?",
+        "What is CSRF, and how is it different from XSS?"
+      ],
+      "keyPoints": [
+        "XSS: an attacker gets malicious JavaScript to run in other users' browsers on a trusted site (stored, reflected, or DOM-based)",
+        "XSS can steal tokens stored in localStorage, read page data, or act as the user",
+        "Prevent XSS: escape/encode output (frameworks like React do this by default), avoid dangerouslySetInnerHTML/innerHTML with user data, sanitize HTML, Content Security Policy, HttpOnly cookies",
+        "CSRF: a malicious site makes the victim's browser send a request to a site they're logged into, and the browser automatically attaches cookies",
+        "Prevent CSRF: SameSite cookies, CSRF tokens, checking the Origin header, never changing state with GET",
+        "Tokens sent in an Authorization header (not cookies) aren't vulnerable to CSRF, but tokens in localStorage are exposed to XSS"
+      ],
+      "referenceAnswer": "XSS is when an attacker manages to get their JavaScript running on your site in other users' browsers, for example by posting a comment containing a script tag that gets rendered without escaping. That script runs with the site's full privileges: it can read tokens from localStorage, call APIs as the user, or change the page. You prevent it by escaping all user content when rendering, which React does by default unless you use dangerouslySetInnerHTML, sanitizing any HTML you must allow, and adding a Content Security Policy. CSRF is different: the attacker's own site tricks your browser into sending a request to a site where you're logged in, like a hidden form that posts to your bank, and the browser attaches your cookies automatically. Defences are SameSite cookies, CSRF tokens and checking the Origin header. Apps that send a token in an Authorization header are safe from CSRF, since browsers don't attach that automatically, but they should then worry more about XSS, since a token in localStorage is readable by injected scripts.",
+      "commonMistakes": [
+        "Confusing XSS with CSRF",
+        "Thinking HTTPS prevents XSS"
+      ],
+      "followUps": ["cn-cookies-sessions", "cn-cors"]
+    },
+    {
+      "id": "cn-http-caching",
+      "topic": "HTTP",
+      "concept": "HTTP caching",
+      "difficulty": "medium",
+      "questions": [
+        "How does HTTP caching work? Which headers control it?",
+        "What is an ETag and what does a 304 response mean?"
+      ],
+      "keyPoints": [
+        "Cache-Control: max-age (seconds the response is fresh), no-cache (store but revalidate before use), no-store (never store), public/private",
+        "Validation: ETag (a version identifier of the resource) with If-None-Match; Last-Modified with If-Modified-Since",
+        "If the resource hasn't changed, the server replies 304 Not Modified with no body, so the cached copy is reused and bandwidth is saved",
+        "Caches exist in the browser, proxies and CDNs",
+        "Cache busting: put a content hash in static file names (app.3f2a.js) so they can be cached for a long time and a new deploy gets a new URL"
+      ],
+      "referenceAnswer": "HTTP caching is controlled mostly by the Cache-Control header. max-age says how many seconds a response can be reused without asking the server. no-cache means the cache may store it but must check with the server before each use. no-store means don't keep it at all, which is used for sensitive data. private means only the user's browser may cache it, not shared caches. When a cached copy is stale, the browser revalidates. It sends the ETag it has, a fingerprint of that version, in an If-None-Match header, or the last-modified date. If nothing has changed, the server answers 304 Not Modified with no body and the browser reuses its copy, which saves bandwidth. Build tools put a content hash in static file names, so those files can be cached for a year and each new deploy simply uses new URLs.",
+      "commonMistakes": [
+        "Thinking no-cache means 'don't cache'",
+        "Not knowing what a 304 response is"
+      ],
+      "followUps": ["cn-cdn", "cn-http-status-codes"]
+    },
+    {
+      "id": "cn-rest-principles",
+      "topic": "HTTP",
+      "concept": "REST API design",
+      "difficulty": "medium",
+      "questions": [
+        "What is REST? What makes an API RESTful?",
+        "How would you design REST endpoints for users and their orders?"
+      ],
+      "keyPoints": [
+        "REST is an architectural style for APIs built on HTTP",
+        "Resources identified by URIs using nouns (/users/42/orders), not verbs (/getOrders)",
+        "HTTP methods express the action (GET, POST, PUT/PATCH, DELETE); status codes express the outcome",
+        "Stateless: each request carries everything needed (e.g. an auth token); the server keeps no client session between requests",
+        "Other constraints: client-server, cacheable responses, uniform interface, layered system",
+        "Good practice: versioning (/api/v1), pagination and filtering via query parameters, consistent JSON error format"
+      ],
+      "referenceAnswer": "REST is a style of designing APIs around resources. Each resource has a URL, the HTTP method says what to do with it, and the status code says how it went. Requests are stateless: each one carries its own authentication and context, so any server can handle it, which makes scaling easy. Responses can be cacheable. For users and orders I'd use GET /users/42 to fetch a user, PATCH /users/42 to update them, GET /users/42/orders to list their orders, with ?page=2&status=shipped for pagination and filtering, POST /users/42/orders to create one, and DELETE /orders/7 to cancel one. URLs contain nouns, not verbs like /createOrder. I'd return 201 on creation, 404 for missing resources and 400 for validation errors, in a consistent JSON error format, and version the API under /api/v1.",
+      "commonMistakes": [
+        "Using verbs in URLs",
+        "Returning 200 for errors with an error message in the body"
+      ],
+      "followUps": ["cn-http-methods", "cn-http-status-codes"]
+    },
+    {
+      "id": "cn-socket-programming",
+      "topic": "Transport Layer",
+      "concept": "Socket programming",
+      "difficulty": "medium",
+      "questions": [
+        "What system calls are used to create a TCP server and a TCP client?",
+        "How can one server handle many clients at the same time?"
+      ],
+      "keyPoints": [
+        "Server: socket() creates the endpoint, bind() attaches it to an IP and port, listen() marks it as passive, accept() waits for and returns a NEW socket for each client",
+        "Client: socket(), then connect() to the server's IP and port (the OS picks an ephemeral local port)",
+        "Both then use send()/recv() (or read()/write()) and close()",
+        "The listening socket keeps accepting while each accepted socket handles one client",
+        "Many clients: a thread/process per client, a thread pool, or I/O multiplexing (select, poll, epoll) in an event loop, which is how Node.js and Nginx work"
+      ],
+      "referenceAnswer": "A TCP server calls socket() to create an endpoint, bind() to attach it to an address and port, and listen() to start accepting connections. Then it loops on accept(), which blocks until a client connects and returns a brand new socket dedicated to that client, while the original socket keeps listening. The client just calls socket() and connect() with the server's address, and the OS picks an ephemeral port for it. After that both sides send and receive on their connected sockets and finally close them. To serve many clients at once, the classic approach is a thread or process per connection, or a pool of threads. High-performance servers like Nginx and Node.js use I/O multiplexing instead: a single event loop asks the OS, via epoll or similar, which sockets are ready, and handles each one without blocking.",
+      "commonMistakes": [
+        "Thinking the server communicates through the listening socket",
+        "Forgetting bind() and listen() on the server"
+      ],
+      "followUps": ["cn-ports-sockets", "cn-three-way-handshake"]
+    },
+    {
+      "id": "cn-vpn",
+      "topic": "Security",
+      "concept": "VPN",
+      "difficulty": "medium",
+      "questions": [
+        "What is a VPN and how does it work?",
+        "Does a VPN make you anonymous on the Internet?"
+      ],
+      "keyPoints": [
+        "A VPN creates an encrypted tunnel between your device and a VPN server over the public Internet",
+        "Your traffic is encapsulated and encrypted, so the local network/ISP only sees encrypted traffic to the VPN server",
+        "Websites see the VPN server's IP address instead of yours",
+        "Uses: remote access to a company's private network, site-to-site links between offices, privacy on public Wi-Fi",
+        "Protocols: IPsec, OpenVPN, WireGuard",
+        "Not full anonymity: the VPN provider can see your traffic, and logins/cookies/browser fingerprinting still identify you"
+      ],
+      "referenceAnswer": "A VPN builds an encrypted tunnel from your device to a VPN server. Your packets are wrapped and encrypted, sent to that server, unwrapped there, and forwarded to their real destination. So your local network or ISP sees only encrypted traffic going to one server, and websites see the VPN server's IP instead of yours. Companies use VPNs so employees can reach internal systems from home as if they were in the office, and to connect office networks site to site. Protocols include IPsec, OpenVPN and WireGuard. It doesn't make you anonymous, though: you've just shifted trust to the VPN provider, who can see your traffic, and websites can still identify you through logins, cookies and browser fingerprinting.",
+      "commonMistakes": [
+        "Saying a VPN provides complete anonymity",
+        "Confusing a VPN with a VLAN"
+      ],
+      "followUps": ["cn-symmetric-asymmetric", "cn-proxy"]
+    },
+    {
+      "id": "cn-ssh-telnet",
+      "topic": "Application Protocols",
+      "concept": "SSH vs Telnet",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between SSH and Telnet?",
+        "How does SSH key-based authentication work?"
+      ],
+      "keyPoints": [
+        "Both provide remote command-line access to another machine",
+        "Telnet (port 23) sends everything, including passwords, in plain text; obsolete for remote login",
+        "SSH (port 22) encrypts the whole session and verifies the server's identity with a host key",
+        "Key-based auth: the public key is placed on the server (authorized_keys); the client proves it holds the matching private key by signing a challenge; the private key never leaves the client",
+        "SSH also supports secure file transfer (scp, sftp) and port forwarding/tunnelling"
+      ],
+      "referenceAnswer": "Both give you a remote terminal, but Telnet sends everything in plain text, including your username and password, so anyone sniffing the network can read them. That's why it's essentially obsolete. SSH encrypts the entire session, and it also verifies the server using a host key, which is why you get a warning if a server's key suddenly changes. With key-based login, you put your public key in the server's authorized_keys file. When you connect, the server sends a challenge, and your client signs it with your private key, which never leaves your machine. The server verifies the signature with the public key. It's more secure than passwords and easy to automate. SSH also handles file copying with scp and sftp, and can tunnel other connections.",
+      "commonMistakes": [
+        "Saying the private key is sent to the server",
+        "Mixing up the port numbers"
+      ],
+      "followUps": ["cn-symmetric-asymmetric", "cn-ports-sockets"]
+    }
+  ]
+}

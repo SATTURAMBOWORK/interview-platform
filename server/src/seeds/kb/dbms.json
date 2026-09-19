@@ -1,0 +1,1530 @@
+{
+  "subject": "DBMS",
+  "entries": [
+    {
+      "id": "dbms-vs-file-system",
+      "topic": "DBMS Basics",
+      "concept": "DBMS vs file system",
+      "difficulty": "easy",
+      "questions": [
+        "What is a DBMS, and what advantages does it have over storing data in plain files?",
+        "Why don't we just store application data in text or CSV files?"
+      ],
+      "keyPoints": [
+        "A DBMS is software to define, store, query and manage data",
+        "Reduces redundancy and inconsistency through a central, structured store",
+        "Provides a declarative query language (SQL) instead of custom file-parsing code",
+        "Enforces integrity constraints",
+        "Handles concurrent access safely with transactions and concurrency control",
+        "Provides recovery after crashes, security/access control, and data independence"
+      ],
+      "referenceAnswer": "A DBMS is software for storing and managing data in a structured way. Compared with raw files, it cuts redundancy and inconsistency, lets you query with SQL instead of writing custom parsing code for every question, and enforces integrity rules like keys and constraints. Most importantly, it handles things files can't do safely: many users updating data at once through transactions and concurrency control, recovery after a crash, fine-grained access control, and data independence, so the storage layout can change without breaking applications.",
+      "commonMistakes": [
+        "Only mentioning 'faster' without the concurrency, integrity and recovery points",
+        "Not mentioning concurrent access"
+      ],
+      "followUps": ["dbms-three-schema", "dbms-acid"]
+    },
+    {
+      "id": "dbms-three-schema",
+      "topic": "DBMS Basics",
+      "concept": "Three-schema architecture and data independence",
+      "difficulty": "medium",
+      "questions": [
+        "Explain the three-schema architecture of a DBMS.",
+        "What is the difference between logical and physical data independence?"
+      ],
+      "keyPoints": [
+        "External level: individual user views",
+        "Conceptual (logical) level: the whole database's structure: entities, relationships, constraints",
+        "Internal (physical) level: how data is actually stored (files, indexes)",
+        "Physical data independence: change the internal schema without changing the conceptual schema (e.g. add an index)",
+        "Logical data independence: change the conceptual schema without changing external views/applications (e.g. add a column)",
+        "Logical independence is harder to achieve"
+      ],
+      "referenceAnswer": "The three-schema architecture separates a database into three levels. The external level is the views that different users or applications see. The conceptual level is the full logical design: tables, relationships and constraints. The internal level is how data is physically stored, in files and indexes. The point is data independence. Physical data independence means you can change storage, like adding an index or reorganizing files, without touching the logical schema. Logical data independence means you can change the logical schema, like adding a column or splitting a table, without breaking user views. Logical independence is harder, because applications depend more directly on the logical structure.",
+      "commonMistakes": [
+        "Swapping logical and physical data independence",
+        "Forgetting the external level"
+      ],
+      "followUps": ["dbms-views", "dbms-er-model"]
+    },
+    {
+      "id": "dbms-er-model",
+      "topic": "ER Model",
+      "concept": "Entities and attributes",
+      "difficulty": "easy",
+      "questions": [
+        "What is an ER model? What are entities and attributes?",
+        "What are the different types of attributes in an ER diagram?"
+      ],
+      "keyPoints": [
+        "The ER model is a conceptual design tool: entities, attributes, relationships",
+        "Entity: a real-world object (Student); entity set: a collection of similar entities",
+        "Simple vs composite attributes (Name to First, Last)",
+        "Single-valued vs multivalued attributes (phone numbers; double ellipse)",
+        "Derived attributes (age from DOB; dashed ellipse)",
+        "Key attribute uniquely identifies an entity (underlined)"
+      ],
+      "referenceAnswer": "The ER model is a high-level way to design a database before creating tables. An entity is a real-world thing, like a student, an entity set is all such things, and attributes describe them. Attributes can be simple or composite, like a name made of first and last parts. They can be single-valued or multivalued, like several phone numbers, and stored or derived, like age computed from date of birth. A key attribute uniquely identifies each entity. Relationships then connect entity sets.",
+      "commonMistakes": [
+        "Confusing entity with entity set",
+        "Not knowing multivalued or derived attributes"
+      ],
+      "followUps": ["dbms-relationship-cardinality", "dbms-weak-entity"]
+    },
+    {
+      "id": "dbms-relationship-cardinality",
+      "topic": "ER Model",
+      "concept": "Cardinality and participation",
+      "difficulty": "medium",
+      "questions": [
+        "What are cardinality ratios in an ER model?",
+        "How would you convert a many-to-many relationship into tables?"
+      ],
+      "keyPoints": [
+        "Cardinality: one-to-one, one-to-many, many-to-one, many-to-many",
+        "Participation: total (every entity participates; double line) vs partial",
+        "1:N is mapped by putting a foreign key on the 'many' side",
+        "M:N needs a separate junction (associative) table with foreign keys to both sides; its primary key is usually the combination",
+        "Relationship attributes (e.g. grade in Enrolls) go in the junction table"
+      ],
+      "referenceAnswer": "Cardinality says how many entities on one side can relate to how many on the other: one-to-one, one-to-many or many-to-many. Participation says whether every entity must take part (total) or not (partial). When converting to tables, a one-to-many relationship becomes a foreign key on the 'many' side. A many-to-many relationship, like students and courses, can't be stored that way, so you create a junction table such as Enrollment. It holds foreign keys to both tables, typically uses the pair as its primary key, and holds any attributes of the relationship itself, such as the grade.",
+      "commonMistakes": [
+        "Trying to store M:N with a foreign key in one of the tables",
+        "Confusing cardinality with participation"
+      ],
+      "followUps": ["dbms-foreign-key", "dbms-weak-entity"]
+    },
+    {
+      "id": "dbms-weak-entity",
+      "topic": "ER Model",
+      "concept": "Weak entity",
+      "difficulty": "medium",
+      "questions": [
+        "What is a weak entity? Give an example.",
+        "How is a weak entity identified if it has no primary key of its own?"
+      ],
+      "keyPoints": [
+        "A weak entity can't be uniquely identified by its own attributes",
+        "It depends on an owner (strong) entity through an identifying relationship",
+        "It has a partial key (discriminator) that is unique only within its owner",
+        "Its primary key = owner's primary key + partial key",
+        "Always total participation in the identifying relationship",
+        "Shown with a double rectangle; example: Dependent of Employee, Room of Building"
+      ],
+      "referenceAnswer": "A weak entity doesn't have enough attributes of its own to form a key, so it depends on an owner entity. A dependent of an employee is the classic example: two employees may each have a dependent named Riya, so the name alone isn't unique. It has a partial key, or discriminator, which is unique only within its owner, and its full key is the owner's primary key plus that partial key. It always participates totally in the identifying relationship, since it can't exist without its owner. In ER diagrams it's drawn with a double rectangle.",
+      "commonMistakes": [
+        "Thinking a weak entity has no attributes",
+        "Not mentioning the partial key"
+      ],
+      "followUps": ["dbms-keys", "dbms-relationship-cardinality"]
+    },
+    {
+      "id": "dbms-keys",
+      "topic": "Relational Model",
+      "concept": "Super, candidate, primary and alternate keys",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between a super key, a candidate key and a primary key?",
+        "Can a table have more than one candidate key? Give an example."
+      ],
+      "keyPoints": [
+        "Super key: any set of attributes that uniquely identifies a row",
+        "Candidate key: a minimal super key (no attribute can be removed)",
+        "Primary key: the candidate key chosen to identify rows; unique and NOT NULL; one per table",
+        "Alternate keys: candidate keys not chosen as primary",
+        "Composite key: a key with multiple attributes; surrogate key: an artificial ID",
+        "Every candidate key is a super key, but not vice versa"
+      ],
+      "referenceAnswer": "A super key is any set of columns that uniquely identifies a row. {roll_no, name} is one, but it's not minimal. A candidate key is a minimal super key: remove any column and it stops being unique. A table can have several, like roll_no, email and Aadhaar number for students. The primary key is the one candidate key you choose, and it must be unique and not null. The remaining candidate keys are alternate keys. So every candidate key is a super key, but not every super key is a candidate key.",
+      "commonMistakes": [
+        "Saying a table can have multiple primary keys",
+        "Confusing composite key with candidate key"
+      ],
+      "followUps": ["dbms-foreign-key", "dbms-attribute-closure"]
+    },
+    {
+      "id": "dbms-foreign-key",
+      "topic": "Relational Model",
+      "concept": "Foreign keys and referential integrity",
+      "difficulty": "easy",
+      "questions": [
+        "What is a foreign key and what is referential integrity?",
+        "What happens when you delete a row that other rows reference through a foreign key?"
+      ],
+      "keyPoints": [
+        "A foreign key references the primary key (or a unique key) of another table (or the same table)",
+        "Referential integrity: every foreign key value must match an existing referenced value, or be NULL",
+        "Delete/update behaviour options: RESTRICT/NO ACTION (block), CASCADE (delete/update children too), SET NULL, SET DEFAULT",
+        "A foreign key can be NULL and doesn't have to be unique",
+        "Self-referencing FK example: employee.manager_id refers to employee.id"
+      ],
+      "referenceAnswer": "A foreign key is a column that refers to the primary key of another table, like orders.customer_id pointing at customers.id. Referential integrity means every foreign key value must match an existing row, or be null, so you can't have an order for a customer who doesn't exist. When you delete a referenced row, the behaviour depends on the constraint. By default, RESTRICT or NO ACTION blocks the delete. CASCADE deletes the dependent rows too. SET NULL or SET DEFAULT clears the reference. Foreign keys can be null and can repeat.",
+      "commonMistakes": [
+        "Saying a foreign key must be unique",
+        "Saying a foreign key can't be NULL"
+      ],
+      "followUps": ["dbms-constraints", "dbms-joins"]
+    },
+    {
+      "id": "dbms-relational-algebra",
+      "topic": "Relational Model",
+      "concept": "Relational algebra",
+      "difficulty": "medium",
+      "questions": [
+        "What is relational algebra? What are its basic operations?",
+        "What is the difference between relational algebra and relational calculus?"
+      ],
+      "keyPoints": [
+        "A procedural query language: operations take relations and produce relations",
+        "Fundamental operations: selection (sigma, rows), projection (pi, columns), union, set difference, Cartesian product, rename (rho)",
+        "Derived operations: join, intersection, division",
+        "Selection filters rows; projection picks columns and removes duplicates",
+        "Relational algebra is procedural (how); relational calculus is declarative (what); SQL is based on both"
+      ],
+      "referenceAnswer": "Relational algebra is a formal, procedural query language where every operation takes relations and returns a relation. The six fundamental operations are selection to filter rows, projection to pick columns (removing duplicates), union, set difference, Cartesian product and rename. Join, intersection and division can be built from those. It's procedural because you describe the steps to get the result. Relational calculus is declarative: you describe what the result should satisfy. SQL is declarative, and the database internally turns queries into algebra-like execution plans.",
+      "commonMistakes": [
+        "Confusing selection with SQL SELECT (SELECT corresponds to projection)",
+        "Listing join as a fundamental operation"
+      ],
+      "followUps": ["dbms-joins", "dbms-query-optimization"]
+    },
+    {
+      "id": "dbms-joins",
+      "topic": "SQL",
+      "concept": "Types of joins",
+      "difficulty": "easy",
+      "questions": [
+        "What are the different types of SQL joins?",
+        "What is the difference between an INNER JOIN and a LEFT JOIN?",
+        "What is a self join and when would you use one?"
+      ],
+      "keyPoints": [
+        "INNER JOIN: only rows with matches in both tables",
+        "LEFT (OUTER) JOIN: all rows from the left table plus matches; NULLs where there is no match",
+        "RIGHT JOIN: the mirror of LEFT; FULL OUTER JOIN: all rows from both",
+        "CROSS JOIN: Cartesian product (m x n rows)",
+        "Self join: a table joined with itself, e.g. employees and their managers",
+        "Natural join joins on all same-named columns automatically (risky); an equi join uses explicit equality"
+      ],
+      "referenceAnswer": "An INNER JOIN returns only rows that have a match in both tables. A LEFT JOIN returns every row from the left table, filling the right side with NULLs where there's no match. That's how you find, for example, customers with no orders. RIGHT JOIN is the mirror image, and FULL OUTER JOIN keeps unmatched rows from both sides. A CROSS JOIN gives every combination, m times n rows. A self join joins a table to itself using aliases, like matching each employee's manager_id to another row's id to get the manager's name.",
+      "commonMistakes": [
+        "Saying LEFT JOIN returns only matching rows",
+        "Putting a filter on the right table in WHERE, which silently turns a LEFT JOIN into an INNER JOIN"
+      ],
+      "followUps": ["dbms-subqueries", "dbms-null-handling"]
+    },
+    {
+      "id": "dbms-functional-dependency",
+      "topic": "Normalization",
+      "concept": "Functional dependency",
+      "difficulty": "medium",
+      "questions": [
+        "What is a functional dependency?",
+        "What is the difference between a trivial and a non-trivial functional dependency?"
+      ],
+      "keyPoints": [
+        "X -> Y means that if two rows agree on X, they must agree on Y (X determines Y)",
+        "Trivial FD: Y is a subset of X (e.g. {A,B} -> A)",
+        "Non-trivial: Y is not a subset of X",
+        "FDs come from the meaning of the data (business rules), not from a particular table instance",
+        "Partial dependency: a non-prime attribute depends on part of a candidate key; transitive dependency: A -> B -> C",
+        "Normalization is based on FDs"
+      ],
+      "referenceAnswer": "A functional dependency X -> Y means the value of X determines the value of Y. Any two rows with the same X must have the same Y, like roll_no -> name. It's trivial if Y is already part of X, like {roll_no, name} -> name, which always holds. It's non-trivial otherwise. FDs are rules about what the data means, so you can't prove one just by looking at the current rows, though a counterexample in the data can disprove it. Normal forms are defined in terms of which FDs are allowed, especially partial and transitive dependencies.",
+      "commonMistakes": [
+        "Deriving FDs from sample data alone",
+        "Reversing the direction of the dependency"
+      ],
+      "followUps": ["dbms-attribute-closure", "dbms-2nf", "dbms-3nf"]
+    },
+    {
+      "id": "dbms-attribute-closure",
+      "topic": "Normalization",
+      "concept": "Armstrong's axioms and attribute closure",
+      "difficulty": "hard",
+      "questions": [
+        "What are Armstrong's axioms?",
+        "How do you find the candidate keys of a relation given its functional dependencies?"
+      ],
+      "keyPoints": [
+        "Reflexivity: if Y is a subset of X then X -> Y",
+        "Augmentation: if X -> Y then XZ -> YZ",
+        "Transitivity: if X -> Y and Y -> Z then X -> Z",
+        "The axioms are sound and complete; union, decomposition and pseudo-transitivity are derived rules",
+        "Attribute closure X+: all attributes determined by X, computed by repeatedly applying FDs",
+        "X is a super key if X+ contains all attributes; a candidate key if it is also minimal",
+        "Attributes that never appear on the right-hand side must be in every candidate key"
+      ],
+      "referenceAnswer": "Armstrong's axioms are three inference rules for functional dependencies: reflexivity (a set determines its subsets), augmentation (you can add the same attributes to both sides) and transitivity (X -> Y and Y -> Z gives X -> Z). They're sound and complete, and union and decomposition follow from them. To find candidate keys, compute attribute closures. The closure of X is everything you can reach from X by repeatedly applying the FDs. If X's closure contains every attribute, X is a super key, and if no proper subset also works, it's a candidate key. A useful shortcut is that any attribute that never appears on the right side of an FD must be part of every candidate key, so you start from those.",
+      "commonMistakes": [
+        "Forgetting to check minimality",
+        "Stopping the closure computation too early"
+      ],
+      "followUps": ["dbms-keys", "dbms-bcnf"]
+    },
+    {
+      "id": "dbms-anomalies",
+      "topic": "Normalization",
+      "concept": "Insertion, update and deletion anomalies",
+      "difficulty": "easy",
+      "questions": [
+        "What is normalization and why do we need it?",
+        "What are insertion, update and deletion anomalies? Give examples."
+      ],
+      "keyPoints": [
+        "Normalization organizes tables to reduce redundancy and avoid anomalies, by decomposing based on FDs",
+        "Update anomaly: redundant copies of data must all be updated; missing one causes inconsistency",
+        "Insertion anomaly: can't insert some facts without unrelated data (e.g. a new course with no students)",
+        "Deletion anomaly: deleting one fact unintentionally removes another (e.g. deleting the last student deletes the course info)",
+        "Trade-off: more joins at query time"
+      ],
+      "referenceAnswer": "Normalization means splitting tables so each fact is stored once, which removes redundancy and the anomalies it causes. Picture one table storing student, course and instructor together. If an instructor's phone number changes, you have to update it in every row, and missing one leaves inconsistent data: an update anomaly. You can't add a new course until some student enrols: an insertion anomaly. And if the only student in a course drops out, deleting that row also erases the course's details: a deletion anomaly. The price of normalizing is more joins when querying.",
+      "commonMistakes": [
+        "Defining normalization only as 'splitting tables'",
+        "Not being able to give concrete anomaly examples"
+      ],
+      "followUps": ["dbms-1nf", "dbms-denormalization"]
+    },
+    {
+      "id": "dbms-1nf",
+      "topic": "Normalization",
+      "concept": "First normal form",
+      "difficulty": "easy",
+      "questions": [
+        "What is First Normal Form?",
+        "Is a table with a 'phone_numbers' column containing '98x, 99x' in 1NF? How would you fix it?"
+      ],
+      "keyPoints": [
+        "Every attribute holds atomic (indivisible) values",
+        "No multivalued attributes or repeating groups",
+        "Each row is unique (has a key)",
+        "Fix multivalued data by moving it to a separate table (or separate rows), not by adding phone1, phone2 columns"
+      ],
+      "referenceAnswer": "A table is in 1NF if every column holds a single atomic value, there are no repeating groups, and rows can be uniquely identified. A phone_numbers column holding a comma-separated list breaks 1NF, because you can't cleanly query or constrain the individual numbers. The right fix is a separate table like student_phone(student_id, phone), with one row per number. Adding phone1, phone2 and phone3 columns is a bad workaround, because it caps how many you can store and wastes space.",
+      "commonMistakes": [
+        "Proposing phone1/phone2/phone3 columns as the fix",
+        "Confusing atomicity in 1NF with transaction atomicity"
+      ],
+      "followUps": ["dbms-2nf"]
+    },
+    {
+      "id": "dbms-2nf",
+      "topic": "Normalization",
+      "concept": "Second normal form",
+      "difficulty": "medium",
+      "questions": [
+        "What is Second Normal Form?",
+        "Can a table with a single-column primary key violate 2NF?"
+      ],
+      "keyPoints": [
+        "In 1NF and has no partial dependency",
+        "Partial dependency: a non-prime attribute depends on only part of a candidate key",
+        "Only possible when some candidate key is composite",
+        "Example: Enrollment(student_id, course_id, course_name): course_name depends only on course_id",
+        "Fix: move course_name into a Course table",
+        "If all candidate keys are single attributes, a 1NF table is automatically in 2NF"
+      ],
+      "referenceAnswer": "2NF means the table is in 1NF and no non-key attribute depends on just part of a composite key. For example, in Enrollment(student_id, course_id, course_name, grade) the key is (student_id, course_id), but course_name depends only on course_id. That's a partial dependency, and it causes course_name to be repeated for every student. You fix it by moving course_name into a Course table. If every candidate key is a single column, partial dependencies can't exist, so a 1NF table is automatically in 2NF.",
+      "commonMistakes": [
+        "Describing transitive dependency instead of partial",
+        "Not realizing 2NF only matters with composite keys"
+      ],
+      "followUps": ["dbms-3nf", "dbms-functional-dependency"]
+    },
+    {
+      "id": "dbms-3nf",
+      "topic": "Normalization",
+      "concept": "Third normal form",
+      "difficulty": "medium",
+      "questions": [
+        "What is Third Normal Form?",
+        "What is a transitive dependency? Give an example."
+      ],
+      "keyPoints": [
+        "In 2NF and has no transitive dependency of a non-prime attribute on a candidate key",
+        "Transitive dependency: key -> A -> B, where A is not a key",
+        "Example: Student(roll_no, dept_id, dept_name): roll_no -> dept_id -> dept_name",
+        "Fix: move dept_name into a Department table",
+        "Formal test: for every non-trivial FD X -> A, either X is a super key or A is a prime attribute"
+      ],
+      "referenceAnswer": "A table is in 3NF if it's in 2NF and no non-key attribute depends on another non-key attribute, meaning there are no transitive dependencies. In Student(roll_no, name, dept_id, dept_name), roll_no determines dept_id and dept_id determines dept_name, so dept_name depends on the key only through dept_id. Every student in a department repeats the department name. The fix is a separate Department(dept_id, dept_name) table. The formal rule: for every non-trivial dependency X -> A, either X is a super key or A is part of some candidate key.",
+      "commonMistakes": [
+        "Confusing transitive with partial dependency",
+        "Forgetting the 'A is prime' exception in the formal definition"
+      ],
+      "followUps": ["dbms-bcnf", "dbms-decomposition"]
+    },
+    {
+      "id": "dbms-bcnf",
+      "topic": "Normalization",
+      "concept": "BCNF",
+      "difficulty": "hard",
+      "questions": [
+        "What is BCNF and how is it different from 3NF?",
+        "Can you give an example of a table that is in 3NF but not in BCNF?"
+      ],
+      "keyPoints": [
+        "BCNF: for every non-trivial FD X -> Y, X must be a super key",
+        "Stricter than 3NF: it drops the 'Y is prime' exception",
+        "3NF but not BCNF happens when a non-key attribute determines part of a candidate key",
+        "Example: (student, subject, teacher) with teacher -> subject and each subject having several teachers",
+        "BCNF decomposition is always lossless but may not preserve all dependencies",
+        "3NF can always be achieved with a decomposition that is both lossless and dependency-preserving"
+      ],
+      "referenceAnswer": "BCNF requires that for every non-trivial functional dependency, the left side is a super key. 3NF allows one exception: the right side may be a prime attribute. BCNF removes that exception, so it's stricter. The standard example is Teaching(student, subject, teacher), where each teacher teaches one subject (teacher -> subject), a subject has several teachers, and the key is (student, subject). teacher -> subject has a non-super-key on the left, but subject is prime, so the table is in 3NF but not BCNF. Decomposing into BCNF is always lossless, but it can lose dependency preservation. That's why sometimes we stop at 3NF, which can always be both lossless and dependency-preserving.",
+      "commonMistakes": [
+        "Saying BCNF is weaker than 3NF",
+        "Claiming BCNF decomposition always preserves dependencies"
+      ],
+      "followUps": ["dbms-decomposition", "dbms-4nf"]
+    },
+    {
+      "id": "dbms-decomposition",
+      "topic": "Normalization",
+      "concept": "Lossless and dependency-preserving decomposition",
+      "difficulty": "hard",
+      "questions": [
+        "What is a lossless join decomposition? How do you test for it?",
+        "What does dependency preservation mean, and why does it matter?"
+      ],
+      "keyPoints": [
+        "Lossless: joining the decomposed tables gives back exactly the original relation, with no spurious tuples",
+        "Test for two relations R1, R2: the common attributes (R1 ∩ R2) must be a super key of R1 or of R2",
+        "A lossy decomposition creates extra (spurious) rows on join, i.e. it loses information",
+        "Dependency preserving: every original FD can be checked within a single decomposed table, without joins",
+        "Losslessness is mandatory; dependency preservation is desirable",
+        "BCNF may sacrifice dependency preservation; 3NF synthesis guarantees both"
+      ],
+      "referenceAnswer": "A decomposition is lossless if joining the pieces back gives exactly the original table. A bad split creates spurious rows on the join, and you can no longer tell which combinations were real, so information is effectively lost. For splitting R into R1 and R2, the test is that the shared columns must be a key of at least one of the two. Dependency preservation means every original functional dependency can still be enforced by looking at one table on its own, without joining, which keeps constraint checking cheap. Losslessness is non-negotiable. Dependency preservation is desirable, and it's the thing you may give up to reach BCNF.",
+      "commonMistakes": [
+        "Thinking lossy means rows go missing (actually extra rows appear)",
+        "Treating dependency preservation as mandatory"
+      ],
+      "followUps": ["dbms-bcnf", "dbms-3nf"]
+    },
+    {
+      "id": "dbms-4nf",
+      "topic": "Normalization",
+      "concept": "Multivalued dependency and 4NF",
+      "difficulty": "hard",
+      "questions": [
+        "What is a multivalued dependency and what is Fourth Normal Form?"
+      ],
+      "keyPoints": [
+        "Multivalued dependency X ->> Y: for each X, the set of Y values is independent of the other attributes",
+        "Example: Employee(emp, skill, language): skills and languages are independent, so every combination must be stored",
+        "Causes redundancy even in BCNF",
+        "4NF: in BCNF and no non-trivial MVD unless X is a super key",
+        "Fix: split into (emp, skill) and (emp, language)"
+      ],
+      "referenceAnswer": "A multivalued dependency X ->> Y means that for a given X there's a set of Y values that's independent of the rest of the row. If an employee has several skills and speaks several languages, and the two are unrelated, a single table Employee(emp, skill, language) must store every skill-language combination to stay consistent. That's heavy redundancy, even though the table can be in BCNF. 4NF says there must be no non-trivial MVDs unless the left side is a super key. The fix is to split it into EmpSkill(emp, skill) and EmpLanguage(emp, language).",
+      "commonMistakes": [
+        "Confusing multivalued dependency with multivalued attribute",
+        "Thinking BCNF removes all redundancy"
+      ],
+      "followUps": ["dbms-bcnf"]
+    },
+    {
+      "id": "dbms-denormalization",
+      "topic": "Normalization",
+      "concept": "Denormalization",
+      "difficulty": "medium",
+      "questions": [
+        "What is denormalization and when would you use it?",
+        "Isn't denormalization just bad design?"
+      ],
+      "keyPoints": [
+        "Intentionally adding redundancy to a normalized schema to improve read performance",
+        "Avoids expensive joins in read-heavy systems, reporting and data warehouses",
+        "Examples: storing a computed order_total, or copying customer_name into orders",
+        "Cost: more storage, slower and more complex writes, risk of inconsistency",
+        "Consistency must be maintained with triggers, application logic or batch jobs",
+        "Normalize first, then denormalize selectively based on measured bottlenecks"
+      ],
+      "referenceAnswer": "Denormalization means deliberately adding redundancy back into a normalized design, usually to speed up reads by avoiding joins, like storing an order's total or the customer's name directly on the order row. It's common in read-heavy systems, analytics and data warehouses, and in NoSQL designs. It isn't bad design when done on purpose. The cost is extra storage, more expensive writes, and the risk of copies disagreeing, so you need triggers or application logic to keep them in sync. The usual approach is to normalize first and denormalize only where profiling shows joins are the bottleneck.",
+      "commonMistakes": [
+        "Confusing denormalization with never normalizing in the first place",
+        "Ignoring the consistency cost"
+      ],
+      "followUps": ["dbms-anomalies", "dbms-sql-vs-nosql"]
+    },
+    {
+      "id": "dbms-sql-command-types",
+      "topic": "SQL",
+      "concept": "DDL, DML, DCL and TCL",
+      "difficulty": "easy",
+      "questions": [
+        "What are DDL, DML, DCL and TCL commands? Give examples of each."
+      ],
+      "keyPoints": [
+        "DDL (Data Definition): CREATE, ALTER, DROP, TRUNCATE, RENAME: defines structure",
+        "DML (Data Manipulation): INSERT, UPDATE, DELETE (and SELECT, sometimes classed separately as DQL)",
+        "DCL (Data Control): GRANT, REVOKE: permissions",
+        "TCL (Transaction Control): COMMIT, ROLLBACK, SAVEPOINT",
+        "In many databases DDL statements auto-commit"
+      ],
+      "referenceAnswer": "DDL defines the structure: CREATE, ALTER, DROP and TRUNCATE. DML works with the data inside tables: INSERT, UPDATE, DELETE, and SELECT, which is sometimes classified separately as DQL. DCL controls permissions with GRANT and REVOKE. TCL manages transactions with COMMIT, ROLLBACK and SAVEPOINT. One practical detail: in databases like MySQL and Oracle, DDL statements implicitly commit, so they can't be rolled back as part of a transaction.",
+      "commonMistakes": [
+        "Classifying TRUNCATE as DML",
+        "Not knowing DDL often auto-commits"
+      ],
+      "followUps": ["dbms-delete-truncate-drop"]
+    },
+    {
+      "id": "dbms-delete-truncate-drop",
+      "topic": "SQL",
+      "concept": "DELETE vs TRUNCATE vs DROP",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between DELETE, TRUNCATE and DROP?",
+        "Which of these can be rolled back?"
+      ],
+      "keyPoints": [
+        "DELETE: DML; removes selected rows (supports WHERE); logs each row; fires triggers; can be rolled back",
+        "TRUNCATE: DDL; removes all rows; no WHERE; much faster (deallocates pages); usually resets identity/auto-increment",
+        "DROP: DDL; removes the whole table: data, structure, indexes and constraints",
+        "Rollback of TRUNCATE depends on the database: it can be rolled back inside a transaction in PostgreSQL and SQL Server, but in MySQL and Oracle it auto-commits",
+        "TRUNCATE may fail if the table is referenced by foreign keys"
+      ],
+      "referenceAnswer": "DELETE is a DML command that removes rows, optionally filtered with WHERE. It logs every row, fires triggers, and can be rolled back. TRUNCATE is DDL: it removes all rows at once by deallocating the data pages, so it's much faster, doesn't support WHERE, usually resets auto-increment counters, and may be blocked by foreign keys. DROP removes the table itself, including structure, indexes and constraints, not just the data. Whether TRUNCATE can be rolled back depends on the database: PostgreSQL and SQL Server allow it inside a transaction, while MySQL and Oracle treat it as an implicit commit.",
+      "commonMistakes": [
+        "Saying TRUNCATE can never be rolled back in any database",
+        "Saying DELETE removes the table structure"
+      ],
+      "followUps": ["dbms-sql-command-types", "dbms-acid"]
+    },
+    {
+      "id": "dbms-where-vs-having",
+      "topic": "SQL",
+      "concept": "WHERE vs HAVING and GROUP BY",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between WHERE and HAVING?",
+        "Write a query to find departments with more than 5 employees."
+      ],
+      "keyPoints": [
+        "WHERE filters individual rows before grouping",
+        "HAVING filters groups after GROUP BY and can use aggregate functions",
+        "Aggregates like COUNT or SUM can't be used in WHERE",
+        "Example: SELECT dept_id, COUNT(*) FROM emp GROUP BY dept_id HAVING COUNT(*) > 5",
+        "Filtering in WHERE when possible is more efficient, because fewer rows get grouped",
+        "In standard SQL, selected non-aggregated columns must appear in GROUP BY"
+      ],
+      "referenceAnswer": "WHERE filters rows before any grouping happens, so it works on individual row values and can't use aggregates. HAVING filters after GROUP BY, on the groups themselves, so it can use aggregates like COUNT or SUM. To find departments with more than five employees: SELECT dept_id, COUNT(*) FROM employees GROUP BY dept_id HAVING COUNT(*) > 5. Row-level conditions should still go in WHERE, because filtering early means fewer rows to group.",
+      "commonMistakes": [
+        "Using COUNT(*) inside WHERE",
+        "Putting row-level filters in HAVING unnecessarily"
+      ],
+      "followUps": ["dbms-sql-execution-order", "dbms-nth-highest-salary"]
+    },
+    {
+      "id": "dbms-sql-execution-order",
+      "topic": "SQL",
+      "concept": "Logical order of SQL execution",
+      "difficulty": "medium",
+      "questions": [
+        "In what order are the clauses of a SELECT query logically executed?",
+        "Why can't you use a column alias defined in SELECT inside the WHERE clause?"
+      ],
+      "keyPoints": [
+        "Logical order: FROM/JOIN, WHERE, GROUP BY, HAVING, SELECT, DISTINCT, ORDER BY, LIMIT/OFFSET",
+        "WHERE runs before SELECT, so aliases defined in SELECT don't exist yet",
+        "ORDER BY runs after SELECT, so it can use aliases",
+        "This is the logical order; the optimizer may physically execute differently with the same result"
+      ],
+      "referenceAnswer": "Logically, a query runs FROM and joins first to build the working set, then WHERE filters rows, GROUP BY forms groups, HAVING filters groups, SELECT computes the output columns, DISTINCT removes duplicates, ORDER BY sorts, and LIMIT trims. That explains the alias rule: WHERE is evaluated before SELECT, so an alias defined in SELECT doesn't exist yet, while ORDER BY comes after SELECT and can use it. This is only the logical order. The optimizer is free to execute it differently as long as the result is the same.",
+      "commonMistakes": [
+        "Saying SELECT is executed first because it is written first",
+        "Thinking this is the literal physical execution plan"
+      ],
+      "followUps": ["dbms-where-vs-having", "dbms-query-optimization"]
+    },
+    {
+      "id": "dbms-subqueries",
+      "topic": "SQL",
+      "concept": "Subqueries and correlated subqueries",
+      "difficulty": "medium",
+      "questions": [
+        "What is a correlated subquery, and how is it different from a normal subquery?",
+        "What is the difference between IN and EXISTS?"
+      ],
+      "keyPoints": [
+        "A non-correlated subquery runs independently, once, and its result is used by the outer query",
+        "A correlated subquery references columns of the outer query, so it is logically evaluated once per outer row",
+        "Example: employees earning more than their department's average",
+        "Correlated subqueries can be slow; they can often be rewritten as joins or window functions",
+        "EXISTS stops at the first match and handles NULLs safely; IN compares against a list of values",
+        "NOT IN returns no rows if the subquery produces any NULL; NOT EXISTS is safer"
+      ],
+      "referenceAnswer": "A normal subquery is self-contained: it runs once and the outer query uses its result. A correlated subquery refers to columns of the outer query, so it's logically re-evaluated for every outer row. For example, to find employees who earn more than their own department's average, the inner query computes the average for the current row's department. Correlated subqueries can be slow on large tables, so they're often rewritten as joins or window functions. IN checks membership in a list, while EXISTS just checks whether any matching row exists and stops at the first one. The big trap is NOT IN: if the subquery returns even one NULL, NOT IN returns nothing, which NOT EXISTS avoids.",
+      "commonMistakes": [
+        "Not knowing the NOT IN / NULL trap",
+        "Saying correlated subqueries run only once"
+      ],
+      "followUps": ["dbms-nth-highest-salary", "dbms-null-handling"]
+    },
+    {
+      "id": "dbms-nth-highest-salary",
+      "topic": "SQL",
+      "concept": "Nth highest salary",
+      "difficulty": "medium",
+      "questions": [
+        "Write a query to find the second highest salary from an Employee table.",
+        "How would you generalize it to the Nth highest salary, handling duplicate salaries?"
+      ],
+      "keyPoints": [
+        "Second highest: SELECT MAX(salary) FROM emp WHERE salary < (SELECT MAX(salary) FROM emp)",
+        "Nth with LIMIT/OFFSET: SELECT DISTINCT salary FROM emp ORDER BY salary DESC LIMIT 1 OFFSET N-1",
+        "Window function: DENSE_RANK() OVER (ORDER BY salary DESC) and filter rank = N",
+        "DISTINCT or DENSE_RANK is needed so duplicate salaries don't shift the answer",
+        "RANK vs DENSE_RANK vs ROW_NUMBER differ in how they treat ties",
+        "Should return NULL or no row if fewer than N distinct salaries exist"
+      ],
+      "referenceAnswer": "For the second highest, a simple way is SELECT MAX(salary) FROM Employee WHERE salary < (SELECT MAX(salary) FROM Employee). To generalize to N, you can do SELECT DISTINCT salary FROM Employee ORDER BY salary DESC LIMIT 1 OFFSET N-1. The DISTINCT is important, because if two people share the top salary, a plain offset would give the wrong answer. The cleanest version uses a window function: compute DENSE_RANK() OVER (ORDER BY salary DESC) in a subquery and select where the rank equals N. DENSE_RANK is right here because it doesn't skip numbers after ties, unlike RANK, and ROW_NUMBER would treat equal salaries as different ranks.",
+      "commonMistakes": [
+        "Forgetting DISTINCT and returning a duplicate top salary",
+        "Using RANK or ROW_NUMBER where DENSE_RANK is needed"
+      ],
+      "followUps": ["dbms-subqueries", "dbms-where-vs-having"]
+    },
+    {
+      "id": "dbms-union-vs-union-all",
+      "topic": "SQL",
+      "concept": "UNION vs UNION ALL",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between UNION and UNION ALL?",
+        "What is the difference between UNION and JOIN?"
+      ],
+      "keyPoints": [
+        "UNION combines result sets and removes duplicates (needs a sort or hash step)",
+        "UNION ALL keeps duplicates, so it is faster",
+        "Both require the same number of columns with compatible types, in the same order",
+        "UNION stacks rows vertically; JOIN combines columns horizontally based on a condition",
+        "Use UNION ALL when duplicates are impossible or acceptable"
+      ],
+      "referenceAnswer": "UNION stacks the results of two queries and removes duplicate rows, which requires an extra sort or hash step. UNION ALL stacks them and keeps everything, so it's faster, and it's the better choice whenever duplicates can't occur or don't matter. Both need the same number of columns with compatible types. A JOIN is different: it combines columns from two tables side by side based on a matching condition, while UNION combines rows vertically.",
+      "commonMistakes": [
+        "Thinking UNION keeps duplicates",
+        "Confusing UNION with JOIN"
+      ],
+      "followUps": ["dbms-joins"]
+    },
+    {
+      "id": "dbms-views",
+      "topic": "SQL",
+      "concept": "Views and materialized views",
+      "difficulty": "medium",
+      "questions": [
+        "What is a view in SQL and why would you use one?",
+        "What is the difference between a view and a materialized view?"
+      ],
+      "keyPoints": [
+        "A view is a stored query that acts like a virtual table; it stores no data (standard view)",
+        "Uses: simplify complex queries, security (expose only some columns/rows), a stable interface over changing tables",
+        "Simple views (one table, no aggregates or DISTINCT) can be updatable",
+        "A materialized view stores the query result physically; reads are fast but it must be refreshed and can be stale",
+        "Materialized views suit expensive aggregations in reporting"
+      ],
+      "referenceAnswer": "A view is a named query that you can use like a table, but a normal view stores no data. Every time you query it, the underlying query runs. Views simplify complex joins, restrict what users can see, for example exposing salary-free employee data, and give applications a stable interface even if the underlying tables change. Simple single-table views can even be updated. A materialized view actually stores the result, so reads are fast, which is useful for expensive aggregations in reports. The trade-off is that it has to be refreshed and can be out of date between refreshes.",
+      "commonMistakes": [
+        "Saying a normal view stores a copy of the data",
+        "Assuming all views are updatable"
+      ],
+      "followUps": ["dbms-three-schema", "dbms-indexing"]
+    },
+    {
+      "id": "dbms-null-handling",
+      "topic": "SQL",
+      "concept": "NULL handling",
+      "difficulty": "medium",
+      "questions": [
+        "How does SQL treat NULL values in comparisons and aggregates?",
+        "Why does WHERE column = NULL not work?"
+      ],
+      "keyPoints": [
+        "NULL means unknown or missing, not zero or an empty string",
+        "Any comparison with NULL (=, <>, <) yields UNKNOWN, which WHERE treats as false",
+        "Use IS NULL / IS NOT NULL",
+        "Aggregates (SUM, AVG, MAX, COUNT(col)) ignore NULLs; COUNT(*) counts all rows",
+        "AVG ignores NULLs, so it can differ from SUM / COUNT(*)",
+        "COALESCE / IFNULL replace NULLs; NOT IN with a NULL in the list returns no rows"
+      ],
+      "referenceAnswer": "NULL means the value is unknown or missing. It isn't zero and it isn't an empty string. SQL uses three-valued logic, so any comparison with NULL, even NULL = NULL, gives UNKNOWN, and WHERE only keeps rows where the condition is true. That's why column = NULL matches nothing, and you need IS NULL. Aggregates skip NULLs: COUNT(column) ignores them while COUNT(*) counts every row, and AVG divides only by the non-null count. COALESCE lets you substitute a default value.",
+      "commonMistakes": [
+        "Using = NULL",
+        "Assuming COUNT(column) equals COUNT(*)"
+      ],
+      "followUps": ["dbms-subqueries", "dbms-constraints"]
+    },
+    {
+      "id": "dbms-constraints",
+      "topic": "SQL",
+      "concept": "Integrity constraints",
+      "difficulty": "easy",
+      "questions": [
+        "What constraints can you define on a table in SQL?",
+        "What is the difference between a PRIMARY KEY and a UNIQUE constraint?"
+      ],
+      "keyPoints": [
+        "NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT",
+        "PRIMARY KEY = UNIQUE + NOT NULL; only one per table",
+        "UNIQUE allows NULLs (in most databases, multiple NULLs); many UNIQUE constraints are allowed per table",
+        "The primary key is often the clustered index (e.g. InnoDB)",
+        "Constraints enforce data integrity at the database level, independent of application bugs"
+      ],
+      "referenceAnswer": "The main constraints are NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK for custom rules like age >= 18, and DEFAULT. A primary key is essentially UNIQUE plus NOT NULL, and a table can have only one. It's also what other tables reference, and in engines like InnoDB it determines the physical ordering. A table can have many UNIQUE constraints, and UNIQUE columns can contain NULLs. Most databases even allow multiple NULLs, since NULL isn't equal to NULL. Putting these rules in the database means they hold even if application code has bugs.",
+      "commonMistakes": [
+        "Saying UNIQUE columns can't be NULL",
+        "Saying a table can have multiple primary keys"
+      ],
+      "followUps": ["dbms-foreign-key", "dbms-keys"]
+    },
+    {
+      "id": "dbms-procedures-triggers",
+      "topic": "SQL",
+      "concept": "Stored procedures, functions and triggers",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between a stored procedure and a function?",
+        "What is a trigger? When would you use one, and what are the risks?"
+      ],
+      "keyPoints": [
+        "Stored procedure: precompiled set of SQL statements, called explicitly (CALL/EXEC); can have IN/OUT parameters and perform DML and transactions",
+        "Function: must return a value; can be used inside SQL expressions/SELECT; usually shouldn't modify data",
+        "Trigger: code that runs automatically on an event (INSERT/UPDATE/DELETE), BEFORE or AFTER, per row or per statement",
+        "Trigger uses: auditing/logging, enforcing complex rules, maintaining derived data",
+        "Risks: hidden logic, harder debugging, performance cost, cascading triggers"
+      ],
+      "referenceAnswer": "A stored procedure is a saved block of SQL that you call explicitly. It can take input and output parameters, modify data and manage transactions. A function must return a value and can be used inside a query, like in a SELECT list, and it's generally expected not to modify data. A trigger isn't called at all: the database runs it automatically before or after an insert, update or delete. Triggers are handy for audit logs or keeping derived columns in sync, but they hide logic from people reading the application code, make debugging harder, and add cost to every write, so they should be used sparingly.",
+      "commonMistakes": [
+        "Saying procedures must return a value",
+        "Not mentioning the downsides of triggers"
+      ],
+      "followUps": ["dbms-constraints", "dbms-acid"]
+    },
+    {
+      "id": "dbms-acid",
+      "topic": "Transactions",
+      "concept": "ACID properties",
+      "difficulty": "easy",
+      "questions": [
+        "What is a transaction? Explain the ACID properties.",
+        "Using a bank transfer, explain what each ACID property guarantees."
+      ],
+      "keyPoints": [
+        "A transaction is a logical unit of work that must execute completely or not at all",
+        "Atomicity: all or nothing; ensured with undo logs / rollback",
+        "Consistency: takes the database from one valid state to another, respecting constraints",
+        "Isolation: concurrent transactions don't see each other's intermediate state; ensured by concurrency control",
+        "Durability: once committed, changes survive crashes; ensured by write-ahead logging / redo",
+        "Bank transfer: debit and credit both happen or neither happens"
+      ],
+      "referenceAnswer": "A transaction is a group of operations treated as a single unit, like transferring 500 rupees: debit account A and credit account B. Atomicity means both happen or neither does, so a crash after the debit gets rolled back using the undo log. Consistency means the transaction moves the database between valid states, so the total money and all constraints still hold. Isolation means another transaction running at the same time never sees the half-done state where the money has left A but not reached B. Durability means once the transfer is committed, it survives a crash, which the database guarantees by writing the log to disk before acknowledging the commit.",
+      "commonMistakes": [
+        "Explaining consistency as the C in CAP",
+        "Not knowing how each property is implemented"
+      ],
+      "followUps": ["dbms-transaction-states", "dbms-isolation-levels", "dbms-recovery"]
+    },
+    {
+      "id": "dbms-transaction-states",
+      "topic": "Transactions",
+      "concept": "Transaction states",
+      "difficulty": "easy",
+      "questions": [
+        "What are the different states of a transaction?"
+      ],
+      "keyPoints": [
+        "Active: executing",
+        "Partially committed: after the final statement, before the changes are durable",
+        "Committed: completed successfully and made permanent",
+        "Failed: normal execution can't continue",
+        "Aborted: rolled back to the state before it started; can then be restarted or killed",
+        "Terminated: either committed or aborted"
+      ],
+      "referenceAnswer": "A transaction starts Active while it executes. After its last statement it's Partially Committed: the work is done, but it isn't yet guaranteed durable. Once the log records are safely written it becomes Committed. If something goes wrong it moves to Failed, then gets rolled back to Aborted, after which it can be restarted or discarded. Committed and Aborted are both terminal, so the transaction ends up Terminated either way.",
+      "commonMistakes": [
+        "Skipping the partially committed state",
+        "Saying a failed transaction goes straight to committed"
+      ],
+      "followUps": ["dbms-acid", "dbms-recovery"]
+    },
+    {
+      "id": "dbms-concurrency-problems",
+      "topic": "Concurrency Control",
+      "concept": "Dirty read, lost update, non-repeatable read, phantom read",
+      "difficulty": "medium",
+      "questions": [
+        "What problems can occur when transactions run concurrently without proper control?",
+        "What is the difference between a non-repeatable read and a phantom read?"
+      ],
+      "keyPoints": [
+        "Dirty read: reading data written by another transaction that has not committed (and may roll back)",
+        "Lost update: two transactions read and update the same value; one overwrites the other",
+        "Non-repeatable read: re-reading the same row gives a different value because another transaction updated it and committed",
+        "Phantom read: re-running a query returns a different set of rows because another transaction inserted or deleted matching rows",
+        "Non-repeatable concerns existing rows changing; phantom concerns rows appearing or disappearing"
+      ],
+      "referenceAnswer": "Without isolation, four classic problems show up. A dirty read is reading another transaction's uncommitted change, which might be rolled back. A lost update is when two transactions read the same balance, both modify it, and the second write silently overwrites the first. A non-repeatable read is reading the same row twice within one transaction and getting different values, because someone else updated and committed in between. A phantom read is running the same range query twice and getting a different set of rows, because someone inserted or deleted matching rows. The difference: non-repeatable reads are about existing rows changing, phantoms are about rows appearing or disappearing.",
+      "commonMistakes": [
+        "Confusing phantom reads with non-repeatable reads",
+        "Forgetting lost updates"
+      ],
+      "followUps": ["dbms-isolation-levels", "dbms-two-phase-locking"]
+    },
+    {
+      "id": "dbms-isolation-levels",
+      "topic": "Concurrency Control",
+      "concept": "Isolation levels",
+      "difficulty": "hard",
+      "questions": [
+        "What are the SQL isolation levels, and which anomalies does each one prevent?",
+        "Why wouldn't you just always use SERIALIZABLE?"
+      ],
+      "keyPoints": [
+        "Read Uncommitted: allows dirty, non-repeatable and phantom reads",
+        "Read Committed: prevents dirty reads (default in PostgreSQL, Oracle, SQL Server)",
+        "Repeatable Read: also prevents non-repeatable reads (default in MySQL InnoDB); phantoms are allowed by the standard",
+        "Serializable: prevents all three; equivalent to some serial order",
+        "Higher isolation means more locking/aborts, so lower concurrency and throughput",
+        "Many databases use MVCC (snapshots) so readers don't block writers"
+      ],
+      "referenceAnswer": "The four standard levels trade correctness for concurrency. Read Uncommitted allows even dirty reads. Read Committed blocks dirty reads but allows non-repeatable and phantom reads, and it's the default in PostgreSQL and Oracle. Repeatable Read also guarantees that rows you've read won't change, and it's MySQL InnoDB's default. The standard still allows phantoms there, though InnoDB largely prevents them in practice. Serializable prevents everything and behaves as if transactions ran one at a time. You don't always use Serializable because it causes more blocking, more deadlocks or serialization-failure retries, and lower throughput. Most applications pick the weakest level that's still correct for them. Many databases implement these levels with MVCC snapshots, so readers don't block writers.",
+      "commonMistakes": [
+        "Mixing up which anomaly each level prevents",
+        "Assuming the default level is Serializable"
+      ],
+      "followUps": ["dbms-concurrency-problems", "dbms-two-phase-locking", "dbms-serializability"]
+    },
+    {
+      "id": "dbms-serializability",
+      "topic": "Concurrency Control",
+      "concept": "Conflict and view serializability",
+      "difficulty": "hard",
+      "questions": [
+        "What is a serializable schedule?",
+        "How do you check whether a schedule is conflict serializable?"
+      ],
+      "keyPoints": [
+        "A schedule is serializable if its effect equals some serial execution of the same transactions",
+        "Two operations conflict if they belong to different transactions, access the same item, and at least one is a write",
+        "Conflict serializable: can be transformed into a serial schedule by swapping non-conflicting operations",
+        "Test: build a precedence graph (edge Ti to Tj if Ti's conflicting operation comes first); acyclic means conflict serializable",
+        "A topological order of the graph gives the equivalent serial order",
+        "View serializability is broader (includes blind writes); every conflict-serializable schedule is view serializable; testing view serializability is NP-complete"
+      ],
+      "referenceAnswer": "A schedule is serializable if its result is the same as running the transactions one after another in some order. The practical check is conflict serializability. Two operations conflict if they're from different transactions, touch the same data item, and at least one is a write. Build a precedence graph with a node per transaction and an edge from Ti to Tj whenever an operation of Ti conflicts with a later operation of Tj. If the graph has no cycle, the schedule is conflict serializable, and a topological sort gives the equivalent serial order. View serializability is a weaker condition that also accepts some schedules with blind writes, but testing it is NP-complete, so databases rely on conflict serializability.",
+      "commonMistakes": [
+        "Counting two reads as a conflict",
+        "Drawing precedence edges in the wrong direction"
+      ],
+      "followUps": ["dbms-recoverable-schedules", "dbms-two-phase-locking"]
+    },
+    {
+      "id": "dbms-recoverable-schedules",
+      "topic": "Concurrency Control",
+      "concept": "Recoverable and cascadeless schedules",
+      "difficulty": "hard",
+      "questions": [
+        "What is a recoverable schedule?",
+        "What is a cascading rollback, and how can it be avoided?"
+      ],
+      "keyPoints": [
+        "Recoverable: if Tj reads data written by Ti, then Ti must commit before Tj commits",
+        "Non-recoverable schedules can make it impossible to undo correctly after a failure",
+        "Cascading rollback: one transaction's abort forces aborting every transaction that read its uncommitted data",
+        "Cascadeless schedule: transactions only read committed data, so there are no cascading rollbacks",
+        "Strict schedule: no read or write of an item until the last transaction that wrote it commits or aborts; achieved by strict 2PL"
+      ],
+      "referenceAnswer": "A schedule is recoverable if, whenever Tj reads something Ti wrote, Ti commits before Tj does. Otherwise Tj could commit based on data that Ti later rolls back, and there'd be no correct way to undo it. Recoverable isn't enough, though, because of cascading rollbacks: if Ti aborts, every transaction that read its uncommitted writes must abort too, and so on down the chain. Cascadeless schedules avoid this by only letting transactions read committed data. Strict schedules go further and forbid even overwriting uncommitted data. Strict two-phase locking produces strict schedules, which is why databases use it.",
+      "commonMistakes": [
+        "Saying recoverable schedules prevent cascading rollbacks",
+        "Reversing the commit order condition"
+      ],
+      "followUps": ["dbms-two-phase-locking", "dbms-serializability"]
+    },
+    {
+      "id": "dbms-two-phase-locking",
+      "topic": "Concurrency Control",
+      "concept": "Two-phase locking",
+      "difficulty": "hard",
+      "questions": [
+        "What is two-phase locking and what does it guarantee?",
+        "What is the difference between basic 2PL and strict 2PL?"
+      ],
+      "keyPoints": [
+        "Shared (S) locks for reading, exclusive (X) locks for writing",
+        "Growing phase: acquire locks, release none; shrinking phase: release locks, acquire none",
+        "2PL guarantees conflict serializability",
+        "2PL does NOT prevent deadlocks",
+        "Basic 2PL can cause cascading rollbacks",
+        "Strict 2PL holds exclusive locks until commit/abort, avoiding cascading rollbacks; rigorous 2PL holds all locks until commit"
+      ],
+      "referenceAnswer": "Two-phase locking is a locking protocol where each transaction first acquires locks and never releases any (the growing phase), and then releases locks and never acquires any new ones (the shrinking phase). Transactions take shared locks to read and exclusive locks to write. Following this rule guarantees conflict serializability. It doesn't prevent deadlocks, since two transactions can still wait on each other's locks. Basic 2PL can also cause cascading rollbacks, because a transaction might release a write lock before committing. Strict 2PL fixes that by holding all exclusive locks until commit or abort, and that's the variant real databases use.",
+      "commonMistakes": [
+        "Claiming 2PL prevents deadlock",
+        "Not knowing why strict 2PL exists"
+      ],
+      "followUps": ["dbms-db-deadlock", "dbms-timestamp-ordering"]
+    },
+    {
+      "id": "dbms-timestamp-ordering",
+      "topic": "Concurrency Control",
+      "concept": "Timestamp ordering and MVCC",
+      "difficulty": "hard",
+      "questions": [
+        "How does timestamp-based concurrency control work?",
+        "What is MVCC and why do most modern databases use it?"
+      ],
+      "keyPoints": [
+        "Each transaction gets a timestamp when it starts; conflicting operations must follow timestamp order",
+        "Each item stores its last read and write timestamps; an operation that would violate the order causes a rollback (restart with a new timestamp)",
+        "No locks, so no deadlocks, but possibly many restarts",
+        "Thomas write rule: ignore obsolete writes instead of aborting",
+        "MVCC keeps multiple versions of each row; readers see a consistent snapshot without blocking writers",
+        "MVCC is used by PostgreSQL, MySQL InnoDB and Oracle; old versions need cleanup (vacuum)"
+      ],
+      "referenceAnswer": "In timestamp ordering, every transaction gets a timestamp at start, and the database ensures conflicting operations happen in timestamp order. Each item remembers the largest timestamps that have read and written it. If an older transaction tries to write something a younger one already read, the older one is rolled back and restarted. There are no locks, so no deadlocks, but there can be many restarts. MVCC, multi-version concurrency control, builds on this: instead of overwriting a row, the database keeps versions, and each transaction reads the snapshot that was valid when it started. Readers never block writers and writers never block readers, which is why PostgreSQL, InnoDB and Oracle use it. The cost is storing old versions and cleaning them up later.",
+      "commonMistakes": [
+        "Saying timestamp ordering can deadlock",
+        "Not knowing MVCC is what modern databases use"
+      ],
+      "followUps": ["dbms-isolation-levels", "dbms-two-phase-locking"]
+    },
+    {
+      "id": "dbms-db-deadlock",
+      "topic": "Concurrency Control",
+      "concept": "Deadlock handling in databases",
+      "difficulty": "hard",
+      "questions": [
+        "How do databases handle deadlocks between transactions?",
+        "Explain the wait-die and wound-wait schemes."
+      ],
+      "keyPoints": [
+        "Deadlocks happen naturally with locking (e.g. 2PL)",
+        "Detection: maintain a wait-for graph; on a cycle, abort a victim (the youngest or cheapest to undo)",
+        "Timeout-based: abort transactions that wait too long",
+        "Wait-die (non-preemptive): an older transaction waits for a younger one; a younger requester dies (aborts)",
+        "Wound-wait (preemptive): an older requester wounds (aborts) the younger holder; a younger requester waits",
+        "Aborted transactions restart with their original timestamp to avoid starvation"
+      ],
+      "referenceAnswer": "Since locking leads to deadlocks, databases either detect them or prevent them. Most production databases detect them: they maintain a wait-for graph, and when they find a cycle they abort one victim, usually the transaction that's cheapest to roll back, and the application retries. Prevention schemes use transaction timestamps. In wait-die, an older transaction may wait for a younger one, but a younger transaction that requests a lock held by an older one is aborted. In wound-wait, it's the reverse: an older transaction preempts, or wounds, the younger lock holder, while a younger requester waits. In both schemes a restarted transaction keeps its original timestamp, so it eventually becomes the oldest and can't starve.",
+      "commonMistakes": [
+        "Mixing up wait-die and wound-wait",
+        "Forgetting that restarted transactions keep their old timestamp"
+      ],
+      "followUps": ["dbms-two-phase-locking", "dbms-recovery"]
+    },
+    {
+      "id": "dbms-recovery",
+      "topic": "Transactions",
+      "concept": "Log-based recovery and write-ahead logging",
+      "difficulty": "hard",
+      "questions": [
+        "How does a database recover after a crash?",
+        "What is write-ahead logging and why is it needed?",
+        "What are checkpoints used for?"
+      ],
+      "keyPoints": [
+        "The log records each change (transaction id, item, old value, new value) plus begin/commit/abort records",
+        "Write-ahead logging: log records must reach stable storage before the corresponding data page is written",
+        "A commit is durable once its commit record is flushed to the log",
+        "On recovery: REDO the changes of committed transactions, UNDO the changes of uncommitted ones",
+        "Checkpoints limit how much of the log must be scanned at recovery",
+        "ARIES is the standard algorithm (analysis, redo, undo)"
+      ],
+      "referenceAnswer": "Databases keep a log of every change, recording which transaction changed what, with the old and new values. The key rule is write-ahead logging: a change's log record must be safely on disk before the modified data page is written, and a transaction counts as committed once its commit record is flushed. After a crash, the recovery process reads the log and redoes the work of committed transactions whose pages may not have reached disk, which gives durability. It undoes the changes of transactions that never committed, which gives atomicity. Checkpoints periodically record a consistent point, so recovery doesn't have to replay the log from the beginning. ARIES is the standard algorithm, with analysis, redo and undo passes.",
+      "commonMistakes": [
+        "Thinking data pages are written to disk at commit time",
+        "Mixing up which transactions get redone and which get undone"
+      ],
+      "followUps": ["dbms-acid", "dbms-transaction-states"]
+    },
+    {
+      "id": "dbms-indexing",
+      "topic": "Indexing",
+      "concept": "Indexing",
+      "difficulty": "medium",
+      "questions": [
+        "What is an index and how does it speed up queries?",
+        "Why not just add an index on every column?",
+        "When would the database not use an index even if one exists?"
+      ],
+      "keyPoints": [
+        "An index is a separate data structure (usually a B+ tree) that maps key values to row locations",
+        "Turns a full table scan (O(n)) into a logarithmic lookup",
+        "Costs: extra storage, and slower INSERT/UPDATE/DELETE because the index must be maintained",
+        "Dense index: an entry per row; sparse index: an entry per block (needs sorted data)",
+        "Composite indexes follow the leftmost-prefix rule",
+        "May not be used: low-selectivity columns, functions applied to the column, leading-wildcard LIKE '%x', type mismatches, small tables"
+      ],
+      "referenceAnswer": "An index is an extra data structure, usually a B+ tree, that keeps a column's values sorted with pointers to the rows, so the database can find matches in logarithmic time instead of scanning the whole table. You don't index everything because every index takes space and has to be updated on every insert, update and delete, so writes slow down. Indexes also don't always help. The optimizer skips them for low-selectivity columns like gender, where a scan is cheaper. They also can't be used when you wrap the column in a function, use a LIKE with a leading wildcard, or query a composite index without its leftmost column.",
+      "commonMistakes": [
+        "Saying indexes only have benefits",
+        "Not knowing the leftmost-prefix rule for composite indexes"
+      ],
+      "followUps": ["dbms-clustered-index", "dbms-b-plus-tree", "dbms-hash-index"]
+    },
+    {
+      "id": "dbms-clustered-index",
+      "topic": "Indexing",
+      "concept": "Clustered vs non-clustered index",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between a clustered and a non-clustered index?",
+        "Why can a table have only one clustered index?"
+      ],
+      "keyPoints": [
+        "Clustered index: the table's rows are physically stored in the order of the index key; the leaf level is the data itself",
+        "Only one per table, because data can be physically ordered only one way",
+        "Non-clustered (secondary) index: a separate structure whose leaves hold the key plus a pointer (row id or primary key) to the row",
+        "Many non-clustered indexes are allowed per table",
+        "Clustered indexes are great for range queries; non-clustered lookups may need an extra step to fetch the row",
+        "In MySQL InnoDB the primary key is the clustered index"
+      ],
+      "referenceAnswer": "A clustered index determines the physical order of the rows: the table itself is stored sorted by that key, and the index's leaf level is the actual data. Since rows can only be physically sorted one way, a table gets only one clustered index. A non-clustered index is a separate structure holding the key and a pointer back to the row, so a table can have many. Range queries on the clustered key are very efficient because matching rows sit next to each other. A non-clustered lookup finds the key and then needs an extra step to fetch the row, unless the index covers all the columns the query needs. In InnoDB the primary key is always the clustered index.",
+      "commonMistakes": [
+        "Saying a table can have several clustered indexes",
+        "Thinking the clustered index is a separate copy of the table"
+      ],
+      "followUps": ["dbms-b-plus-tree", "dbms-indexing"]
+    },
+    {
+      "id": "dbms-b-plus-tree",
+      "topic": "Indexing",
+      "concept": "B-tree vs B+ tree",
+      "difficulty": "hard",
+      "questions": [
+        "Why do databases use B+ trees for indexes?",
+        "What is the difference between a B-tree and a B+ tree?"
+      ],
+      "keyPoints": [
+        "Both are balanced, multi-way search trees with high fan-out, designed for disk/block access",
+        "B-tree: keys and data pointers can be in internal nodes",
+        "B+ tree: all data pointers are in the leaves; internal nodes hold only routing keys",
+        "B+ tree leaves are linked in a list, so range scans and ordered traversal are fast",
+        "Internal nodes fit more keys, giving higher fan-out and a shallower tree, so fewer disk I/Os",
+        "Every lookup has the same cost (always reaches a leaf)"
+      ],
+      "referenceAnswer": "Databases need structures that minimize disk reads, so they use wide, balanced trees where each node fills a disk page and holds many keys. That keeps the tree only three or four levels deep even for millions of rows. In a B-tree, data pointers can live in any node. In a B+ tree, internal nodes contain only keys for routing, and all the data pointers are in the leaves, which are linked together in order. That brings two advantages: internal nodes fit more keys, so the tree is shallower, and range queries are fast, because once you find the start you just walk along the leaf chain. That's why almost every relational database uses B+ trees.",
+      "commonMistakes": [
+        "Confusing a B-tree with a binary tree",
+        "Not mentioning the linked leaves and range queries"
+      ],
+      "followUps": ["dbms-hash-index", "dbms-clustered-index"]
+    },
+    {
+      "id": "dbms-hash-index",
+      "topic": "Indexing",
+      "concept": "Hash index vs B+ tree index",
+      "difficulty": "medium",
+      "questions": [
+        "When would you use a hash index instead of a B+ tree index?"
+      ],
+      "keyPoints": [
+        "A hash index uses a hash function to map keys to buckets: average O(1) equality lookups",
+        "Can't do range queries, ORDER BY, or prefix matching, since hashing destroys order",
+        "B+ trees support equality, ranges, sorting and prefixes in O(log n)",
+        "Hash indexes suffer from collisions and resizing",
+        "Good for exact-match lookups like key-value access; B+ trees are the general-purpose default"
+      ],
+      "referenceAnswer": "A hash index hashes the key into a bucket, so exact-match lookups like WHERE id = 42 are constant time on average. Hashing scrambles order, though, so it can't help with ranges, sorting or prefix searches. A B+ tree handles equality, ranges, ORDER BY and prefixes, all in logarithmic time. So hash indexes make sense for pure equality lookups on a key, like a key-value store or in-memory lookups, while B+ trees are the safe general-purpose default.",
+      "commonMistakes": [
+        "Saying hash indexes support range queries",
+        "Saying hash indexes are always faster"
+      ],
+      "followUps": ["dbms-b-plus-tree", "dbms-indexing"]
+    },
+    {
+      "id": "dbms-query-optimization",
+      "topic": "Indexing",
+      "concept": "Query optimization basics",
+      "difficulty": "medium",
+      "questions": [
+        "A query is running slowly. How would you go about optimizing it?",
+        "What does EXPLAIN tell you?"
+      ],
+      "keyPoints": [
+        "Use EXPLAIN / EXPLAIN ANALYZE to see the execution plan: scans vs index use, join order and methods, estimated vs actual rows",
+        "Add suitable indexes on WHERE, JOIN and ORDER BY columns",
+        "Avoid SELECT *; fetch only the needed columns (enables covering indexes)",
+        "Avoid functions on indexed columns and leading-wildcard LIKE",
+        "Rewrite correlated subqueries as joins; paginate large results",
+        "Keep table statistics up to date; consider denormalization or caching for hot read paths"
+      ],
+      "referenceAnswer": "I'd start with EXPLAIN, or EXPLAIN ANALYZE, to see the actual plan: whether it's doing a full table scan, which indexes it uses, the join order and method, and whether estimated row counts are way off from actual ones. Common fixes are adding an index on the columns used in WHERE, JOIN and ORDER BY, selecting only the columns I need instead of SELECT *, and not wrapping indexed columns in functions, which stops the index from being used. Rewriting correlated subqueries as joins and paginating large results also help. If statistics are stale, refreshing them can fix a bad plan. Beyond that, caching or denormalizing hot data.",
+      "commonMistakes": [
+        "Guessing at fixes without looking at the execution plan",
+        "Only saying 'add an index'"
+      ],
+      "followUps": ["dbms-indexing", "dbms-sql-execution-order"]
+    },
+    {
+      "id": "dbms-sql-vs-nosql",
+      "topic": "Modern Databases",
+      "concept": "SQL vs NoSQL",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between SQL and NoSQL databases?",
+        "When would you choose MongoDB over MySQL, and vice versa?"
+      ],
+      "keyPoints": [
+        "SQL: relational tables, fixed schema, joins, strong ACID transactions, traditionally scaled vertically",
+        "NoSQL: flexible schema; types: document (MongoDB), key-value (Redis), wide-column (Cassandra), graph (Neo4j)",
+        "NoSQL is designed for horizontal scaling and often favours availability/eventual consistency (BASE)",
+        "Modern systems blur the lines (MongoDB supports multi-document transactions; SQL databases scale out)",
+        "Choose SQL for relational data with integrity needs (banking, orders); NoSQL for flexible, rapidly changing or very high-volume data (logs, catalogs, caching, social graphs)"
+      ],
+      "referenceAnswer": "SQL databases store data in tables with a fixed schema, support joins, and give strong ACID transactions, which suits highly relational data where integrity matters, like payments or orders. NoSQL is a family: document stores like MongoDB, key-value stores like Redis, wide-column stores like Cassandra, and graph databases. They offer flexible schemas and are built to scale horizontally across many machines, often relaxing consistency to eventual consistency. I'd pick MySQL or PostgreSQL when data has clear relationships and needs transactions, and MongoDB when the structure varies a lot between records or changes fast, like product catalogs or event data. The lines have blurred, though: MongoDB supports transactions now, and SQL databases can shard.",
+      "commonMistakes": [
+        "Saying NoSQL has no schema at all or can't do transactions",
+        "Saying NoSQL is always faster"
+      ],
+      "followUps": ["dbms-cap-theorem", "dbms-sharding-replication"]
+    },
+    {
+      "id": "dbms-cap-theorem",
+      "topic": "Modern Databases",
+      "concept": "CAP theorem",
+      "difficulty": "hard",
+      "questions": [
+        "Explain the CAP theorem.",
+        "Is the C in CAP the same as the C in ACID?"
+      ],
+      "keyPoints": [
+        "In a distributed system: Consistency (every read sees the latest write), Availability (every request gets a non-error response), Partition tolerance (keeps working despite network splits)",
+        "Network partitions are unavoidable, so the real choice is between C and A during a partition",
+        "CP systems reject some requests to stay consistent (e.g. HBase, ZooKeeper); AP systems stay available but may return stale data (e.g. Cassandra, DynamoDB)",
+        "The C in CAP means linearizability; the C in ACID means integrity constraints hold: different concepts",
+        "PACELC extends it: even without partitions, there's a latency vs consistency trade-off"
+      ],
+      "referenceAnswer": "The CAP theorem says a distributed data store can't guarantee all three of consistency, meaning every read sees the latest write, availability, meaning every request gets a response, and partition tolerance, meaning it keeps working when the network splits. Since network partitions will happen in any real distributed system, the practical choice is what to give up during a partition. A CP system refuses some requests to avoid serving stale data. An AP system keeps answering but may return out-of-date data and reconciles later, as Cassandra does. The C in CAP is not the C in ACID: CAP's is about all replicas agreeing, ACID's is about constraints staying valid. PACELC adds that even with no partition, you trade latency against consistency.",
+      "commonMistakes": [
+        "Saying you pick any two of the three freely",
+        "Equating CAP consistency with ACID consistency"
+      ],
+      "followUps": ["dbms-sharding-replication", "dbms-sql-vs-nosql"]
+    },
+    {
+      "id": "dbms-sharding-replication",
+      "topic": "Modern Databases",
+      "concept": "Sharding vs replication",
+      "difficulty": "hard",
+      "questions": [
+        "What is the difference between sharding and replication?",
+        "How would you choose a shard key, and what can go wrong?"
+      ],
+      "keyPoints": [
+        "Replication: the same data is copied to multiple servers; improves availability and read scaling",
+        "Leader-follower (master-slave): writes go to the leader, reads can go to followers; replication lag means followers may be stale",
+        "Sharding (horizontal partitioning): different rows go to different servers; scales writes and storage",
+        "The shard key decides data placement; a good key spreads load evenly and keeps common queries on one shard",
+        "Problems: hot shards (skewed keys), cross-shard joins and transactions are hard, resharding is painful",
+        "Consistent hashing reduces data movement when adding nodes; production systems usually combine sharding and replication"
+      ],
+      "referenceAnswer": "Replication keeps copies of the same data on several servers. It improves availability, since a replica can take over, and read throughput, since reads can go to followers, but followers may lag behind the leader and serve stale data. Sharding splits the data itself, putting different rows on different servers based on a shard key, so it scales writes and storage beyond one machine. Choosing the shard key is the hard part. It should spread load evenly and keep the common queries on a single shard. Something like user_id often works, while something like creation date creates a hot shard that takes all the new writes. The downsides of sharding are cross-shard joins and transactions, and painful resharding. Real systems usually do both: shard for scale, and replicate each shard for availability.",
+      "commonMistakes": [
+        "Using sharding and replication interchangeably",
+        "Ignoring hot shards and cross-shard queries"
+      ],
+      "followUps": ["dbms-cap-theorem", "dbms-sql-vs-nosql"]
+    },
+    {
+      "id": "dbms-vs-rdbms",
+      "topic": "DBMS Basics",
+      "concept": "DBMS vs RDBMS",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between a DBMS and an RDBMS?"
+      ],
+      "keyPoints": [
+        "DBMS is any system for managing data; data may be stored as files, hierarchies, networks, documents",
+        "RDBMS stores data in tables (relations) of rows and columns, with relationships expressed through keys",
+        "RDBMS supports primary/foreign keys, integrity constraints, normalization and SQL",
+        "RDBMS typically provides full ACID transactions and multi-user concurrency",
+        "Examples: RDBMS: MySQL, PostgreSQL, Oracle; non-relational DBMS: MongoDB, older hierarchical systems"
+      ],
+      "referenceAnswer": "A DBMS is the general term for any software that stores and manages data, whatever its model: hierarchical, network, document, key-value and so on. An RDBMS is a specific kind of DBMS based on the relational model: data lives in tables, relationships are expressed with primary and foreign keys, integrity is enforced with constraints, and you query with SQL. RDBMSs also typically give full ACID transactions and handle many concurrent users safely. So every RDBMS is a DBMS, but not the other way round. MySQL and PostgreSQL are RDBMSs, while MongoDB is a DBMS but not relational.",
+      "commonMistakes": [
+        "Saying a DBMS can't support multiple users",
+        "Saying MongoDB is an RDBMS"
+      ],
+      "followUps": ["dbms-vs-file-system", "dbms-keys"]
+    },
+    {
+      "id": "dbms-window-functions",
+      "topic": "SQL",
+      "concept": "Window functions",
+      "difficulty": "medium",
+      "questions": [
+        "What are window functions? How are they different from GROUP BY?",
+        "How would you find the top 3 highest-paid employees in each department?"
+      ],
+      "keyPoints": [
+        "A window function computes a value over a set of rows related to the current row, without collapsing the rows",
+        "Syntax: function() OVER (PARTITION BY ... ORDER BY ...)",
+        "GROUP BY returns one row per group; window functions keep every row and add a computed column",
+        "Ranking: ROW_NUMBER, RANK, DENSE_RANK; offsets: LAG, LEAD; aggregates as windows: SUM() OVER (running totals)",
+        "Top N per group: DENSE_RANK() OVER (PARTITION BY dept ORDER BY salary DESC) in a subquery/CTE, then filter rank <= 3",
+        "Window functions can't be used directly in WHERE (they're computed after WHERE), hence the subquery"
+      ],
+      "referenceAnswer": "Window functions calculate something across a group of related rows but, unlike GROUP BY, they don't collapse those rows. Every row stays in the result with an extra computed value. You define the window with OVER, using PARTITION BY to split into groups and ORDER BY to order within each. Common ones are ROW_NUMBER, RANK and DENSE_RANK for ranking, LAG and LEAD for comparing with the previous or next row, and SUM OVER for running totals. For the top three salaries per department, I'd compute DENSE_RANK() OVER (PARTITION BY dept_id ORDER BY salary DESC) in a CTE, then select rows where the rank is at most 3. It needs the CTE because window functions are evaluated after WHERE, so you can't filter on them directly.",
+      "commonMistakes": [
+        "Filtering on a window function directly in WHERE",
+        "Thinking window functions reduce the number of rows like GROUP BY"
+      ],
+      "followUps": ["dbms-nth-highest-salary", "dbms-cte"]
+    },
+    {
+      "id": "dbms-cte",
+      "topic": "SQL",
+      "concept": "Common table expressions and recursive CTEs",
+      "difficulty": "medium",
+      "questions": [
+        "What is a CTE, and why would you use one instead of a subquery?",
+        "How would you fetch an entire management chain (employee, manager, manager's manager...) using SQL?"
+      ],
+      "keyPoints": [
+        "A CTE (WITH name AS (...)) is a named temporary result set that exists for one statement",
+        "Improves readability; complex queries become a sequence of named steps; can be referenced multiple times",
+        "Recursive CTE: an anchor member plus a recursive member joined with UNION ALL; repeats until no new rows",
+        "Used for hierarchies and graphs: org charts, category trees, bill of materials",
+        "Needs a terminating condition to avoid infinite recursion (many databases also have recursion limits)"
+      ],
+      "referenceAnswer": "A CTE is a named, temporary result defined with WITH at the start of a query. It exists only for that statement. Its main value is readability: you break a complicated query into named steps that read top to bottom, and you can reference the same CTE more than once. Recursive CTEs add something subqueries can't do: walking hierarchies. For a management chain, the anchor part selects the starting employee, and the recursive part joins the CTE back to the employees table on manager_id, adding each manager in turn. They're combined with UNION ALL, and the recursion stops when an employee has no manager. The same pattern handles category trees or any parent-child data.",
+      "commonMistakes": [
+        "Thinking a CTE is stored permanently like a table or view",
+        "Forgetting the termination condition in recursion"
+      ],
+      "followUps": ["dbms-window-functions", "dbms-subqueries"]
+    },
+    {
+      "id": "dbms-duplicate-rows",
+      "topic": "SQL",
+      "concept": "Finding and deleting duplicate rows",
+      "difficulty": "medium",
+      "questions": [
+        "How would you find duplicate emails in a users table?",
+        "How would you delete duplicate rows but keep one copy of each?"
+      ],
+      "keyPoints": [
+        "Find duplicates: SELECT email, COUNT(*) FROM users GROUP BY email HAVING COUNT(*) > 1",
+        "Delete keeping one: number the rows with ROW_NUMBER() OVER (PARTITION BY email ORDER BY id) and delete those with row number > 1",
+        "Alternative self-join delete: delete u1 where there is a u2 with the same email and a smaller id",
+        "Choose explicitly which copy to keep (e.g. lowest id or most recent)",
+        "Prevent it recurring with a UNIQUE constraint"
+      ],
+      "referenceAnswer": "To find duplicates, group by the column and keep groups with more than one row: SELECT email, COUNT(*) FROM users GROUP BY email HAVING COUNT(*) > 1. To delete duplicates while keeping one, I'd number the rows within each email group with ROW_NUMBER() OVER (PARTITION BY email ORDER BY id), which gives the lowest id row number 1, and then delete every row whose number is greater than 1. In MySQL you can also do a self-join delete, removing any row where another row has the same email and a smaller id. Afterwards, add a UNIQUE constraint on email so it can't happen again.",
+      "commonMistakes": [
+        "Deleting all copies instead of keeping one",
+        "Fixing the data without adding a constraint to prevent recurrence"
+      ],
+      "followUps": ["dbms-window-functions", "dbms-constraints"]
+    },
+    {
+      "id": "dbms-char-vs-varchar",
+      "topic": "SQL",
+      "concept": "CHAR vs VARCHAR",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between CHAR and VARCHAR?",
+        "When would you use CHAR?"
+      ],
+      "keyPoints": [
+        "CHAR(n): fixed length; shorter values are padded with spaces to n characters",
+        "VARCHAR(n): variable length up to n; stores only the actual characters plus a small length prefix",
+        "CHAR suits values that are always the same length (country codes, fixed-length IDs)",
+        "VARCHAR saves space for values whose length varies (names, emails)",
+        "TEXT/CLOB types are used for large text"
+      ],
+      "referenceAnswer": "CHAR is fixed-length: a CHAR(10) column always uses space for 10 characters, padding shorter values with spaces. VARCHAR is variable-length: a VARCHAR(10) stores only the characters actually present, plus a byte or two recording the length. So VARCHAR saves space when lengths vary, like names and email addresses, and CHAR makes sense when every value has the same length anyway, like two-letter country codes or fixed-format codes. For very long text there are TEXT types.",
+      "commonMistakes": [
+        "Saying VARCHAR always uses n characters of storage",
+        "Using CHAR for variable-length data like names"
+      ],
+      "followUps": ["dbms-constraints"]
+    },
+    {
+      "id": "dbms-count-variants",
+      "topic": "SQL",
+      "concept": "COUNT(*) vs COUNT(1) vs COUNT(column)",
+      "difficulty": "easy",
+      "questions": [
+        "What is the difference between COUNT(*), COUNT(1) and COUNT(column_name)?"
+      ],
+      "keyPoints": [
+        "COUNT(*) counts all rows, including rows with NULLs",
+        "COUNT(1) also counts all rows; in modern databases it performs the same as COUNT(*)",
+        "COUNT(column) counts only rows where that column is NOT NULL",
+        "COUNT(DISTINCT column) counts unique non-NULL values"
+      ],
+      "referenceAnswer": "COUNT(*) counts every row. COUNT(1) does exactly the same thing: 1 is just a constant that's never null, and modern optimizers treat the two identically, so the idea that COUNT(1) is faster is a myth. COUNT(column) is the one that behaves differently: it counts only rows where that column isn't NULL. So on a table where some users have no phone number, COUNT(*) and COUNT(phone) give different answers. COUNT(DISTINCT column) counts the unique non-null values.",
+      "commonMistakes": [
+        "Saying COUNT(1) is faster than COUNT(*)",
+        "Assuming COUNT(column) counts NULL values"
+      ],
+      "followUps": ["dbms-null-handling", "dbms-where-vs-having"]
+    },
+    {
+      "id": "dbms-employee-manager-query",
+      "topic": "SQL",
+      "concept": "Self-join queries: employees and managers",
+      "difficulty": "easy",
+      "questions": [
+        "Given Employee(id, name, salary, manager_id), find employees who earn more than their manager.",
+        "How would you list every employee alongside their manager's name, including employees with no manager?"
+      ],
+      "keyPoints": [
+        "A self-join treats the same table as two roles using aliases (e for employee, m for manager)",
+        "Earn more than manager: SELECT e.name FROM Employee e JOIN Employee m ON e.manager_id = m.id WHERE e.salary > m.salary",
+        "Include employees with no manager: use LEFT JOIN, so the manager's columns are NULL",
+        "The inner join automatically excludes employees whose manager_id is NULL"
+      ],
+      "referenceAnswer": "This is a self-join: the same table is used twice, with aliases for the two roles. To find employees earning more than their manager: SELECT e.name FROM Employee e JOIN Employee m ON e.manager_id = m.id WHERE e.salary > m.salary. Here e is the employee row and m is the manager row it points to. To list everyone with their manager's name, including the CEO who has no manager, change it to a LEFT JOIN, so employees without a manager still appear with NULL for the manager name. With an inner join they'd silently drop out.",
+      "commonMistakes": [
+        "Joining on the wrong direction (m.manager_id = e.id)",
+        "Using an inner join when employees without managers must be included"
+      ],
+      "followUps": ["dbms-joins", "dbms-cte"]
+    },
+    {
+      "id": "dbms-sql-injection",
+      "topic": "SQL",
+      "concept": "SQL injection and prepared statements",
+      "difficulty": "medium",
+      "questions": [
+        "What is SQL injection? Give an example.",
+        "How do prepared statements prevent SQL injection?"
+      ],
+      "keyPoints": [
+        "SQL injection happens when user input is concatenated into a SQL string, so input can change the query's structure",
+        "Example: a password of ' OR '1'='1 turns the WHERE clause into something that's always true",
+        "Consequences: bypassing login, reading or deleting data, sometimes running commands",
+        "Prepared/parameterized statements send the query structure and the values separately, so input is always treated as data, never as SQL",
+        "Also: ORMs/query builders, input validation, least-privilege DB accounts",
+        "Escaping by hand is error-prone; NoSQL databases can have injection problems too"
+      ],
+      "referenceAnswer": "SQL injection happens when an application builds a query by pasting user input into the SQL string. If a login query is built as ... WHERE username = 'input' AND password = 'input', an attacker can type ' OR '1'='1 as the password, and the condition becomes always true, logging them in without a password. Worse inputs can read other tables or drop them. The real fix is parameterized queries, or prepared statements: the query text is sent with placeholders, and the values are sent separately, so the database never interprets the input as SQL, whatever characters it contains. On top of that: validate input, use an ORM, and give the application's database user only the permissions it needs. NoSQL databases like MongoDB can have similar injection issues if raw user objects are passed into queries.",
+      "commonMistakes": [
+        "Saying input escaping alone is the best defence",
+        "Thinking NoSQL databases are immune"
+      ],
+      "followUps": ["dbms-procedures-triggers", "dbms-connection-pooling"]
+    },
+    {
+      "id": "dbms-composite-covering-index",
+      "topic": "Indexing",
+      "concept": "Composite and covering indexes",
+      "difficulty": "hard",
+      "questions": [
+        "Does column order matter in a composite index? Explain the leftmost prefix rule.",
+        "What is a covering index?"
+      ],
+      "keyPoints": [
+        "A composite index on (a, b, c) is sorted by a, then b within a, then c within b",
+        "Leftmost prefix rule: it can serve filters on a, (a, b), or (a, b, c), but not on b or c alone",
+        "Put equality-filtered columns first and range-filtered columns after; a range condition stops later columns from being used for seeking",
+        "A covering index contains every column a query needs, so the database answers from the index alone (index-only scan) without reading the table",
+        "Trade-off: wider indexes use more space and slow down writes"
+      ],
+      "referenceAnswer": "Yes, order matters a lot. An index on (a, b, c) is sorted by a first, then by b within each a, then by c. It's like a phone book sorted by last name then first name: you can look up a last name, or a last name plus a first name, but not a first name on its own. That's the leftmost prefix rule, so this index helps queries filtering on a, on a and b, or on all three, but not on b alone. Columns compared with equality should come first, because once you hit a range condition like b > 10, the columns after it can't narrow the search further. A covering index is one that contains every column the query needs, so the database can answer straight from the index without going back to the table rows. That can be a big win, at the cost of a wider index and slower writes.",
+      "commonMistakes": [
+        "Saying an index on (a, b) helps a query filtering only on b",
+        "Not knowing what a covering index is"
+      ],
+      "followUps": ["dbms-indexing", "dbms-query-optimization"]
+    },
+    {
+      "id": "dbms-optimistic-pessimistic",
+      "topic": "Concurrency Control",
+      "concept": "Optimistic vs pessimistic locking",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between optimistic and pessimistic locking?",
+        "How would you prevent two users from overwriting each other's edits to the same record?"
+      ],
+      "keyPoints": [
+        "Pessimistic: lock the data when reading it so no one else can change it until you finish (e.g. SELECT ... FOR UPDATE)",
+        "Pessimistic suits high contention but reduces concurrency and can cause deadlocks",
+        "Optimistic: no lock while reading; keep a version number (or timestamp) column",
+        "On update: UPDATE ... SET ..., version = version + 1 WHERE id = ? AND version = ?; if 0 rows are affected, someone else changed it, so retry or show a conflict",
+        "Optimistic suits low contention and web apps where users take a long time between read and write",
+        "ORMs (e.g. Mongoose's versionKey, JPA's @Version) support optimistic locking"
+      ],
+      "referenceAnswer": "Pessimistic locking assumes conflicts will happen, so it locks the row as soon as you read it, for example with SELECT ... FOR UPDATE, and others have to wait until you commit. It's safe under heavy contention, but it blocks other users and can deadlock. Optimistic locking assumes conflicts are rare, so it doesn't lock at all. Instead each row has a version number. You read the row along with its version, and when you save you say: update this row and increment the version, but only where the version is still what I read. If another user saved in between, the version no longer matches, zero rows are updated, and the application tells the user there's a conflict or retries. For a typical web form where someone may take minutes to edit, optimistic locking is the right choice, since holding a database lock that long would be terrible.",
+      "commonMistakes": [
+        "Saying optimistic locking uses database locks",
+        "Holding pessimistic locks across user think-time"
+      ],
+      "followUps": ["dbms-lock-granularity", "dbms-concurrency-problems"]
+    },
+    {
+      "id": "dbms-lock-granularity",
+      "topic": "Concurrency Control",
+      "concept": "Lock types and granularity",
+      "difficulty": "hard",
+      "questions": [
+        "What are shared and exclusive locks?",
+        "What is lock granularity, and what are intention locks?"
+      ],
+      "keyPoints": [
+        "Shared (S) lock: for reading; many transactions can hold S locks on the same item",
+        "Exclusive (X) lock: for writing; incompatible with any other lock",
+        "Granularity: database, table, page or row level",
+        "Finer granularity (row) means more concurrency but more locking overhead; coarser (table) means less overhead but more blocking",
+        "Lock escalation: converting many row locks into one table lock to save resources",
+        "Intention locks (IS, IX) at table level signal that row-level locks exist below, so a table lock request can be checked quickly without scanning every row"
+      ],
+      "referenceAnswer": "A shared lock is taken for reading, and any number of transactions can hold shared locks on the same data at once. An exclusive lock is taken for writing, and it's incompatible with every other lock, so a writer waits for readers and vice versa. Granularity is how much data one lock covers: a row, a page, a table or the whole database. Row-level locks allow the most concurrency, since two transactions can update different rows of the same table, but managing millions of locks costs memory and CPU, which is why databases sometimes escalate many row locks into one table lock. Intention locks make mixing granularities efficient. Before locking a row, a transaction places an intention lock on the table, so if someone later wants to lock the whole table, the database can see immediately that rows inside are locked, without checking every row.",
+      "commonMistakes": [
+        "Saying shared locks block other readers",
+        "Not knowing why intention locks exist"
+      ],
+      "followUps": ["dbms-two-phase-locking", "dbms-optimistic-pessimistic"]
+    },
+    {
+      "id": "dbms-acid-vs-base",
+      "topic": "Modern Databases",
+      "concept": "ACID vs BASE",
+      "difficulty": "medium",
+      "questions": [
+        "What is BASE, and how does it compare to ACID?",
+        "What does eventual consistency mean? Give an example."
+      ],
+      "keyPoints": [
+        "BASE: Basically Available, Soft state, Eventually consistent",
+        "Common in distributed NoSQL systems that prioritize availability and partition tolerance",
+        "Eventual consistency: if no new writes happen, all replicas eventually converge to the same value; reads may temporarily be stale",
+        "ACID prioritizes correctness and immediate consistency; BASE prioritizes availability and scale",
+        "Example: a like count or a social media feed may show slightly different values on different servers for a moment",
+        "Choice depends on the domain: payments need ACID; view counters can tolerate BASE"
+      ],
+      "referenceAnswer": "BASE stands for Basically Available, Soft state, Eventually consistent, and it's the philosophy behind many distributed NoSQL systems. Instead of guaranteeing that every read sees the latest write, like ACID, a BASE system stays available and accepts writes even when replicas can't talk to each other, and promises only that the replicas will eventually agree once updates stop. For example, when you like a post, a friend on another server might see the old like count for a second or two. That's fine for likes, view counts or feeds, and it lets the system scale across data centres. It's not fine for a bank balance or seat booking, where you need ACID's immediate consistency.",
+      "commonMistakes": [
+        "Saying eventual consistency means data may be lost",
+        "Saying BASE is simply the opposite of ACID with no trade-off reasoning"
+      ],
+      "followUps": ["dbms-cap-theorem", "dbms-sql-vs-nosql"]
+    },
+    {
+      "id": "dbms-oltp-olap",
+      "topic": "Modern Databases",
+      "concept": "OLTP vs OLAP and data warehouses",
+      "difficulty": "medium",
+      "questions": [
+        "What is the difference between OLTP and OLAP?",
+        "What is a star schema?"
+      ],
+      "keyPoints": [
+        "OLTP (online transaction processing): many small, fast read/write transactions on current data (orders, payments); normalized schema; row-oriented storage",
+        "OLAP (online analytical processing): complex read-heavy queries aggregating large amounts of historical data (reports, dashboards)",
+        "OLAP data usually lives in a data warehouse, loaded from OLTP systems via ETL/ELT",
+        "Star schema: a central fact table (measurable events, e.g. sales) with foreign keys to denormalized dimension tables (date, product, store)",
+        "Snowflake schema normalizes the dimensions further",
+        "Columnar storage suits OLAP because queries read a few columns across many rows"
+      ],
+      "referenceAnswer": "OLTP systems run the business day to day: lots of small, fast transactions like placing an order or updating a balance, on current data, with a normalized schema to keep writes consistent. OLAP systems are for analysis: fewer but much heavier queries that scan and aggregate years of history, like total sales per region per quarter. Running those on the production database would slow it down, so data is copied through ETL into a separate data warehouse designed for reading. There the typical design is a star schema: a central fact table of events, like each sale with its amount, surrounded by dimension tables for date, product, customer and store. Warehouses often use columnar storage, since analytical queries read a few columns across millions of rows.",
+      "commonMistakes": [
+        "Saying OLAP systems should be highly normalized",
+        "Confusing fact tables with dimension tables"
+      ],
+      "followUps": ["dbms-denormalization", "dbms-partitioning"]
+    },
+    {
+      "id": "dbms-n-plus-one",
+      "topic": "Performance",
+      "concept": "The N+1 query problem",
+      "difficulty": "medium",
+      "questions": [
+        "What is the N+1 query problem, and how do you fix it?"
+      ],
+      "keyPoints": [
+        "One query fetches a list of N parent records, then one additional query is run per record to fetch related data: N+1 queries",
+        "Common with ORMs and lazy loading, e.g. loading posts then each post's author inside a loop",
+        "Each query has network round-trip overhead, so it gets very slow as N grows",
+        "Fix with eager loading: a JOIN, or a single batched query with WHERE id IN (...)",
+        "ORM tools: Mongoose populate (batches into one $in query), Sequelize include, JPA JOIN FETCH, Django select_related/prefetch_related",
+        "Detect it by logging queries or using query-count monitoring"
+      ],
+      "referenceAnswer": "The N+1 problem is when code runs one query to get a list, then another query for each item in it. For example, fetch 100 blog posts, then loop over them and fetch each author separately: 101 queries, each paying a network round trip, when two would do. It usually sneaks in through ORMs with lazy loading, where post.author looks like a simple property access but hides a query. The fix is to load related data in bulk: either join the tables in one query, or collect all the author IDs and fetch them with a single WHERE id IN (...) query. Most ORMs have eager-loading options for this, like populate in Mongoose or include in Sequelize. You spot it by logging queries and noticing the same query repeated with different IDs.",
+      "commonMistakes": [
+        "Thinking more small queries are cheaper than one join",
+        "Not being able to name a fix"
+      ],
+      "followUps": ["dbms-query-optimization", "dbms-joins"]
+    },
+    {
+      "id": "dbms-connection-pooling",
+      "topic": "Performance",
+      "concept": "Connection pooling",
+      "difficulty": "medium",
+      "questions": [
+        "What is database connection pooling and why is it needed?"
+      ],
+      "keyPoints": [
+        "Opening a database connection is expensive: TCP handshake, authentication, TLS, server-side memory per connection",
+        "A connection pool keeps a set of open connections that requests borrow and return",
+        "Removes connection setup cost from every request, so latency drops",
+        "Caps the number of connections so the database isn't overwhelmed",
+        "Settings: minimum/maximum pool size, idle timeout, wait timeout when all connections are busy",
+        "Most drivers/ORMs pool by default (e.g. the MongoDB driver used by Mongoose, pg Pool)"
+      ],
+      "referenceAnswer": "Creating a database connection is surprisingly expensive: a TCP handshake, often TLS, authentication, and the database allocating memory for a session. Doing that for every web request would add a lot of latency and could overwhelm the database under load. A connection pool opens a set of connections once and keeps them alive. Each request borrows a connection, uses it and returns it to the pool. That removes setup cost from the request path and also limits the total number of connections, which protects the database. If all connections are busy, new requests wait for one to free up, up to a timeout. Most drivers do this by default. The MongoDB driver under Mongoose, for instance, keeps a pool, which is why you connect once at startup rather than per request.",
+      "commonMistakes": [
+        "Opening a new connection per request",
+        "Thinking a bigger pool is always better (the database has limits)"
+      ],
+      "followUps": ["dbms-n-plus-one", "dbms-query-optimization"]
+    },
+    {
+      "id": "dbms-generalization-specialization",
+      "topic": "ER Model",
+      "concept": "Generalization, specialization and inheritance mapping",
+      "difficulty": "medium",
+      "questions": [
+        "What are generalization and specialization in an ER model?",
+        "How would you map an Employee superclass with Engineer and Manager subclasses into tables?"
+      ],
+      "keyPoints": [
+        "Specialization (top-down): defining subclasses of an entity with extra attributes (Employee to Engineer, Manager)",
+        "Generalization (bottom-up): combining entities with common attributes into a superclass (Car, Bike to Vehicle)",
+        "Subclasses inherit the superclass's attributes and relationships",
+        "Constraints: disjoint vs overlapping; total vs partial participation",
+        "Mapping options: single table with a type column (simple, many NULLs); a table per subclass sharing the primary key of the superclass table (normalized, needs joins); a table per concrete class (no joins, duplicated columns)"
+      ],
+      "referenceAnswer": "Specialization works top-down: you start from a general entity like Employee and define subtypes, like Engineer with a programming language and Manager with a budget. Generalization is the bottom-up version: you notice Car and Bike share attributes and pull them into a Vehicle superclass. Subtypes inherit the parent's attributes, and you specify whether an entity can belong to several subtypes (overlapping) or just one (disjoint), and whether every entity must belong to some subtype. To map it to tables there are three common options. One table for everything, with a type column, is simple but leaves many NULL columns. One table for Employee plus one per subtype, sharing the primary key, is clean and normalized but needs joins. Or one table per concrete subtype repeating the common columns, which avoids joins but duplicates structure.",
+      "commonMistakes": [
+        "Mixing up which direction is generalization and which is specialization",
+        "Not knowing any mapping strategy"
+      ],
+      "followUps": ["dbms-er-model", "dbms-relationship-cardinality"]
+    },
+    {
+      "id": "dbms-partitioning",
+      "topic": "Modern Databases",
+      "concept": "Table partitioning",
+      "difficulty": "medium",
+      "questions": [
+        "What is table partitioning? What is the difference between horizontal and vertical partitioning?",
+        "How is partitioning different from sharding?"
+      ],
+      "keyPoints": [
+        "Partitioning splits one large table into smaller pieces that are managed separately",
+        "Horizontal partitioning: split rows (by range, e.g. per month; by list; or by hash)",
+        "Vertical partitioning: split columns, e.g. moving rarely used or large columns into another table",
+        "Partition pruning: queries only scan the relevant partitions, e.g. only this month's",
+        "Makes maintenance easier: drop an old partition instead of deleting millions of rows",
+        "Sharding is horizontal partitioning across different servers; plain partitioning usually stays within one database server"
+      ],
+      "referenceAnswer": "Partitioning splits a huge table into smaller pieces while it still looks like one table to queries. Horizontal partitioning divides the rows, for example an orders table split by month, or by a hash of the customer ID. Vertical partitioning divides the columns, for example moving big or rarely used columns like a profile description into a separate table so the main table stays compact. The big benefit is partition pruning: a query for last week's orders only touches that partition instead of scanning years of data. Maintenance also gets easier, since archiving old data means dropping a partition instead of running a massive DELETE. Sharding is essentially horizontal partitioning taken across multiple servers, while ordinary partitioning keeps all the pieces inside one database server.",
+      "commonMistakes": [
+        "Swapping horizontal and vertical partitioning",
+        "Treating partitioning and sharding as identical"
+      ],
+      "followUps": ["dbms-sharding-replication", "dbms-oltp-olap"]
+    }
+  ]
+}
