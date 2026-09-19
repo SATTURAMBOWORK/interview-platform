@@ -98,7 +98,10 @@ function runCppWithTestCases(code, testCases) {
 
         const tc = testCases[index];
 
-        const run = spawn(exeFile);
+        // SECURITY: run the untrusted binary with an EMPTY environment so it
+        // cannot read server secrets (JWT_SECRET, MONGO_URI, GROQ_API_KEY, ...)
+        // via getenv(). A standalone compiled C++ program needs no env vars.
+        const run = spawn(exeFile, [], { env: {} });
 
         let stdout = "";
         let stderr = "";

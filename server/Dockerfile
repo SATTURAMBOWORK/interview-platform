@@ -11,6 +11,11 @@ RUN npm ci --omit=dev
 
 COPY . .
 
+# SECURITY: drop root. The node:* images ship a non-root `node` user.
+# chown so the app can still create/write its temp dir at runtime.
+RUN chown -R node:node /app
+USER node
+
 ENV NODE_ENV=production
 EXPOSE 5000
 
