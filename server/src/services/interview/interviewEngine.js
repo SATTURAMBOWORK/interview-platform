@@ -71,9 +71,15 @@ const nextDifficulty = (current, score) => {
 /**
  * The knowledge-base concept to open an interview with, or null if the subject has none.
  * avoidTopics: opening topics from the user's recent interviews, for variety.
+ * hints: { avoidIds, focusIds } from the user's concept mastery.
  */
-const pickOpeningConcept = (subjectName, avoidTopics = []) => {
-  const entry = kb.pickEntry(kb.forSubject(subjectName), { difficulty: "medium", excludeTopics: avoidTopics });
+const pickOpeningConcept = (subjectName, avoidTopics = [], hints = {}) => {
+  const entry = kb.pickEntry(kb.forSubject(subjectName), {
+    difficulty: "medium",
+    excludeTopics: avoidTopics,
+    avoidIds: hints.avoidIds,
+    focusIds: hints.focusIds,
+  });
   return entry && { entry, seed: kb.seedQuestion(entry) };
 };
 
@@ -95,7 +101,9 @@ Reply ONLY with JSON: {"question": "<greeting + question>"}`,
           },
           { role: "user", content: "Hi, I'm ready." },
         ],
-        { temperature: 0.9 }
+        // Short budget: the seed question below is a fine fallback, so don't
+        // keep the candidate waiting out a rate limit
+        { temperature: 0.9, budgetMs: 10000 }
       );
       const question = cleanQuestion(out.question);
       if (question) return { question, topic: opening.entry.topic };
@@ -139,8 +147,10 @@ Reply ONLY with JSON: {"topic": "<short topic name>", "question": "<greeting + q
  *   { kind: "kb", entry, seed }  move to this concept
  *   { kind: "probe" }            dig into a gap in the current concept
  *   { kind: "free" }             no concept left: the model chooses
+ *
+ * hints: { avoidIds, focusIds } from the user's concept mastery.
  */
-const planBranches = (subjectName, turns, difficulty) => {
+const planBranches = (subjectName, turns, difficulty, hints = {}) => {
   const bank = kb.forSubject(subjectName);
   if (!bank) return null;
 
@@ -154,7 +164,16 @@ const planBranches = (subjectName, turns, difficulty) => {
   const mustSwitch = streak >= MAX_TURNS_PER_TOPIC;
 
   const toBranch = (entry) => (entry ? { kind: "kb", entry, seed: kb.seedQuestion(entry) } : { kind: "free" });
-  const pick = (opts) => toBranch(kb.pickEntry(bank, { askedIds, excludeTopics: coveredTopics, ...opts }));
+  const pick = (opts) =>
+    toBranch(
+      kb.pickEntry(bank, {
+        askedIds,
+        excludeTopics: coveredTopics,
+        avoidIds: hints.avoidIds,
+        focusIds: hints.focusIds,
+        ...opts,
+      })
+    );
   const followUps = mustSwitch ? [] : currentEntry?.followUps || [];
   // After a strong answer, a follow-up must not step back to easier material
   const rank = (d) => DIFFICULTIES.indexOf(d);
@@ -208,8 +227,18 @@ Grade against the key points the question actually asks about. A question can ta
  * Grade the answer to the current (last) turn and, unless isFinal, ask the next question.
  * rubric: knowledge-base entry for the current question, if it came from one.
  * branches: from planBranches, or null to let the model choose the next question.
+ * llm: provider options (evals pin a model and allow a longer budget).
  */
-const evaluateAndContinue = async ({ subjectName, difficulty, turns, answer, isFinal, rubric = null, branches = null }) => {
+const evaluateAndContinue = async ({
+  subjectName,
+  difficulty,
+  turns,
+  answer,
+  isFinal,
+  rubric = null,
+  branches = null,
+  llm = {},
+}) => {
   const current = turns[turns.length - 1];
   const previous = turns.slice(0, -1);
   const recent = previous.slice(-HISTORY_WINDOW);
@@ -266,7 +295,7 @@ Reply ONLY with JSON: {"score": <0-10>, "covered": ["<concept they got right>"],
     { role: "user", content: `${transcript}\n\nRespond with the JSON object only.` },
   ];
 
-  return parseTurn(await getProvider().completeJSON(messages), isFinal);
+  return parseTurn(await getProvider().completeJSON(messages, llm), isFinal);
 };
 
 /**

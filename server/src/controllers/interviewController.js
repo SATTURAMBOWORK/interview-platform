@@ -3,10 +3,26 @@ const InterviewSession = require("../models/InterviewSession");
 const Subject = require("../models/Subject");
 const engine = require("../services/interview/interviewEngine");
 const kb = require("../services/interview/knowledgeBase");
+const mastery = require("../services/interview/mastery");
 
 const MAX_ANSWER_CHARS = 4000;
 const STALE_LOCK_MS = 60 * 1000; // a lock older than this was left by a crashed request
 const AI_UNAVAILABLE = "The interviewer is having trouble responding. Please try again in a moment.";
+
+/**
+ * 503 for an AI failure. When the models are rate-limited, say how long to wait.
+ */
+const aiUnavailable = (res, error) => {
+  if (error.code === "RATE_LIMITED" && Number.isFinite(error.retryAfterMs)) {
+    const seconds = Math.max(1, Math.ceil(error.retryAfterMs / 1000));
+    res.set("Retry-After", String(seconds));
+    return res.status(503).json({
+      message: `The interviewer is busy right now. Please try again in ${seconds} second${seconds === 1 ? "" : "s"}.`,
+      retryAfter: seconds,
+    });
+  }
+  return res.status(503).json({ message: AI_UNAVAILABLE });
+};
 
 const isAnswered = (t) => typeof t.evaluation?.score === "number";
 
@@ -98,6 +114,23 @@ const lockFailure = async (id, userId, res) => {
   return res.status(409).json({ message: "Still processing your previous answer" });
 };
 
+// A strong answer to a hard question says more than one to an easy question
+const DIFFICULTY_WEIGHT = { easy: 1, medium: 1.5, hard: 2 };
+
+/**
+ * Overall 0-100 score: the difficulty-weighted mean of the answered turns.
+ */
+const weightedScore = (turns) => {
+  let total = 0;
+  let weights = 0;
+  for (const t of turns) {
+    const w = DIFFICULTY_WEIGHT[t.difficulty] || 1;
+    total += t.evaluation.score * w;
+    weights += w;
+  }
+  return Math.round((total / weights) * 10);
+};
+
 /**
  * Score answered turns and write the final report. Mutates, does not save.
  */
@@ -109,8 +142,7 @@ const finalize = async (session) => {
     return;
   }
 
-  const scores = session.turns.map((t) => t.evaluation.score);
-  const overallScore = Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10);
+  const overallScore = weightedScore(session.turns);
 
   const byTopic = {};
   for (const t of session.turns) {
@@ -163,13 +195,14 @@ exports.startInterview = async (req, res) => {
       .lean();
     const avoidTopics = recent.map((s) => s.turns?.[0]?.topic).filter(Boolean);
 
-    const concept = engine.pickOpeningConcept(subject.name, avoidTopics);
+    const hints = await mastery.planningHints(req.user._id, subject._id);
+    const concept = engine.pickOpeningConcept(subject.name, avoidTopics, hints);
     let opening;
     try {
       opening = await engine.generateOpeningQuestion(subject.name, avoidTopics, concept);
     } catch (error) {
       console.error("INTERVIEW START AI ERROR:", error.message);
-      return res.status(503).json({ message: AI_UNAVAILABLE });
+      return aiUnavailable(res, error);
     }
 
     // One live interview per user
@@ -181,6 +214,8 @@ exports.startInterview = async (req, res) => {
     const session = await InterviewSession.create({
       user: req.user._id,
       subject: subject._id,
+      avoidConceptIds: hints.avoidIds,
+      focusConceptIds: hints.focusIds,
       turns: [
         concept
           ? {
@@ -222,7 +257,12 @@ exports.submitAnswer = async (req, res) => {
     const current = session.turns[session.turns.length - 1];
     const isFinal = session.turns.length >= session.questionLimit;
     const subjectName = session.subject.name;
-    const branches = isFinal ? null : engine.planBranches(subjectName, session.turns, session.difficulty);
+    const branches = isFinal
+      ? null
+      : engine.planBranches(subjectName, session.turns, session.difficulty, {
+          avoidIds: session.avoidConceptIds,
+          focusIds: session.focusConceptIds,
+        });
 
     let result;
     try {
@@ -237,7 +277,7 @@ exports.submitAnswer = async (req, res) => {
       });
     } catch (error) {
       console.error("INTERVIEW TURN AI ERROR:", error.message);
-      return res.status(503).json({ message: AI_UNAVAILABLE });
+      return aiUnavailable(res, error);
     }
 
     current.answer = answer;
@@ -252,6 +292,12 @@ exports.submitAnswer = async (req, res) => {
     }
 
     await session.save();
+
+    // Progress tracking must never cost the candidate their answer
+    await mastery
+      .recordAnswer(req.user._id, session.subject._id, current)
+      .catch((error) => console.error("CONCEPT MASTERY ERROR:", error.message));
+
     res.json(serialize(session));
   } catch (error) {
     console.error("SUBMIT ANSWER ERROR:", error);
@@ -299,6 +345,24 @@ exports.getInterview = async (req, res) => {
   } catch (error) {
     console.error("GET INTERVIEW ERROR:", error);
     res.status(500).json({ message: "Failed to fetch interview" });
+  }
+};
+
+/**
+ * GET /api/interview/mastery — concept progress per subject that has a knowledge base
+ */
+exports.getMastery = async (req, res) => {
+  try {
+    const subjects = await Subject.find().select("name").lean();
+    const totals = {};
+    for (const s of subjects) {
+      const bank = kb.forSubject(s.name);
+      if (bank) totals[String(s._id)] = bank.entries.length;
+    }
+    res.json(await mastery.summarize(req.user._id, totals));
+  } catch (error) {
+    console.error("INTERVIEW MASTERY ERROR:", error);
+    res.status(500).json({ message: "Failed to fetch progress" });
   }
 };
 

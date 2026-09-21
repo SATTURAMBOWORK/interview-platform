@@ -7,7 +7,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "migrate:username": "node src/seeds/migrateUsersToUsername.js",
-    "check:users": "node src/seeds/checkUsers.js"
+    "check:users": "node src/seeds/checkUsers.js",
+    "eval:grading": "node src/evals/gradingEval.js"
   },
   "keywords": [],
   "author": "",

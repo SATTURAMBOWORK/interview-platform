@@ -8,6 +8,8 @@ import api from "../../api/axios";
 import usePageTitle from "../../hooks/usePageTitle";
 
 const MAX_ANSWER_CHARS = 4000;
+const MAX_AUTO_RETRIES = 2;
+const MAX_AUTO_RETRY_WAIT_S = 30;
 
 const scoreColor = (score, max = 100) => {
   const pct = (score / max) * 100;
@@ -87,6 +89,7 @@ const InterviewReport = ({ session }) => {
             {report.overallScore}
             <span className="text-xl text-white/30">/100</span>
           </div>
+          <div className="mt-1 text-[11px] text-white/35">Harder questions count more</div>
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "var(--font-header)" }}>
@@ -233,6 +236,7 @@ function InterviewRoom() {
   const [sending, setSending] = useState(false);
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState("");
+  const [waitNotice, setWaitNotice] = useState("");
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -268,8 +272,21 @@ function InterviewRoom() {
     setPendingAnswer(text);
     setDraft("");
     try {
-      const { data } = await api.post(`/interview/${id}/answer`, { answer: text });
-      setSession(data);
+      // A busy interviewer (rate-limited AI) says how long to wait: wait it out
+      // a couple of times behind the typing indicator instead of erroring.
+      for (let attempt = 0; ; attempt++) {
+        try {
+          const { data } = await api.post(`/interview/${id}/answer`, { answer: text });
+          setSession(data);
+          break;
+        } catch (err) {
+          const wait = err.response?.status === 503 ? err.response.data?.retryAfter : null;
+          if (!wait || wait > MAX_AUTO_RETRY_WAIT_S || attempt >= MAX_AUTO_RETRIES) throw err;
+          setWaitNotice("The interviewer is taking a moment…");
+          await new Promise((resolve) => setTimeout(resolve, wait * 1000));
+          setWaitNotice("");
+        }
+      }
     } catch (err) {
       setDraft(text); // keep their answer so they can resend it
       setError(err.response?.data?.message || "Couldn't send your answer. Please try again.");
@@ -379,7 +396,7 @@ function InterviewRoom() {
         <AnimatePresence>
           {pendingAnswer && <Bubble from="candidate">{pendingAnswer}</Bubble>}
           {sending && (
-            <TypingIndicator label={isLastQuestion ? "Wrapping up and preparing your report…" : ""} />
+            <TypingIndicator label={waitNotice || (isLastQuestion ? "Wrapping up and preparing your report…" : "")} />
           )}
         </AnimatePresence>
         <div ref={bottomRef} />

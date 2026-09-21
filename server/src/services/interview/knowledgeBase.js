@@ -42,23 +42,33 @@ const difficultyGap = (a, b) => Math.abs(DIFFICULTIES.indexOf(a) - DIFFICULTIES.
  * preferIds:     concepts to try first (followUps of the current concept)
  * excludeTopics: topics to stay away from (already covered, or recent openers)
  * askedIds:      concepts already asked in this interview
+ * avoidIds:      concepts the user has mastered or seen recently; used only as a last resort
+ * focusIds:      the user's weak concepts, tried before other fresh-topic concepts
  */
-const pickEntry = (kb, { difficulty, preferIds = [], excludeTopics = [], askedIds = [] }) => {
+const pickEntry = (kb, { difficulty, preferIds = [], excludeTopics = [], askedIds = [], avoidIds = [], focusIds = [] }) => {
   if (!kb) return null;
 
   const asked = new Set(askedIds);
+  const avoided = new Set(avoidIds);
+  const focus = new Set(focusIds);
   const excluded = new Set(excludeTopics.map((t) => t.toLowerCase()));
+  const sameLevel = (e) => e.difficulty === difficulty;
+
   const unasked = kb.entries.filter((e) => !asked.has(e.id));
-  const preferred = preferIds.map((id) => kb.byId.get(id)).filter((e) => e && !asked.has(e.id));
-  const freshTopic = unasked.filter((e) => !excluded.has(e.topic.toLowerCase()));
+  const unaskedNew = unasked.filter((e) => !avoided.has(e.id));
+  const preferred = preferIds.map((id) => kb.byId.get(id)).filter((e) => e && !asked.has(e.id) && !avoided.has(e.id));
+  const freshTopic = unaskedNew.filter((e) => !excluded.has(e.topic.toLowerCase()));
 
   const tiers = [
-    preferred.filter((e) => e.difficulty === difficulty),
+    preferred.filter(sameLevel),
     preferred,
-    freshTopic.filter((e) => e.difficulty === difficulty),
+    freshTopic.filter((e) => focus.has(e.id) && difficultyGap(e.difficulty, difficulty) <= 1),
+    freshTopic.filter(sameLevel),
     freshTopic.filter((e) => difficultyGap(e.difficulty, difficulty) === 1),
     freshTopic,
-    unasked.filter((e) => e.difficulty === difficulty),
+    unaskedNew.filter(sameLevel),
+    unaskedNew,
+    unasked.filter(sameLevel),
     unasked,
   ];
 

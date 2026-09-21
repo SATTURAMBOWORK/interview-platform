@@ -16,6 +16,7 @@ function InterviewLobby() {
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [history, setHistory] = useState([]);
+  const [progress, setProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const [startingId, setStartingId] = useState(null);
   const [error, setError] = useState("");
@@ -36,6 +37,14 @@ function InterviewLobby() {
       }
     };
     load();
+
+    // Progress is extra: the lobby works without it
+    api
+      .get("/interview/mastery")
+      .then(({ data }) => {
+        if (Array.isArray(data)) setProgress(Object.fromEntries(data.map((p) => [p.subjectId, p])));
+      })
+      .catch(() => {});
   }, []);
 
   const active = history.find((h) => h.status === "in_progress");
@@ -71,6 +80,7 @@ function InterviewLobby() {
         <p className="text-white/60 max-w-2xl text-sm sm:text-base">
           A live technical interview on a core subject. The interviewer adapts to your answers — digging deeper when
           you're strong, probing gaps when you're not. Like a real interview, you get no scores until it's over.
+          Across interviews it skips concepts you've mastered and brings back the ones you struggled with.
         </p>
       </div>
 
@@ -115,6 +125,7 @@ function InterviewLobby() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {subjects.map((subject, i) => {
               const starting = startingId === subject._id;
+              const p = progress[subject._id];
               return (
                 <motion.button
                   key={subject._id}
@@ -126,9 +137,22 @@ function InterviewLobby() {
                   onClick={() => startInterview(subject)}
                   className="group relative text-left rounded-2xl border border-white/10 bg-white/[0.03] p-5 hover:border-cyan-400/40 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <div className="text-lg font-bold tracking-tight mb-6" style={{ fontFamily: "var(--font-header)" }}>
+                  <div className="text-lg font-bold tracking-tight mb-4" style={{ fontFamily: "var(--font-header)" }}>
                     {subject.name}
                   </div>
+                  {p && (
+                    <div className="mb-5 space-y-2" title={p.weakest.length ? `Weakest: ${p.weakest.map((w) => w.concept).join(", ")}` : undefined}>
+                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden flex">
+                        <div className="bg-emerald-400" style={{ width: `${(p.mastered / p.total) * 100}%` }} />
+                        <div className="bg-cyan-400/60" style={{ width: `${((p.seen - p.mastered - p.weak) / p.total) * 100}%` }} />
+                        <div className="bg-rose-400/70" style={{ width: `${(p.weak / p.total) * 100}%` }} />
+                      </div>
+                      <div className="text-[11px] font-mono text-white/45">
+                        {p.seen}/{p.total} concepts · <span className="text-emerald-400/80">{p.mastered} mastered</span>
+                        {p.weak > 0 && <> · <span className="text-rose-400/80">{p.weak} to revisit</span></>}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.2em] text-cyan-400">
                     {starting ? (
                       <>

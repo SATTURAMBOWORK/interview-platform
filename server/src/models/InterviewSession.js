@@ -66,6 +66,11 @@ const interviewSessionSchema = new mongoose.Schema(
       default: [],
     },
 
+    // Concept-mastery snapshot taken at start: concepts to skip (mastered or
+    // seen recently) and weak concepts to revisit
+    avoidConceptIds: { type: [String], default: [] },
+    focusConceptIds: { type: [String], default: [] },
+
     // Guards against a double-submitted answer being processed twice
     processing: { type: Boolean, default: false },
     processingAt: { type: Date, default: null },
