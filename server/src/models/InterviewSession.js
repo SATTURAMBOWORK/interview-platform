@@ -11,6 +11,17 @@ const turnSchema = new mongoose.Schema(
     question: { type: String, required: true },
     answer: { type: String, default: null },
 
+    // Knowledge-base concept the question grades against (null when LLM-chosen)
+    conceptId: { type: String, default: null },
+    concept: { type: String, default: "" },
+    // kb: new concept from the knowledge base, probe: follow-up on the same
+    // concept, free: chosen by the model
+    kind: {
+      type: String,
+      enum: ["kb", "probe", "free"],
+      default: "free",
+    },
+
     // Hidden from the candidate until the interview is completed
     evaluation: {
       score: { type: Number, min: 0, max: 10 },

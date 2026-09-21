@@ -163,7 +163,7 @@ const InterviewReport = ({ session }) => {
                 <span className="flex-1 min-w-0">
                   <span className="block text-sm text-white/90">{t.question}</span>
                   <span className="block mt-1 text-[11px] font-mono uppercase tracking-wider text-white/35">
-                    {t.topic || "General"} · {t.difficulty}
+                    {t.concept || t.topic || "General"} · {t.difficulty}
                   </span>
                 </span>
               </summary>
@@ -186,6 +186,12 @@ const InterviewReport = ({ session }) => {
                     <ul className="list-disc pl-5 text-white/70 space-y-0.5">
                       {t.evaluation.missed.map((m, j) => <li key={j}>{m}</li>)}
                     </ul>
+                  </div>
+                )}
+                {t.referenceAnswer && (
+                  <div>
+                    <div className="text-[11px] font-mono uppercase tracking-wider text-sky-400/70 mb-1">Reference answer</div>
+                    <p className="text-white/70 leading-relaxed">{t.referenceAnswer}</p>
                   </div>
                 )}
               </div>

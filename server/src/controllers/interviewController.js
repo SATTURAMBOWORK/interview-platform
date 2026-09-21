@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const InterviewSession = require("../models/InterviewSession");
 const Subject = require("../models/Subject");
 const engine = require("../services/interview/interviewEngine");
+const kb = require("../services/interview/knowledgeBase");
 
 const MAX_ANSWER_CHARS = 4000;
 const STALE_LOCK_MS = 60 * 1000; // a lock older than this was left by a crashed request
@@ -9,12 +10,36 @@ const AI_UNAVAILABLE = "The interviewer is having trouble responding. Please try
 
 const isAnswered = (t) => typeof t.evaluation?.score === "number";
 
+const conceptFields = (entry) => ({ topic: entry.topic, conceptId: entry.id, concept: entry.concept });
+
+/**
+ * The turn to append for the branch the interviewer followed.
+ */
+const nextTurn = (plan, current, result, difficulty) => {
+  const question = result.nextQuestion;
+  if (plan?.kind === "kb") {
+    return { ...conceptFields(plan.entry), kind: "kb", difficulty: plan.entry.difficulty, question };
+  }
+  if (plan?.kind === "probe") {
+    return {
+      topic: current.topic,
+      conceptId: current.conceptId,
+      concept: current.concept,
+      kind: "probe",
+      difficulty: current.difficulty,
+      question,
+    };
+  }
+  return { topic: result.nextTopic, kind: "free", difficulty, question };
+};
+
 /**
  * Shape a session for the client. Evaluations stay hidden until the interview
  * is completed, like a real interview.
  */
 const serialize = (session) => {
   const done = session.status === "completed";
+  const bank = done ? kb.forSubject(session.subject?.name) : null;
   return {
     id: session._id,
     subject: session.subject?.name
@@ -25,7 +50,15 @@ const serialize = (session) => {
     answeredCount: session.turns.filter(isAnswered).length,
     turns: session.turns.map((t) =>
       done
-        ? { question: t.question, answer: t.answer, topic: t.topic, difficulty: t.difficulty, evaluation: t.evaluation }
+        ? {
+            question: t.question,
+            answer: t.answer,
+            topic: t.topic,
+            concept: t.concept,
+            difficulty: t.difficulty,
+            evaluation: t.evaluation,
+            referenceAnswer: kb.getEntry(bank, t.conceptId)?.referenceAnswer || null,
+          }
         : { question: t.question, answer: t.answer }
     ),
     report: done ? session.finalReport : null,
@@ -130,9 +163,10 @@ exports.startInterview = async (req, res) => {
       .lean();
     const avoidTopics = recent.map((s) => s.turns?.[0]?.topic).filter(Boolean);
 
+    const concept = engine.pickOpeningConcept(subject.name, avoidTopics);
     let opening;
     try {
-      opening = await engine.generateOpeningQuestion(subject.name, avoidTopics);
+      opening = await engine.generateOpeningQuestion(subject.name, avoidTopics, concept);
     } catch (error) {
       console.error("INTERVIEW START AI ERROR:", error.message);
       return res.status(503).json({ message: AI_UNAVAILABLE });
@@ -147,7 +181,16 @@ exports.startInterview = async (req, res) => {
     const session = await InterviewSession.create({
       user: req.user._id,
       subject: subject._id,
-      turns: [{ topic: opening.topic, difficulty: "medium", question: opening.question }],
+      turns: [
+        concept
+          ? {
+              ...conceptFields(concept.entry),
+              kind: "kb",
+              difficulty: concept.entry.difficulty,
+              question: opening.question,
+            }
+          : { topic: opening.topic, difficulty: "medium", question: opening.question },
+      ],
     });
     session.subject = subject;
 
@@ -178,15 +221,19 @@ exports.submitAnswer = async (req, res) => {
 
     const current = session.turns[session.turns.length - 1];
     const isFinal = session.turns.length >= session.questionLimit;
+    const subjectName = session.subject.name;
+    const branches = isFinal ? null : engine.planBranches(subjectName, session.turns, session.difficulty);
 
     let result;
     try {
       result = await engine.evaluateAndContinue({
-        subjectName: session.subject.name,
+        subjectName,
         difficulty: session.difficulty,
         turns: session.turns,
         answer,
         isFinal,
+        rubric: kb.getEntry(kb.forSubject(subjectName), current.conceptId),
+        branches,
       });
     } catch (error) {
       console.error("INTERVIEW TURN AI ERROR:", error.message);
@@ -201,11 +248,7 @@ exports.submitAnswer = async (req, res) => {
     if (isFinal) {
       await finalize(session);
     } else {
-      session.turns.push({
-        topic: result.nextTopic,
-        difficulty: session.difficulty,
-        question: result.nextQuestion,
-      });
+      session.turns.push(nextTurn(branches?.[result.branch], current, result, session.difficulty));
     }
 
     await session.save();
