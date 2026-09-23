@@ -62,6 +62,8 @@ function runCppWithTestCases(code, testCases) {
     fs.writeFileSync(cppFile, finalCode);
 
     // 1️⃣ Compile (ABSOLUTE PATH, no shell)
+    // Keep these flags in sync with the precompiled header built in the
+    // Dockerfile: g++ silently ignores the .gch if they differ.
     // On Linux, detached makes g++ a process-group leader so the timeout can
     // kill its whole group (g++ hands the real work to cc1plus and ld).
     const compile = spawn(GPP_PATH, [cppFile, "-o", exeFile], { detached: !IS_WINDOWS });
