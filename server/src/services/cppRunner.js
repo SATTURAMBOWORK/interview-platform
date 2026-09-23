@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const { spawn } = require("child_process");
 const crypto = require("crypto");
-const { execSync } = require("child_process");
 
 // Try to detect g++ path automatically
 let GPP_PATH = "g++"; // Default to system PATH
@@ -22,6 +21,10 @@ for (const gppPath of commonPaths) {
 }
 
 const TEMP_DIR = path.join(__dirname, "..", "temp");
+
+// Heavy template code can keep g++ busy for minutes; give up after this long.
+const COMPILE_TIMEOUT_MS = 20000;
+const IS_WINDOWS = process.platform === "win32";
 
 if (!fs.existsSync(TEMP_DIR)) {
   fs.mkdirSync(TEMP_DIR);
@@ -59,15 +62,36 @@ function runCppWithTestCases(code, testCases) {
     fs.writeFileSync(cppFile, finalCode);
 
     // 1️⃣ Compile (ABSOLUTE PATH, no shell)
-    const compile = spawn(GPP_PATH, [cppFile, "-o", exeFile]);
+    // On Linux, detached makes g++ a process-group leader so the timeout can
+    // kill its whole group (g++ hands the real work to cc1plus and ld).
+    const compile = spawn(GPP_PATH, [cppFile, "-o", exeFile], { detached: !IS_WINDOWS });
 
     let compileError = "";
+    let compileDone = false;
+
+    const compileTimer = setTimeout(() => {
+      if (compileDone) return;
+      compileDone = true;
+      try {
+        if (IS_WINDOWS) compile.kill();
+        else process.kill(-compile.pid, "SIGKILL");
+      } catch {}
+      cleanup();
+      resolve({
+        success: false,
+        type: "compile",
+        error: `Compilation Time Limit Exceeded (${COMPILE_TIMEOUT_MS / 1000}s)`,
+      });
+    }, COMPILE_TIMEOUT_MS);
 
     compile.stderr.on("data", (d) => {
       compileError += d.toString();
     });
 
     compile.on("error", (err) => {
+      if (compileDone) return;
+      compileDone = true;
+      clearTimeout(compileTimer);
       cleanup();
       return resolve({
         success: false,
@@ -77,6 +101,10 @@ function runCppWithTestCases(code, testCases) {
     });
 
     compile.on("close", (code) => {
+      if (compileDone) return;
+      compileDone = true;
+      clearTimeout(compileTimer);
+
       if (code !== 0) {
         cleanup();
         return resolve({
