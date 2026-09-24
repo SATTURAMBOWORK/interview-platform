@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Attempt = require("../models/Attempt");
 const Mcq = require("../models/Mcq");
 const User = require("../models/User");
@@ -68,21 +69,32 @@ exports.startTest = async (req, res) => {
       return res.status(400).json({ message: "Subject ID is required" });
     }
 
-    // Fetch 50 questions: 20 easy, 20 medium, 10 hard
-    const easyMcqs = await Mcq.find({ subject: subjectId, difficulty: "easy" })
-      .select("question options correctOption subject difficulty")
-      .limit(20);
+    if (!mongoose.Types.ObjectId.isValid(subjectId)) {
+      return res.status(400).json({ message: "Invalid subject ID" });
+    }
+    const subject = new mongoose.Types.ObjectId(subjectId); // aggregate doesn't auto-cast
 
-    const mediumMcqs = await Mcq.find({ subject: subjectId, difficulty: "medium" })
-      .select("question options correctOption subject difficulty")
-      .limit(20);
+    // Fetch 50 random questions: 20 easy, 20 medium, 10 hard. $sample picks a
+    // different set each attempt; .find().limit() always returned the same first N.
+    const sample = (difficulty, size) =>
+      Mcq.aggregate([
+        { $match: { subject, difficulty } },
+        { $sample: { size } },
+        { $project: { question: 1, options: 1, correctOption: 1, subject: 1, difficulty: 1 } },
+      ]);
 
-    const hardMcqs = await Mcq.find({ subject: subjectId, difficulty: "hard" })
-      .select("question options correctOption subject difficulty")
-      .limit(10);
+    const [easyMcqs, mediumMcqs, hardMcqs] = await Promise.all([
+      sample("easy", 20),
+      sample("medium", 20),
+      sample("hard", 10),
+    ]);
 
-    // Combine and shuffle the questions
-    const mcqs = [...easyMcqs, ...mediumMcqs, ...hardMcqs].sort(() => Math.random() - 0.5);
+    // Fisher-Yates shuffle so difficulties are mixed (sort(random) is biased)
+    const mcqs = [...easyMcqs, ...mediumMcqs, ...hardMcqs];
+    for (let i = mcqs.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [mcqs[i], mcqs[j]] = [mcqs[j], mcqs[i]];
+    }
 
     if (mcqs.length === 0) {
       return res.status(404).json({ message: "No MCQs found for this subject" });
