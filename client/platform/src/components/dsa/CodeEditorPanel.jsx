@@ -76,8 +76,8 @@ const CodeEditorPanel = ({ problemId, problem, fontSize = 14 }) => {
 
         setOutput(formatted);
       }
-    } catch {
-      setOutput("Network / Server Error");
+    } catch (err) {
+      setOutput(err.response?.data?.message || "Network / Server Error");
     } finally {
       setLoading(false);
     }
@@ -127,8 +127,8 @@ const CodeEditorPanel = ({ problemId, problem, fontSize = 14 }) => {
           })
         );
       }
-    } catch {
-      setOutput("Network / Server Error");
+    } catch (err) {
+      setOutput(err.response?.data?.message || "Network / Server Error");
     } finally {
       setLoading(false);
     }

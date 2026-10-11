@@ -1,6 +1,23 @@
 const DsaProblem = require("../models/DsaProblem");
 const Submission = require("../models/Submission");
-const { runCppWithTestCases } = require("../services/cppRunner");
+const judgeQueue = require("../services/judgeQueue");
+
+/**
+ * Answer a judge-queue rejection (USER_BUSY / QUEUE_FULL / QUEUE_UNAVAILABLE).
+ * Returns false for any other error.
+ */
+const judgeBusy = (res, error) => {
+  if (error.code === "USER_BUSY") {
+    res.status(429).json({ success: false, message: error.message });
+    return true;
+  }
+  if (error.code === "QUEUE_FULL" || error.code === "QUEUE_UNAVAILABLE") {
+    res.set("Retry-After", "5");
+    res.status(503).json({ success: false, message: error.message });
+    return true;
+  }
+  return false;
+};
 
 /**
  * Utility: detect empty or untouched template code
@@ -167,7 +184,7 @@ exports.runCode = async (req, res) => {
     const driverCode = (problem.driverCode || "").trim();
     const codeToRun = driverCode ? `${code}\n\n${driverCode}` : code;
 
-    const execResult = await runCppWithTestCases(codeToRun, testCases);
+    const execResult = await judgeQueue.enqueue(req.user._id, codeToRun, testCases);
 
     if (!execResult.success) {
       return res.json({
@@ -203,6 +220,7 @@ exports.runCode = async (req, res) => {
       results,
     });
   } catch (err) {
+    if (judgeBusy(res, err)) return;
     console.error("RUN ERROR:", err);
     res.status(500).json({ success: false, message: "Run failed" });
   }
@@ -244,7 +262,7 @@ exports.submitCode = async (req, res) => {
     const driverCodeSubmit = (problem.driverCode || "").trim();
     const codeToSubmit = driverCodeSubmit ? `${code}\n\n${driverCodeSubmit}` : code;
 
-    const execResult = await runCppWithTestCases(codeToSubmit, allTestCases);
+    const execResult = await judgeQueue.enqueue(userId, codeToSubmit, allTestCases);
 
     // Compilation error
     if (!execResult.success) {
@@ -351,6 +369,7 @@ exports.submitCode = async (req, res) => {
       totalTestCases: allTestCases.length,
     });
   } catch (err) {
+    if (judgeBusy(res, err)) return;
     console.error("SUBMIT ERROR:", err);
     res.status(500).json({ success: false, message: "Submission failed" });
   }

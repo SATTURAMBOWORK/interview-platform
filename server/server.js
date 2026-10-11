@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 require("dotenv").config();
 const seedBehavioralQuestions = require("./src/seeds/seedBehavioralQuestions");
 const axios = require("axios");
+const judgeQueue = require("./src/services/judgeQueue");
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
@@ -63,7 +64,10 @@ mongoose
 
     // Warm up Ollama in background
     warmUpOllama();
-    
+
+    // Process the judge queue in this process unless a separate worker does it
+    if (process.env.JUDGE_WORKER !== "off") judgeQueue.startWorker();
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
