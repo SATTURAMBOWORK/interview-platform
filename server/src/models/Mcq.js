@@ -37,4 +37,7 @@ const mcqSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Picking a test's questions: a subject's MCQs at one difficulty
+mcqSchema.index({ subject: 1, difficulty: 1 });
+
 module.exports = mongoose.model("Mcq", mcqSchema);

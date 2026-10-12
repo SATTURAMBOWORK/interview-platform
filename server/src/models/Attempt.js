@@ -80,4 +80,7 @@ const attemptSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// A user's attempts, newest first (history, subject dashboard, leaderboard)
+attemptSchema.index({ user: 1, createdAt: -1 });
+
 module.exports = mongoose.model("Attempt", attemptSchema);

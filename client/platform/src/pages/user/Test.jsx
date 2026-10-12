@@ -16,6 +16,9 @@ function Test() {
   const [answers, setAnswers] = useState({});
   const [flagged, setFlagged] = useState(new Set());
   const [timeLeft, setTimeLeft] = useState(0);
+  // When the test ends, as a timestamp on this device's clock. The countdown is
+  // always derived from it, so a refresh or a throttled tab can't stretch the test.
+  const [deadline, setDeadline] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showConfirmSubmit, setShowConfirmSubmit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -64,9 +67,17 @@ function Test() {
       navigate(`/result/${attemptId}`, { replace: true });
     } catch (error) {
       console.error("Submit failed", error);
+      // The server enforces the deadline; a late attempt can't be retried
+      if (error.response?.data?.code === "TIME_UP") {
+        alert(error.response.data.message);
+        navigate(`/dashboard/subject/${subjectId}`, { replace: true });
+        return;
+      }
       autoSubmittedRef.current = false;
     }
   };
+
+  const secondsUntil = (time) => Math.max(Math.ceil((time - Date.now()) / 1000), 0);
 
   /* ===================== */
   /* START TEST            */
@@ -90,8 +101,9 @@ function Test() {
         const saved = sessionStorage.getItem(SESSION_KEY);
         if (saved) {
           try {
-            const { savedAttemptId, savedAnswers, savedTimeLeft, savedMcqs, savedCurrentIndex } =
+            const { savedAttemptId, savedAnswers, savedDeadline, savedMcqs, savedCurrentIndex } =
               JSON.parse(saved);
+            if (!savedDeadline) throw new Error("Saved test has no deadline");
             setAttemptId(savedAttemptId);
             attemptIdRef.current = savedAttemptId;
             setAnswers(savedAnswers);
@@ -99,8 +111,9 @@ function Test() {
             setMcqs(savedMcqs);
             mcqsRef.current = savedMcqs;
             setCurrentIndex(savedCurrentIndex || 0);
-            setTimeLeft(savedTimeLeft);
-            timeLeftRef.current = savedTimeLeft;
+            setDeadline(savedDeadline);
+            setTimeLeft(secondsUntil(savedDeadline));
+            timeLeftRef.current = secondsUntil(savedDeadline);
             setLoading(false);
             return; // ← continue from where we left off
           } catch { /* fall through to fresh start */ }
@@ -133,8 +146,12 @@ function Test() {
         const res = await api.post("/attempts/start", { subjectId });
         setMcqs(res.data.mcqs);
         setAttemptId(res.data.attemptId);
+        // Time remaining comes from the server's clock, not this device's
         const expiresAt = new Date(res.data.expiresAt).getTime();
-        const tl = Math.max(Math.floor((expiresAt - Date.now()) / 1000), 0);
+        const serverTime = new Date(res.data.serverTime).getTime();
+        const localDeadline = Date.now() + (expiresAt - serverTime);
+        const tl = secondsUntil(localDeadline);
+        setDeadline(localDeadline);
         setTimeLeft(tl);
         timeLeftRef.current = tl;
         setLoading(false);
@@ -160,7 +177,7 @@ function Test() {
       JSON.stringify({
         savedAttemptId: attemptId,
         savedAnswers: answers,
-        savedTimeLeft: timeLeft,
+        savedDeadline: deadline,
         savedMcqs: mcqs,
         savedCurrentIndex: currentIndex,
       })
@@ -175,7 +192,7 @@ function Test() {
       LOCAL_KEY,
       JSON.stringify({ pendingAttemptId: attemptId, pendingAnswers })
     );
-  }, [answers, timeLeft, currentIndex, attemptId, mcqs]);
+  }, [answers, deadline, currentIndex, attemptId, mcqs]);
 
   /* ===================== */
   /* BEFOREUNLOAD          */
@@ -227,19 +244,20 @@ function Test() {
   /* TIMER */
   /* ===================== */
   useEffect(() => {
-    if (timeLeft <= 0) {
-      if (attemptId && !autoSubmittedRef.current) {
-        handleSubmit(true);
-      }
-      return;
-    }
+    if (!deadline) return;
 
-    const interval = setInterval(() => {
-      setTimeLeft((t) => t - 1);
-    }, 1000);
+    const tick = () => setTimeLeft(secondsUntil(deadline));
+    tick();
+    const interval = setInterval(tick, 1000);
 
     return () => clearInterval(interval);
-  }, [timeLeft, attemptId]);
+  }, [deadline]);
+
+  // Runs every second (timeLeft changes), so handleSubmit sees the latest answers
+  useEffect(() => {
+    if (!attemptId || !deadline || autoSubmittedRef.current) return;
+    if (Date.now() >= deadline) handleSubmit(true);
+  }, [timeLeft, attemptId, deadline]);
 
   const formatTime = (s) =>
     `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;

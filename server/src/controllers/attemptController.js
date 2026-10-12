@@ -4,6 +4,20 @@ const Mcq = require("../models/Mcq");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
+const TEST_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+// The client auto-submits at the deadline, so allow for the request to arrive.
+// Generous because a free Render instance can take most of a minute to wake up.
+const SUBMIT_GRACE_MS = 60 * 1000;
+
+/**
+ * The timer is enforced here, not in the browser: answers that arrive after
+ * the attempt's deadline (plus the grace period) are not accepted.
+ */
+const isPastDeadline = (attempt) =>
+  Date.now() > new Date(attempt.expiresAt).getTime() + SUBMIT_GRACE_MS;
+
+const TIME_UP = { code: "TIME_UP", message: "Time is up. This attempt can no longer be submitted." };
+
 // Submit via sendBeacon (token comes in body — no Authorization header possible)
 exports.submitViaBeacon = async (req, res) => {
   try {
@@ -25,6 +39,7 @@ exports.submitViaBeacon = async (req, res) => {
     if (attempt.status === "completed") return res.status(200).json({ message: "Already submitted" });
 
     if (attempt.user.toString() !== userId) return res.status(403).json({ message: "Unauthorized" });
+    if (isPastDeadline(attempt)) return res.status(403).json(TIME_UP);
 
     const safeAnswers = Array.isArray(answers) ? answers : [];
     const mcqIds = safeAnswers.map((a) => a.mcq);
@@ -101,7 +116,7 @@ exports.startTest = async (req, res) => {
     }
 
     const startedAt = new Date();
-    const expiresAt = new Date(startedAt.getTime() + 30 * 60 * 1000); // 30 minutes
+    const expiresAt = new Date(startedAt.getTime() + TEST_DURATION_MS);
 
     const attempt = new Attempt({
       user: req.user.id,
@@ -123,6 +138,8 @@ exports.startTest = async (req, res) => {
       message: "Test started",
       attemptId: attempt._id,
       expiresAt,
+      // Lets the client count down the time remaining even if its clock is wrong
+      serverTime: startedAt,
       mcqs,
     });
   } catch (err) {
@@ -148,6 +165,10 @@ exports.submitAttempt = async (req, res) => {
 
     if (attempt.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    if (isPastDeadline(attempt)) {
+      return res.status(403).json(TIME_UP);
     }
 
     const mcqIds = answers.map((a) => a.mcq);
@@ -200,9 +221,7 @@ exports.submitAttempt = async (req, res) => {
 // Get user's attempts (existing)
 exports.getMyAttempts = async (req, res) => {
   try {
-    const attempts = await Attempt.find({
-      $or: [{ user: req.user.id }, { userId: req.user.id }],
-    })
+    const attempts = await Attempt.find({ user: req.user.id })
       .populate("subject", "name")
       .sort({ createdAt: -1 });
 
@@ -243,12 +262,7 @@ exports.getUserAttemptsBySubject = async (req, res) => {
   try {
     const { subjectId } = req.params;
 
-    const attempts = await Attempt.find({
-      $and: [
-        { $or: [{ user: req.user.id }, { userId: req.user.id }] },
-        { $or: [{ subject: subjectId }, { subjectId }] },
-      ],
-    }).sort({ createdAt: -1 });
+    const attempts = await Attempt.find({ user: req.user.id, subject: subjectId }).sort({ createdAt: -1 });
 
     const totalAttempts = attempts.length;
     const averageScore = attempts.length > 0 
