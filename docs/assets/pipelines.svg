@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="900" height="400" font-family="'Segoe UI', Ubuntu, Helvetica, Arial, sans-serif">
+  <style>
+    .bg { fill: #0b1416; }
+    .box { fill: #10201f; stroke: #1f3a37; stroke-width: 1.5; }
+    .t { fill: #e6f4f1; font-size: 14px; font-weight: 600; }
+    .s { fill: #7fa8a2; font-size: 11px; }
+    .lbl { fill: #2dd4bf; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+    .e { stroke: #1f3a37; stroke-width: 2; fill: none; }
+    .f { stroke: #2dd4bf; stroke-width: 2.2; fill: none; stroke-dasharray: 8 12; animation: d 1.3s linear infinite; }
+    .loop { stroke: #f59e0b; stroke-width: 2; fill: none; stroke-dasharray: 6 8; animation: d 1.6s linear infinite; }
+    .lt { fill: #f59e0b; font-size: 11px; }
+    @keyframes d { to { stroke-dashoffset: -20; } }
+    .p { animation: g 5s ease-in-out infinite; }
+    .p1 { animation-delay: 0s; } .p2 { animation-delay: 1.25s; } .p3 { animation-delay: 2.5s; } .p4 { animation-delay: 3.75s; }
+    @keyframes g { 0%,100% { stroke: #1f3a37; } 10%,22% { stroke: #2dd4bf; } }
+  </style>
+  <rect class="bg" width="900" height="400" rx="14"/>
+
+  <!-- ===== AI interview loop ===== -->
+  <text x="30" y="36" class="lbl">AI INTERVIEW LOOP</text>
+  <path class="e" d="M200 92 H240"/><path class="f" d="M200 92 H240"/>
+  <path class="e" d="M410 92 H450"/><path class="f" d="M410 92 H450"/>
+  <path class="e" d="M620 92 H660"/><path class="f" d="M620 92 H660"/>
+  <path class="loop" d="M765 122 V160 H115 V122"/>
+  <text x="440" y="176" class="lt" text-anchor="middle">next question adapts to your score · 7–10 harder · 4–6 probe · 0–3 simpler</text>
+
+  <rect class="box p p1" x="30" y="62" width="170" height="60" rx="9"/>
+  <text x="115" y="88" class="t" text-anchor="middle">Concept picker</text>
+  <text x="115" y="106" class="s" text-anchor="middle">248 curated concepts</text>
+  <rect class="box p p2" x="240" y="62" width="170" height="60" rx="9"/>
+  <text x="325" y="88" class="t" text-anchor="middle">Your answer</text>
+  <text x="325" y="106" class="s" text-anchor="middle">injection-safe prompt</text>
+  <rect class="box p p3" x="450" y="62" width="170" height="60" rx="9"/>
+  <text x="535" y="88" class="t" text-anchor="middle">Rubric grading</text>
+  <text x="535" y="106" class="s" text-anchor="middle">key points · mistakes</text>
+  <rect class="box p p4" x="660" y="62" width="210" height="60" rx="9"/>
+  <text x="765" y="88" class="t" text-anchor="middle">Concept mastery</text>
+  <text x="765" y="106" class="s" text-anchor="middle">weak → learning → mastered</text>
+
+  <!-- ===== Code judge ===== -->
+  <text x="30" y="226" class="lbl">C++ CODE JUDGE</text>
+  <path class="e" d="M180 282 H210"/><path class="f" d="M180 282 H210"/>
+  <path class="e" d="M360 282 H390"/><path class="f" d="M360 282 H390"/>
+  <path class="e" d="M540 282 H570"/><path class="f" d="M540 282 H570"/>
+  <path class="e" d="M720 282 H740"/><path class="f" d="M720 282 H740"/>
+
+  <rect class="box p p1" x="30"  y="252" width="150" height="60" rx="9"/>
+  <text x="105" y="278" class="t" text-anchor="middle">Monaco editor</text>
+  <text x="105" y="296" class="s" text-anchor="middle">submit code</text>
+  <rect class="box p p2" x="210" y="252" width="150" height="60" rx="9"/>
+  <text x="285" y="278" class="t" text-anchor="middle">BullMQ queue</text>
+  <text x="285" y="296" class="s" text-anchor="middle">Redis · 1 run per user</text>
+  <rect class="box p p3" x="390" y="252" width="150" height="60" rx="9"/>
+  <text x="465" y="278" class="t" text-anchor="middle">Merge driver</text>
+  <text x="465" y="296" class="s" text-anchor="middle">user code + harness</text>
+  <rect class="box p p4" x="570" y="252" width="150" height="60" rx="9"/>
+  <text x="645" y="278" class="t" text-anchor="middle">g++ in Docker</text>
+  <text x="645" y="296" class="s" text-anchor="middle">non-root · timeouts</text>
+  <rect class="box" x="740" y="252" width="130" height="60" rx="9" style="stroke:#2dd4bf"/>
+  <text x="805" y="278" class="t" text-anchor="middle">Verdict</text>
+  <text x="805" y="296" class="s" text-anchor="middle">hidden test cases</text>
+
+  <text x="450" y="352" class="s" text-anchor="middle">Precompiled &lt;bits/stdc++.h&gt; header · process-group kill on timeout · standalone judge worker process</text>
+</svg>
